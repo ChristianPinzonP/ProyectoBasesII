@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.example.proyecto.ExamenViewController" alignment="center" hgap="10" vgap="10">
+
+    <Label text="Gestión de Exámenes" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+    <TableView fx:id="tablaExamenes" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="3">
+        <columns>
+            <TableColumn text="ID" fx:id="colId"/>
+            <TableColumn text="Nombre" fx:id="colNombre"/>
+            <TableColumn text="Descripción" fx:id="colDescripcion"/>
+            <TableColumn text="Fecha Inicio" fx:id="colFechaInicio"/>
+            <TableColumn text="Fecha Fin" fx:id="colFechaFin"/>
+            <TableColumn text="Tiempo Límite" fx:id="colTiempoLimite"/>
+            <TableColumn text="ID Docente" fx:id="colIdDocente"/>
+        </columns>
+    </TableView>
+
+    <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    <TextField fx:id="txtNombre" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+    <Label text="Descripción:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+    <TextField fx:id="txtDescripcion" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+    <Label text="Fecha Inicio:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <DatePicker fx:id="dpFechaInicio" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+    <Label text="Fecha Fin:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+    <DatePicker fx:id="dpFechaFin" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+    <Label text="Tiempo Límite (min):" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+    <TextField fx:id="txtTiempoLimite" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+
+    <Label text="ID Docente:" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+    <TextField fx:id="txtIdDocente" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+
+    <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="8">
+        <Button text="Agregar" fx:id="btnAgregar" onAction="#agregarExamen"/>
+        <Button text="Editar Examen" onAction="#editarExamen"/>
+        <Button text="Eliminar" fx:id="btnEliminar" onAction="#eliminarExamen"/>
+    </HBox>
+    <TextField fx:id="txtBuscar" promptText="Buscar examen..." />
+
+
+</GridPane>

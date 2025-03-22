@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+
+<GridPane xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.example.proyecto.PreguntaViewController"
+          alignment="CENTER"
+          hgap="10" vgap="10">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Sección superior: título -->
+    <Label text="Crear Pregunta" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"
+           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-padding: 10px;"/>
+
+    <!-- Campo de texto para la pregunta -->
+    <Label text="Texto de la Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <TextArea fx:id="txtTexto" GridPane.columnIndex="1" GridPane.rowIndex="1" prefRowCount="3" wrapText="true"
+              style="-fx-font-size: 14px; -fx-pref-width: 350px;"/>
+
+    <!-- Tipo de Pregunta -->
+    <Label text="Tipo de Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    <ComboBox fx:id="cbTipoPregunta" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="250">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Opción Múltiple"/>
+                <String fx:value="Verdadero/Falso"/>
+                <String fx:value="Respuesta Corta"/>
+            </FXCollections>
+        </items>
+    </ComboBox>
+
+    <!-- Banco de Preguntas -->
+    <Label text="Banco de Preguntas ID:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+    <TextField fx:id="txtIdBanco" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+    <!-- Contenedor dinámico de opciones de respuesta -->
+    <Label text="Opciones de Respuesta:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <VBox fx:id="vboxOpciones" GridPane.columnIndex="1" GridPane.rowIndex="4" spacing="8"
+          style="-fx-padding: 10px; -fx-border-color: #cccccc; -fx-border-width: 1px;"/>
+
+    <!-- Botón para guardar nueva pregunta -->
+    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="5" alignment="CENTER">
+        <Button text="Guardar Pregunta" onAction="#agregarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
+    </HBox>
+
+    <!-- Tabla de preguntas -->
+    <Label text="Lista de Preguntas" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+    <TableView fx:id="tablaPreguntas" GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="2">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colTexto" text="Texto" prefWidth="200"/>
+            <TableColumn fx:id="colTipo" text="Tipo" prefWidth="100"/>
+            <TableColumn fx:id="colBanco" text="ID Banco" prefWidth="80"/>
+        </columns>
+    </TableView>
+
+    <!-- Botones para Editar, Guardar Cambios y Eliminar -->
+    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="8" alignment="CENTER">
+        <Button text="Editar Pregunta" onAction="#editarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
+        <Button text="Guardar Cambios" onAction="#guardarEdicion" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
+        <Button text="Eliminar Pregunta" onAction="#eliminarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
+    </HBox>
+
+</GridPane>
+
