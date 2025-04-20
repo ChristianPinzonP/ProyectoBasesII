@@ -17,15 +17,24 @@ public class PreguntaViewController {
     @FXML private TextField txtIdBanco;
     @FXML private VBox vboxOpciones;
     @FXML private TableView<Pregunta> tablaPreguntas;
-    @FXML private TableColumn<Pregunta, Integer> colId, colBanco;
+    @FXML private TableColumn<Pregunta, Integer> colId, colTema, colBanco;
     @FXML private TableColumn<Pregunta, String> colTexto, colTipo;
+    @FXML private ComboBox<String> cbTema; // nombre visible
 
     private TextField txtOpcion1, txtOpcion2, txtOpcion3, txtOpcion4;
     private CheckBox chkCorrecta1, chkCorrecta2, chkCorrecta3, chkCorrecta4;
     private TextField txtRespuestaCorta;
+    private List<Tema> listaTemas;
 
     @FXML
     public void initialize() {
+        listaTemas = TemaDAO.obtenerTemas();
+        ObservableList<String> nombresTemas = FXCollections.observableArrayList();
+        for (Tema tema : listaTemas) {
+            nombresTemas.add(tema.getNombre());
+        }
+        cbTema.setItems(nombresTemas);
+
         cbTipoPregunta.setItems(FXCollections.observableArrayList("Opción Múltiple", "Verdadero/Falso", "Respuesta Corta"));
         cbTipoPregunta.setOnAction(event -> actualizarOpcionesRespuesta());
 
@@ -33,6 +42,7 @@ public class PreguntaViewController {
         colTexto.setCellValueFactory(new PropertyValueFactory<>("texto"));
         colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         colBanco.setCellValueFactory(new PropertyValueFactory<>("idBanco"));
+        colTema.setCellValueFactory(new PropertyValueFactory<>("nombreTema"));
 
         cargarPreguntas();
         inicializarOpciones();
@@ -61,6 +71,7 @@ public class PreguntaViewController {
     public void agregarPregunta() {
         String textoPregunta = txtTexto.getText().trim();
         String tipoPregunta = cbTipoPregunta.getValue();
+        int idTema = Integer.parseInt(txtIdBanco.getText().trim());
         int idBanco;
 
         try {
@@ -93,7 +104,7 @@ public class PreguntaViewController {
 
         System.out.println("Número de opciones antes de enviar: " + opciones.size());
 
-        Pregunta nuevaPregunta = new Pregunta(0, textoPregunta, tipoPregunta, idBanco, opciones);
+        Pregunta nuevaPregunta = new Pregunta(0, textoPregunta, tipoPregunta, idBanco, idTema, opciones);
 
         if (PreguntaDAO.agregarPregunta(nuevaPregunta)) {
             mostrarAlerta("Éxito", "Pregunta agregada correctamente.", Alert.AlertType.INFORMATION);
@@ -176,6 +187,17 @@ public class PreguntaViewController {
         cbTipoPregunta.setValue(seleccionada.getTipo());
         txtIdBanco.setText(String.valueOf(seleccionada.getIdBanco()));
 
+        // Seleccionar el tema en el ComboBox por nombre
+        for (int i = 0; i < listaTemas.size(); i++) {
+            if (listaTemas.get(i).getId() == seleccionada.getIdTema()) {
+                cbTema.getSelectionModel().select(i);
+                break;
+            }
+        }
+
+        // Actualizar las opciones de respuesta según el tipo de pregunta
+        actualizarOpcionesRespuesta();
+
         // Limpiar opciones previas en la interfaz
         vboxOpciones.getChildren().clear();
 
@@ -188,7 +210,8 @@ public class PreguntaViewController {
                 CheckBox chkCorrecta = new CheckBox("Correcto");
                 chkCorrecta.setSelected(opcion.isCorrecta());
 
-                HBox filaOpcion = new HBox(10, txtOpcion, chkCorrecta);
+                VBox filaOpcion = new VBox(5);
+                filaOpcion.getChildren().addAll(txtOpcion, chkCorrecta);
                 vboxOpciones.getChildren().add(filaOpcion);
             }
         } else if (seleccionada.getTipo().equals("Verdadero/Falso")) {
@@ -198,12 +221,18 @@ public class PreguntaViewController {
                 CheckBox chkCorrecta = new CheckBox("Correcto");
                 chkCorrecta.setSelected(opcion.isCorrecta());
 
-                HBox filaOpcion = new HBox(10, txtOpcion, chkCorrecta);
+                VBox filaOpcion = new VBox(5);
+                filaOpcion.getChildren().addAll(txtOpcion, chkCorrecta);
                 vboxOpciones.getChildren().add(filaOpcion);
             }
         } else if (seleccionada.getTipo().equals("Respuesta Corta")) {
-            TextField txtRespuestaCorta = new TextField(opciones.get(0).getTexto());
-            vboxOpciones.getChildren().add(txtRespuestaCorta);
+            if (!opciones.isEmpty()) {
+                TextField txtRespuestaCorta = new TextField(opciones.get(0).getTexto());
+                vboxOpciones.getChildren().add(txtRespuestaCorta);
+            } else {
+                TextField txtRespuestaCorta = new TextField();
+                vboxOpciones.getChildren().add(txtRespuestaCorta);
+            }
         }
 
         System.out.println("Edición iniciada para la pregunta ID: " + seleccionada.getId());
@@ -249,7 +278,23 @@ public class PreguntaViewController {
 
         String nuevoTexto = txtTexto.getText().trim();
         String nuevoTipo = cbTipoPregunta.getValue();
+        int nuevoIdTema = Integer.parseInt(txtIdBanco.getText());
         int nuevoIdBanco;
+
+        try {
+            // Obtener el índice seleccionado en el ComboBox
+            int indiceSeleccionado = cbTema.getSelectionModel().getSelectedIndex();
+            if (indiceSeleccionado >= 0) {
+                // Obtener el ID del tema correspondiente al nombre seleccionado
+                nuevoIdTema = listaTemas.get(indiceSeleccionado).getId();
+            } else {
+                // Si no hay selección, mantener el tema actual
+                nuevoIdTema = seleccionada.getIdTema();
+            }
+        } catch (Exception e) {
+            mostrarAlerta("Error", "Error al obtener el tema seleccionado.", Alert.AlertType.WARNING);
+            return;
+        }
 
         try {
             nuevoIdBanco = Integer.parseInt(txtIdBanco.getText().trim());
@@ -266,37 +311,64 @@ public class PreguntaViewController {
         // Obtener las opciones de respuesta actualizadas
         List<OpcionRespuesta> nuevasOpciones = new ArrayList<>();
 
-        if (nuevoTipo.equals("Opción Múltiple")) {
-            for (javafx.scene.Node nodo : vboxOpciones.getChildren()) {
-                if (nodo instanceof HBox) {
-                    HBox fila = (HBox) nodo;
-                    TextField txtOpcion = (TextField) fila.getChildren().get(0);
-                    CheckBox chkCorrecta = (CheckBox) fila.getChildren().get(1);
+        try {
+            if (nuevoTipo.equals("Opción Múltiple")) {
+                // Recorrer los componentes del VBox que contiene las opciones
+                for (javafx.scene.Node nodo : vboxOpciones.getChildren()) {
+                    if (nodo instanceof VBox) { // Cambiado de HBox a VBox según tu implementación
+                        VBox fila = (VBox) nodo;
+                        if (fila.getChildren().size() >= 2) {
+                            TextField txtOpcion = (TextField) fila.getChildren().get(0);
+                            CheckBox chkCorrecta = (CheckBox) fila.getChildren().get(1);
 
-                    nuevasOpciones.add(new OpcionRespuesta(txtOpcion.getText().trim(), chkCorrecta.isSelected()));
+                            if (!txtOpcion.getText().trim().isEmpty()) {
+                                nuevasOpciones.add(new OpcionRespuesta(txtOpcion.getText().trim(), chkCorrecta.isSelected()));
+                            }
+                        }
+                    }
+                }
+            } else if (nuevoTipo.equals("Verdadero/Falso")) {
+                // Procesar las opciones para Verdadero/Falso
+                for (javafx.scene.Node nodo : vboxOpciones.getChildren()) {
+                    if (nodo instanceof VBox) {
+                        VBox fila = (VBox) nodo;
+                        if (fila.getChildren().size() >= 2) {
+                            TextField txtOpcion = (TextField) fila.getChildren().get(0);
+                            CheckBox chkCorrecta = (CheckBox) fila.getChildren().get(1);
+                            nuevasOpciones.add(new OpcionRespuesta(txtOpcion.getText(), chkCorrecta.isSelected()));
+                        }
+                    }
+                }
+            } else if (nuevoTipo.equals("Respuesta Corta")) {
+                // Para respuesta corta, solo hay un TextField
+                if (vboxOpciones.getChildren().size() > 0) {
+                    TextField txtRespuestaCorta = (TextField) vboxOpciones.getChildren().get(0);
+                    if (txtRespuestaCorta != null && !txtRespuestaCorta.getText().trim().isEmpty()) {
+                        nuevasOpciones.add(new OpcionRespuesta(txtRespuestaCorta.getText().trim(), true));
+                    }
                 }
             }
-        } else if (nuevoTipo.equals("Verdadero/Falso")) {
-            for (javafx.scene.Node nodo : vboxOpciones.getChildren()) {
-                if (nodo instanceof HBox) {
-                    HBox fila = (HBox) nodo;
-                    TextField txtOpcion = (TextField) fila.getChildren().get(0);
-                    CheckBox chkCorrecta = (CheckBox) fila.getChildren().get(1);
-
-                    nuevasOpciones.add(new OpcionRespuesta(txtOpcion.getText(), chkCorrecta.isSelected()));
-                }
-            }
-        } else if (nuevoTipo.equals("Respuesta Corta")) {
-            TextField txtRespuestaCorta = (TextField) vboxOpciones.getChildren().get(0);
-            nuevasOpciones.add(new OpcionRespuesta(txtRespuestaCorta.getText().trim(), true));
+        } catch (Exception e) {
+            System.out.println("Error al procesar opciones: " + e.getMessage());
+            e.printStackTrace();
+            mostrarAlerta("Error", "Error al procesar las opciones de respuesta.", Alert.AlertType.ERROR);
+            return;
         }
 
+        System.out.println("Actualizando pregunta ID: " + seleccionada.getId());
+        System.out.println("Nuevo texto: " + nuevoTexto);
+        System.out.println("Nuevo tipo: " + nuevoTipo);
+        System.out.println("Nuevo ID Banco: " + nuevoIdBanco);
+        System.out.println("Nuevo ID Tema: " + nuevoIdTema);
+        System.out.println("Nuevas opciones: " + nuevasOpciones.size());
+
         // Llamar a la base de datos para actualizar la pregunta
-        boolean exito = PreguntaDAO.actualizarPregunta(seleccionada.getId(), nuevoTexto, nuevoTipo, nuevoIdBanco, nuevasOpciones);
+        boolean exito = PreguntaDAO.actualizarPregunta(seleccionada.getId(), nuevoTexto, nuevoTipo, nuevoIdBanco, nuevoIdTema, nuevasOpciones);
 
         if (exito) {
             mostrarAlerta("Éxito", "Pregunta actualizada correctamente.", Alert.AlertType.INFORMATION);
             cargarPreguntas();
+            limpiarFormulario();
         } else {
             mostrarAlerta("Error", "No se pudo actualizar la pregunta.", Alert.AlertType.ERROR);
         }
@@ -333,4 +405,3 @@ public class PreguntaViewController {
         System.out.println("Preguntas cargadas en la tabla: " + listaPreguntas.size());
     }
 }
-

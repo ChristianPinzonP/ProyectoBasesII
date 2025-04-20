@@ -7,7 +7,7 @@ import java.util.List;
 public class PreguntaDAO {
 
     public static boolean agregarPregunta(Pregunta pregunta) {
-        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_BANCO) VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?)";
+        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_BANCO, ID_TEMA) VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, new String[]{"ID_PREGUNTA"})) {
@@ -15,6 +15,7 @@ public class PreguntaDAO {
             stmt.setString(1, pregunta.getTexto());
             stmt.setString(2, pregunta.getTipo());
             stmt.setInt(3, pregunta.getIdBanco());
+            stmt.setInt(4, pregunta.getIdTema());
 
             int filasInsertadas = stmt.executeUpdate();
 
@@ -103,7 +104,10 @@ public class PreguntaDAO {
 
     public static List<Pregunta> obtenerTodasLasPreguntas() {
         List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "SELECT ID_PREGUNTA, TEXTO, TIPO, ID_BANCO FROM PREGUNTA ORDER BY ID_PREGUNTA DESC";
+        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_BANCO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA " +
+                "FROM PREGUNTA p " +
+                "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
+                "ORDER BY p.ID_PREGUNTA DESC";
 
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -113,14 +117,17 @@ public class PreguntaDAO {
                 int idPregunta = rs.getInt("ID_PREGUNTA");
                 String texto = rs.getString("TEXTO");
                 String tipo = rs.getString("TIPO");
+                int idTema = rs.getInt("ID_TEMA");
                 int idBanco = rs.getInt("ID_BANCO");
+                String nombreTema = rs.getString("NOMBRE_TEMA");
 
                 List<OpcionRespuesta> opciones = obtenerOpcionesDePregunta(idPregunta);
 
-                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idBanco, opciones);
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idBanco, idTema, opciones);
+                pregunta.setNombreTema(nombreTema);
                 listaPreguntas.add(pregunta);
 
-                System.out.println("✅ Pregunta obtenida: ID=" + idPregunta + ", Texto=" + texto + ", Tipo=" + tipo + ", ID Banco=" + idBanco);
+                System.out.println("✅ Pregunta obtenida: ID=" + idPregunta + ", Texto=" + texto + ", Tipo=" + tipo + ", Tema=" + nombreTema+ ", ID Banco=" + idBanco);
                 System.out.println("✅ Opciones encontradas: " + opciones.size());
             }
 
@@ -131,8 +138,8 @@ public class PreguntaDAO {
         return listaPreguntas;
     }
 
-    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdBanco, List<OpcionRespuesta> nuevasOpciones) {
-        String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_BANCO = ? WHERE ID_PREGUNTA = ?";
+    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdBanco, int nuevoIdTema, List<OpcionRespuesta> nuevasOpciones) {
+        String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_BANCO = ?, ID_TEMA = ? WHERE ID_PREGUNTA = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -140,20 +147,33 @@ public class PreguntaDAO {
             stmt.setString(1, nuevoTexto);
             stmt.setString(2, nuevoTipo);
             stmt.setInt(3, nuevoIdBanco);
-            stmt.setInt(4, idPregunta);
+            stmt.setInt(4, nuevoIdTema);
+            stmt.setInt(5, idPregunta);
 
             int filasActualizadas = stmt.executeUpdate();
+            System.out.println("Filas actualizadas en tabla PREGUNTA: " + filasActualizadas);
 
             if (filasActualizadas > 0) {
-                eliminarOpcionesDePregunta(idPregunta);
-                agregarOpcionesRespuesta(idPregunta, nuevoTipo, nuevasOpciones);
-                return true;
+                // Primero eliminamos todas las opciones existentes
+                boolean opcionesEliminadas = eliminarOpcionesDePregunta(idPregunta);
+                System.out.println("Opciones eliminadas: " + opcionesEliminadas);
+
+                // Luego agregamos las nuevas opciones
+                boolean opcionesAgregadas = true;
+                if (nuevasOpciones != null && !nuevasOpciones.isEmpty()) {
+                    opcionesAgregadas = agregarOpcionesRespuesta(idPregunta, nuevoTipo, nuevasOpciones);
+                    System.out.println("Nuevas opciones agregadas: " + opcionesAgregadas);
+                }
+
+                return opcionesAgregadas;
             }
+            return false;
 
         } catch (SQLException e) {
+            System.out.println("❌ Error al actualizar la pregunta: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
 
@@ -195,5 +215,4 @@ public class PreguntaDAO {
 
 
 }
-
 

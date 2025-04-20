@@ -7,23 +7,27 @@ public class Pregunta {
     private int id;
     private String texto;
     private String tipo;
+    private String nombreTema;
     private int idBanco;
+    private int idTema;
+
     private List<OpcionRespuesta> opciones;
     // Constructor para Respuesta Corta (sin opciones)
-    public Pregunta(int id, String texto, String tipo, int idBanco) {
+    public Pregunta(int id, String texto, String tipo, int idBanco, int idTema) {
         this.id = id;
         this.texto = texto;
         this.tipo = tipo;
         this.idBanco = idBanco;
-        this.opciones = new ArrayList<>();
+        this.idTema = idTema;
     }
 
     // Constructor para Opción Múltiple y Verdadero/Falso (con opciones)
-    public Pregunta(int id, String texto, String tipo, int idBanco, List<OpcionRespuesta> opciones) {
+    public Pregunta(int id, String texto, String tipo, int idBanco, int idTema, List<OpcionRespuesta> opciones) {
         this.id = id;
         this.texto = texto;
         this.tipo = tipo;
         this.idBanco = idBanco;
+        this.idTema = idTema;
         this.opciones = opciones;
     }
 
@@ -37,8 +41,23 @@ public class Pregunta {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
+    public int getIdTema() {
+        return idTema;
+    }
+    public void setIdTema(int idTema) {this.idTema = idTema; }
+
     public int getIdBanco() { return idBanco; }
     public void setIdBanco(int idBanco) { this.idBanco = idBanco; }
+
+    // Método getter para el nombre del tema
+    public String getNombreTema() {
+        return nombreTema;
+    }
+
+    // Método setter para el nombre del tema
+    public void setNombreTema(String nombreTema) {
+        this.nombreTema = nombreTema;
+    }
 
     public List<OpcionRespuesta> getOpciones() { return opciones; }
     public void setOpciones(List<OpcionRespuesta> opciones) { this.opciones = opciones; }

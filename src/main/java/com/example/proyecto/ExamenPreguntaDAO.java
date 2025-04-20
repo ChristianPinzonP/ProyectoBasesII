@@ -60,6 +60,7 @@ public class ExamenPreguntaDAO {
                 String texto = rs.getString("texto");
                 String tipo = rs.getString("tipo");
                 int idBanco = rs.getInt("id_banco");
+                String nombreTema = rs.getString("inombreTema");
                 boolean publica = rs.getBoolean("publica");
 
                 // 🔥 Obtener las opciones de respuesta para la pregunta
@@ -70,7 +71,8 @@ public class ExamenPreguntaDAO {
                         rs.getInt("ID_PREGUNTA"),
                         rs.getString("TEXTO"),
                         rs.getString("TIPO"),
-                        rs.getInt("ID_BANCO")
+                        rs.getInt("ID_BANCO"),
+                        rs.getInt("ID_TEMA")
                 );
 
                 preguntas.add(pregunta);
