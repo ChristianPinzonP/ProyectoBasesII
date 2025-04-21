@@ -4,7 +4,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-    private static final String URL = "jdbc:oracle:thin:@localhost:1522/XEPDB1";
+    private static final String URL = "jdbc:oracle:thin:@localhost:1521/XEPDB1";
     private static final String USER = "root"; // Usuario según tu configuración en SQL Developer
     private static final String PASSWORD = "root"; // Reemplaza con la contraseña correcta
 

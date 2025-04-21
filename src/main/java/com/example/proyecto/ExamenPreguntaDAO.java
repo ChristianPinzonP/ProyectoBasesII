@@ -44,7 +44,7 @@ public class ExamenPreguntaDAO {
     //Metodo para obtener las preguntas del examen
     public static List<Pregunta> obtenerPreguntasDeExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
-        String sql = "SELECT p.id_pregunta, p.texto, p.tipo, p.id_banco, p.publica " +
+        String sql = "SELECT p.id_pregunta, p.texto, p.tipo, p.id_banco, p.id_tema " +
                 "FROM Pregunta p " +
                 "JOIN Examen_Pregunta ep ON p.id_pregunta = ep.id_pregunta " +
                 "WHERE ep.id_examen = ?";

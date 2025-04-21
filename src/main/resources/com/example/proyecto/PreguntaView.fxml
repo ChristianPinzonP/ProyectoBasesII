@@ -37,7 +37,7 @@
     <!-- ✅ Aquí antes había un HBox que no tenía índice de GridPane -->
     <!-- Se corrigió y ahora está como los demás controles -->
     <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-    <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="200"/>
+    <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="250"/>
 
     <Label text="Banco de Preguntas ID:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
     <TextField fx:id="txtIdBanco" GridPane.columnIndex="1" GridPane.rowIndex="4"/>

@@ -59,6 +59,11 @@ public class Pregunta {
         this.nombreTema = nombreTema;
     }
 
+    @Override
+    public String toString() {
+        return "[" + id + "] " + texto + " - Tema: " + nombreTema;
+    }
+
     public List<OpcionRespuesta> getOpciones() { return opciones; }
     public void setOpciones(List<OpcionRespuesta> opciones) { this.opciones = opciones; }
 }

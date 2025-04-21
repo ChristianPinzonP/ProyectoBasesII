@@ -214,5 +214,39 @@ public class PreguntaDAO {
     }
 
 
+    public static List<Pregunta> obtenerPreguntasPorTema(int idTema) {
+        List<Pregunta> listaPreguntas = new ArrayList<>();
+        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_BANCO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA " +
+                "FROM PREGUNTA p " +
+                "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
+                "WHERE p.ID_TEMA = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idTema);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int idPregunta = rs.getInt("ID_PREGUNTA");
+                String texto = rs.getString("TEXTO");
+                String tipo = rs.getString("TIPO");
+                int idBanco = rs.getInt("ID_BANCO");
+                String nombreTema = rs.getString("NOMBRE_TEMA");
+
+                List<OpcionRespuesta> opciones = obtenerOpcionesDePregunta(idPregunta);
+
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idBanco, idTema, opciones);
+                pregunta.setNombreTema(nombreTema);
+                listaPreguntas.add(pregunta);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listaPreguntas;
+    }
+
 }
 

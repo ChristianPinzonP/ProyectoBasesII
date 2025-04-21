@@ -62,7 +62,8 @@ public class ExamenDAO {
 
     //Metodo para editar los examenes
     public static boolean editarExamen(Examen examen) {
-        String sql = "UPDATE Examen SET nombre = ?, descripcion = ?, fecha_inicio = ?, fecha_fin = ?, tiempo_limite = ?, id_docente = ? WHERE id_examen = ?";
+        String sql = "UPDATE EXAMEN SET nombre = ?, descripcion = ?, fecha_inicio = ?, fecha_fin = ?, " +
+                "tiempo_limite = ?, id_docente = ?, id_tema = ? WHERE id_examen = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -73,9 +74,11 @@ public class ExamenDAO {
             stmt.setDate(4, examen.getFechaFin());
             stmt.setInt(5, examen.getTiempoLimite());
             stmt.setInt(6, examen.getIdDocente());
-            stmt.setInt(7, examen.getId()); // ID del examen a modificar
+            stmt.setInt(7, examen.getIdTema()); // ✅ actualizar tema también
+            stmt.setInt(8, examen.getId());     // ID del examen a modificar
 
             return stmt.executeUpdate() > 0;
+
         } catch (SQLException e) {
             System.out.println("❌ Error al actualizar el examen: " + e.getMessage());
             return false;
@@ -83,9 +86,11 @@ public class ExamenDAO {
     }
 
 
+
     // Método para insertar un nuevo examen
     public static boolean agregarExamen(Examen examen) {
-        String sql = "INSERT INTO EXAMEN (id_examen, nombre, descripcion, fecha_inicio, fecha_fin, tiempo_limite, id_docente) VALUES (SEQ_EXAMEN.NEXTVAL, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO EXAMEN (id_examen, nombre, descripcion, fecha_inicio, fecha_fin, tiempo_limite, id_docente, id_tema) " +
+                "VALUES (SEQ_EXAMEN.NEXTVAL, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -99,11 +104,12 @@ public class ExamenDAO {
             pstmt.setDate(4, examen.getFechaFin());
             pstmt.setInt(5, examen.getTiempoLimite());
             pstmt.setInt(6, examen.getIdDocente());
+            pstmt.setInt(7, examen.getIdTema()); // 👉 Aquí va el ID_TEMA
 
             int filasAfectadas = pstmt.executeUpdate();
 
             if (filasAfectadas > 0) {
-                conn.commit(); // 🔥 IMPORTANTE: Confirmar los cambios
+                conn.commit(); // 🔥 Confirmar los cambios
                 System.out.println("✅ Examen agregado correctamente.");
                 return true;
             } else {
@@ -111,6 +117,7 @@ public class ExamenDAO {
                 System.out.println("❌ No se pudo agregar el examen.");
                 return false;
             }
+
         } catch (SQLException e) {
             System.out.println("🚨 Error al agregar examen: " + e.getMessage());
             e.printStackTrace();

@@ -10,6 +10,7 @@ public class Examen {
     private Date fechaFin;
     private int tiempoLimite;
     private int idDocente; // Relación con la tabla Usuario (Docente)
+    private int idTema;
 
     public Examen(int id, String nombre, String descripcion, Date fechaInicio, Date fechaFin, int tiempoLimite, int idDocente) {
         this.id = id;
@@ -42,5 +43,9 @@ public class Examen {
 
     public int getIdDocente() { return idDocente; }
     public void setIdDocente(int idDocente) { this.idDocente = idDocente; }
+
+    public int getIdTema() { return idTema; }
+    public void setIdTema(int idTema) { this.idTema = idTema; }
+
 }
 

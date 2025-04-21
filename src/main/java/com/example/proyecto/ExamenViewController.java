@@ -33,6 +33,8 @@ public class ExamenViewController {
     @FXML private TextField txtTiempoLimite;
     @FXML private TextField txtIdDocente;
     @FXML private TextField txtBuscar;
+    @FXML private ComboBox<Tema> cbTema;
+    private List<Tema> listaTemas;
     private ObservableList<Examen> listaExamenes;
     private FilteredList<Examen> filtroExamenes;
 
@@ -59,6 +61,8 @@ public class ExamenViewController {
 
         // Cargar exámenes de la BD al abrir la vista
         cargarExamenes();
+        listaTemas = TemaDAO.obtenerTemas();
+        cbTema.setItems(FXCollections.observableArrayList(listaTemas));
     }
     @FXML
     public void cargarExamenes() {
@@ -90,14 +94,28 @@ public class ExamenViewController {
         try {
             if (!validarFormulario()) return;
 
+            // Obtener tema seleccionado
+            Tema temaSeleccionado = cbTema.getSelectionModel().getSelectedItem();
+            if (temaSeleccionado == null) {
+                mostrarAlerta("Error", "⚠️ Debes seleccionar un tema.", Alert.AlertType.WARNING);
+                return;
+            }
+
             // Convertir DatePicker a java.sql.Date
             Date fechaInicio = Date.valueOf(dpFechaInicio.getValue());
             Date fechaFin = Date.valueOf(dpFechaFin.getValue());
 
-            Examen nuevoExamen = new Examen(0, txtNombre.getText(), txtDescripcion.getText(),
-                    fechaInicio, fechaFin,
+            // Crear examen con ID_TEMA incluido
+            Examen nuevoExamen = new Examen(
+                    0,
+                    txtNombre.getText(),
+                    txtDescripcion.getText(),
+                    fechaInicio,
+                    fechaFin,
                     Integer.parseInt(txtTiempoLimite.getText()),
-                    Integer.parseInt(txtIdDocente.getText()));
+                    Integer.parseInt(txtIdDocente.getText())
+            );
+            nuevoExamen.setIdTema(temaSeleccionado.getId());
 
             if (ExamenDAO.agregarExamen(nuevoExamen)) {
                 mostrarAlerta("Éxito", "✅ Examen agregado correctamente.", Alert.AlertType.INFORMATION);
@@ -177,12 +195,18 @@ public class ExamenViewController {
     public void editarExamen() {
         try {
             Examen examenSeleccionado = tablaExamenes.getSelectionModel().getSelectedItem();
+            Tema temaSeleccionado = cbTema.getSelectionModel().getSelectedItem();
             if (examenSeleccionado == null) {
                 mostrarAlerta("Error", "⚠️ Selecciona un examen para editar.", Alert.AlertType.WARNING);
                 return;
             }
 
             if (!validarFormulario()) return;
+
+            if (temaSeleccionado == null) {
+                mostrarAlerta("Error", "⚠️ Debes seleccionar un tema.", Alert.AlertType.WARNING);
+                return;
+            }
 
             // Confirmar edición
             Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
@@ -199,6 +223,7 @@ public class ExamenViewController {
             examenSeleccionado.setFechaFin(Date.valueOf(dpFechaFin.getValue()));
             examenSeleccionado.setTiempoLimite(Integer.parseInt(txtTiempoLimite.getText()));
             examenSeleccionado.setIdDocente(Integer.parseInt(txtIdDocente.getText()));
+            examenSeleccionado.setIdTema(temaSeleccionado.getId());
 
             if (ExamenDAO.editarExamen(examenSeleccionado)) {
                 mostrarAlerta("Éxito", "✅ Examen actualizado correctamente.", Alert.AlertType.INFORMATION);
@@ -220,10 +245,23 @@ public class ExamenViewController {
         if (examenSeleccionado != null) {
             txtNombre.setText(examenSeleccionado.getNombre());
             txtDescripcion.setText(examenSeleccionado.getDescripcion());
-            dpFechaInicio.setValue(examenSeleccionado.getFechaInicio().toLocalDate());
-            dpFechaFin.setValue(examenSeleccionado.getFechaFin().toLocalDate());
             txtTiempoLimite.setText(String.valueOf(examenSeleccionado.getTiempoLimite()));
             txtIdDocente.setText(String.valueOf(examenSeleccionado.getIdDocente()));
+            dpFechaInicio.setValue(examenSeleccionado.getFechaInicio().toLocalDate());
+            dpFechaFin.setValue(examenSeleccionado.getFechaFin().toLocalDate());
+
+            // Seleccionar el tema en el ComboBox
+            for (Tema tema : listaTemas) {
+                if (tema.getId() == examenSeleccionado.getIdTema()) {
+                    cbTema.getSelectionModel().select(tema);
+                    break;
+                }
+            }
+
+
+            // 🔥 Aquí cargas las preguntas filtradas por el tema del examen
+            cargarPreguntasDisponiblesPorTema(examenSeleccionado.getIdTema());
+            cargarPreguntasDeExamen(); // También actualiza la lista de asignadas
         }
     }
 
@@ -264,6 +302,11 @@ public class ExamenViewController {
         dpFechaFin.setValue(null);
         txtTiempoLimite.clear();
         txtIdDocente.clear();
+    }
+
+    public void cargarPreguntasDisponiblesPorTema(int idTema) {
+        List<Pregunta> preguntasFiltradas = PreguntaDAO.obtenerPreguntasPorTema(idTema);
+        listPreguntasDisponibles.setItems(FXCollections.observableArrayList(preguntasFiltradas));
     }
 
     public void cargarPreguntasDeExamen() {
