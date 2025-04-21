@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="EC6751BD-82D7-1773-D69D-535B22DBE4F0" containerWithKeyObject="431DCCAA-5219-A447-8FD7-3883F84D6429" localFKIndex="54CE436B-0252-B9C0-B3BB-64475D816531" name="SYS_C008588">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>SYS_C008588</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<referredTableLongName>ROOT.EXAMEN</referredTableLongName>
+<deleteRule>NO ACTION</deleteRule>
+<referredTableID>F58637C9-680A-A0E2-94FC-14B49C69FDCF</referredTableID>
+<keyObject>D4B0D3BD-52AC-21CE-4FF0-A810D0984EA3</keyObject>
+<referredKeyID>D4B0D3BD-52AC-21CE-4FF0-A810D0984EA3</referredKeyID>
+<mandatory>true</mandatory>
+<refColNames>ID_EXAMEN</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

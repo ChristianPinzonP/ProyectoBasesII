@@ -1,0 +1,88 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxyOraclev12c class="oracle.dbtools.crest.model.design.storage.oracle.v12c.TableProxyOraclev12c" name="EXAMEN" directorySegmentName="seg_0" id="F58637C9-680A-A0E2-94FC-14B49C69FDCF">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:14 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<schemaObject>FBF8DD6A-3839-FCD4-3A55-6551AEA375DB</schemaObject>
+<logging>YES</logging>
+<partitionedRowMovement>DISABLE</partitionedRowMovement>
+<segment>B178D556-F707-2689-0A36-32056B84951D</segment>
+<tableSpace>226B2F5A-DB25-9530-FAEA-926DD46FFEAB</tableSpace>
+<temporaryChanged>false</temporaryChanged>
+<accessDriverType>oracle_loader</accessDriverType>
+<rejectLimit></rejectLimit>
+<inMemory>NO</inMemory>
+<columnProxies itemClass="oracle.dbtools.crest.model.design.storage.oracle.v12c.ColumnProxyOraclev12c">
+<ColumnProxy name="NUMERO_PREGUNTAS" id="1C5F2778-8410-BE12-E21C-8C86B67430B3">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="ID_EXAMEN" id="271CA2E8-C0B0-FB7D-9128-39390A14623E">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<defaultValue>&quot;ROOT&quot;.&quot;SEQ_EXAMEN&quot;.&quot;NEXTVAL&quot;</defaultValue>
+</ColumnProxy>
+<ColumnProxy name="TIEMPO_LIMITE" id="5B4B747A-A789-8209-4EBF-FECE0CE79F22">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="TIEMPO_POR_PREGUNTA" id="66B47A6F-1FC5-4592-53AE-FF78F95E879E">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="FECHA_FIN" id="768CC33B-79F8-0944-C4E2-12312C850C54">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="MODO_SELECCION" id="9D9CAB0E-22A9-D16F-7366-D0AA44CA559B">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="NOMBRE" id="C5851975-976D-FBD0-083D-8A2B80AAD7C8">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="FECHA_INICIO" id="DD71A19F-5B56-8299-682C-D36E7D59AC06">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="DESCRIPCION" id="E87856B1-FA99-3CB3-66DF-316D1E3E9961">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="ID_DOCENTE" id="F4C591D5-41EB-C2FC-1D50-20D41EE1F6A2">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="SYS_C008587" id="801274FA-E9E8-8584-C342-C7C60B016AC2">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.PKProxyOraclev10g" name="EXAMEN_PK" id="D4B0D3BD-52AC-21CE-4FF0-A810D0984EA3">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:16 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<schemaObject>FBF8DD6A-3839-FCD4-3A55-6551AEA375DB</schemaObject>
+<segment>2947B495-5261-0FC4-6CE3-78D6C1FA61A3</segment>
+<tableSpace>226B2F5A-DB25-9530-FAEA-926DD46FFEAB</tableSpace>
+<indexSegment>2947B495-5261-0FC4-6CE3-78D6C1FA61A3</indexSegment>
+<indexSort>SORTED</indexSort>
+<usingIndex>BY INDEX NAME</usingIndex>
+</PrimaryKey>
+</primaryKeys>
+</TableProxyOraclev12c>

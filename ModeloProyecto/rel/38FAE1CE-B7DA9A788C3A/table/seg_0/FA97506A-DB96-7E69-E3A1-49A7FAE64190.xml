@@ -1,0 +1,124 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="FA97506A-DB96-7E69-E3A1-49A7FAE64190" schemaObject="384F21A0-9DD0-3AFE-C862-776658D04BB0" name="RESPUESTA_ESTUDIANTE">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>RESPUESTA_ESTUDIANTE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:01 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_RESPUESTA_ESTUDIANTE" id="C907AD08-00E2-68AF-3C3D-09996218C548">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>RESPUESTA_ESTUDIANTE</sourceObjSchema>
+<sourceObjName>ID_RESPUESTA_ESTUDIANTE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_PRESENTACION" id="DBB86E90-4230-D1AD-34A6-A77D839A8BBC">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>RESPUESTA_ESTUDIANTE</sourceObjSchema>
+<sourceObjName>ID_PRESENTACION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="EA521BE4-9B2C-C4CC-720F-79C4F9766329" referredColumn="E59B9371-F197-2DBC-B68A-BCDDDE5B5846"/>
+</associations>
+</Column>
+<Column name="ID_PREGUNTA" id="FB8D1CEA-B2BE-0831-D07E-7B3619CF586B">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>RESPUESTA_ESTUDIANTE</sourceObjSchema>
+<sourceObjName>ID_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="DC80B929-9B95-FED8-D92F-E7B5C300AE55" referredColumn="F9AE58FF-8480-2E7D-464D-8D7DD60061BE"/>
+</associations>
+</Column>
+<Column name="ID_RESPUESTA" id="EE0A49DC-4FC6-64ED-1591-70A018C1AD71">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>RESPUESTA_ESTUDIANTE</sourceObjSchema>
+<sourceObjName>ID_RESPUESTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="729A2D7D-F827-E1A2-9624-EE931F5EE7D6" referredColumn="5936EC17-4CE8-E9C6-067D-35BD4841182C"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="2031A712-57BC-2900-35CA-C03CAA28FBAE" schemaObject="384F21A0-9DD0-3AFE-C862-776658D04BB0" name="RESPUESTA_ESTUDIANTE_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>SYS_C008572</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="C907AD08-00E2-68AF-3C3D-09996218C548"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="3578E504-FD3C-BB23-2147-89A83E4741A1" name="SYS_C008594">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:06 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="DBB86E90-4230-D1AD-34A6-A77D839A8BBC"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="58BF6EAB-AFB9-FE5B-D36B-1296C8788D26" name="SYS_C008595">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:06 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="FB8D1CEA-B2BE-0831-D07E-7B3619CF586B"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="CE37D8E2-6ED7-E30E-1DD1-67D3A5BFF510" name="SYS_C008596">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:06 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="EE0A49DC-4FC6-64ED-1591-70A018C1AD71"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

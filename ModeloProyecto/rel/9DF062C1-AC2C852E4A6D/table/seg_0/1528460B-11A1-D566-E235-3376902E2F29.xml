@@ -1,0 +1,128 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="1528460B-11A1-D566-E235-3376902E2F29" schemaObject="FBF8DD6A-3839-FCD4-3A55-6551AEA375DB" name="PREGUNTA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:14 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_PREGUNTA" id="579A58EE-81C3-931E-D90C-5BA013A4852C">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>ID_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<defaultValue>&quot;ROOT&quot;.&quot;SEQ_PREGUNTA&quot;.&quot;NEXTVAL&quot;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TEXTO" id="F3D6DF80-FD7E-77AE-EB33-7F25DFEB077C">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>TEXTO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT028</logicalDatatype>
+<dataTypeSize>4000</dataTypeSize>
+<ownDataTypeParameters>4000,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TIPO" id="C4A6D74F-AAFF-D018-C377-8EAA98EE11CF">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>TIPO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50 BYTE</dataTypeSize>
+<ownDataTypeParameters>50 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_BANCO" id="F93FE5F2-2F47-4FA2-153D-2862A0F13CDC">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>ID_BANCO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="39B5704C-2421-F5A4-F686-62FCC21FB8B9" referredColumn="EBDDCA9E-A533-BA22-9A79-896EE06EA570"/>
+</associations>
+</Column>
+<Column name="ID_TEMA" id="69D26509-04BD-5571-611A-607ED7971D02">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>ID_TEMA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="5A31CB69-F5AB-169F-09FA-77CC9294FF70" referredColumn="0AD2AD48-E823-9F12-84DB-8ACD767DE17E"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="3FF2C229-D917-8557-6AED-6BD27E03BF16" schemaObject="FBF8DD6A-3839-FCD4-3A55-6551AEA375DB" name="PREGUNTA_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>SYS_C008576</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="579A58EE-81C3-931E-D90C-5BA013A4852C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="BA36BBC8-D2E6-4F11-BDC5-7B7CE3962E0D" name="FK_PREGUNTA_TEMA">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="69D26509-04BD-5571-611A-607ED7971D02"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="A9C23CE4-98B6-BD93-6C96-7BCC2C0F7D79" name="SYS_C008590">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="F93FE5F2-2F47-4FA2-153D-2862A0F13CDC"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

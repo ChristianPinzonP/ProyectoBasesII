@@ -1,0 +1,15 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<relationalModel class="oracle.dbtools.crest.model.design.relational.RelationalDesign" name="XEPDB1" id="38FAE1CE-B4CD-E476-BAB3-B7DA9A788C3A" mainViewID="1A63A231-34B5-3ADB-A3A2-2648F2D0ACB6">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:00 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<shouldBeOpen>false</shouldBeOpen>
+<selectedRDBMSSite>79C73AAF-E1A7-E669-7DF0-025EE81A2AFC</selectedRDBMSSite>
+<importConnectionStamps>
+<importConnectionStamp class="oracle.dbtools.crest.imports.DBConnectionStamp">
+<connName>XEPDB1</connName>
+<connUser>root</connUser>
+<connType>1</connType>
+</importConnectionStamp>
+</importConnectionStamps>
+</relationalModel>

@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="BD4D14E9-1CCB-99F4-F0DD-ADDCEA26AFE9" schemaObject="FBF8DD6A-3839-FCD4-3A55-6551AEA375DB" name="RESPUESTA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>RESPUESTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:14 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_RESPUESTA" id="985AA31E-1787-CFF4-4906-CE6CFDCF56A2">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>RESPUESTA</sourceObjSchema>
+<sourceObjName>ID_RESPUESTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_PREGUNTA" id="D8FEF5CD-8E5E-2EE5-9282-51E798C30E43">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>RESPUESTA</sourceObjSchema>
+<sourceObjName>ID_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="097FFFE1-1367-C3AD-67A2-17D48659C6CA" referredColumn="579A58EE-81C3-931E-D90C-5BA013A4852C"/>
+</associations>
+</Column>
+<Column name="TEXTO" id="0BA4AA9D-5B0D-A495-E18D-434AF3A27B36">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>RESPUESTA</sourceObjSchema>
+<sourceObjName>TEXTO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>255 BYTE</dataTypeSize>
+<ownDataTypeParameters>255 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ES_CORRECTA" id="00A9A83A-E993-C4A2-3F07-CE9736B8E5DA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>RESPUESTA</sourceObjSchema>
+<sourceObjName>ES_CORRECTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>1 BYTE</dataTypeSize>
+<ownDataTypeParameters>1 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="73B83FAA-2B30-33B0-2D68-56140BE5A2B5" schemaObject="FBF8DD6A-3839-FCD4-3A55-6551AEA375DB" name="RESPUESTA_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>SYS_C008573</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="985AA31E-1787-CFF4-4906-CE6CFDCF56A2"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="EE2DB2AC-3948-1FC5-1D86-8B715788660B" name="SYS_C008593">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="D8FEF5CD-8E5E-2EE5-9282-51E798C30E43"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

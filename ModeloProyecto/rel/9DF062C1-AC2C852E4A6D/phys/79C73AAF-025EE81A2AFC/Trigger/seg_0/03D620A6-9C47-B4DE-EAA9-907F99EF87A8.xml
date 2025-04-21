@@ -1,0 +1,18 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TriggerOraclev10g class="oracle.dbtools.crest.model.design.storage.oracle.v10g.TriggerOraclev10g" name="TRG_PREGUNTA_ID" directorySegmentName="seg_0" id="03D620A6-9C47-B4DE-EAA9-907F99EF87A8">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>TRG_PREGUNTA_ID</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<actions>INSERT</actions>
+<body><![CDATA[BEGIN
+    SELECT SEQ_ID_PREGUNTA.NEXTVAL INTO :NEW.ID_PREGUNTA FROM DUAL;
+END;
+
+]]></body>
+<triggerTime>BEFORE</triggerTime>
+<owner>52B4981F-B8DD-116C-E015-AE8D464659A3</owner>
+<table>1528460B-11A1-D566-E235-3376902E2F29</table>
+</TriggerOraclev10g>

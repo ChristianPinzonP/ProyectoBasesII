@@ -1,0 +1,97 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="431DCCAA-5219-A447-8FD7-3883F84D6429" schemaObject="FBF8DD6A-3839-FCD4-3A55-6551AEA375DB" name="EXAMEN_PREGUNTA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>EXAMEN_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:14 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_EXAMEN" id="9970003C-FC3A-6189-4691-CAC5319BBE61">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN_PREGUNTA</sourceObjSchema>
+<sourceObjName>ID_EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="EC6751BD-82D7-1773-D69D-535B22DBE4F0" referredColumn="271CA2E8-C0B0-FB7D-9128-39390A14623E"/>
+</associations>
+</Column>
+<Column name="ID_PREGUNTA" id="CBCD1231-D419-44D6-16DC-DC1D9BBE1140">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN_PREGUNTA</sourceObjSchema>
+<sourceObjName>ID_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="387A29AC-F212-85F5-2C5D-89621BCF38DF" referredColumn="579A58EE-81C3-931E-D90C-5BA013A4852C"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="CBFB1DE7-6647-F8AD-8C95-E0B123C6429A" name="PK_EXAMEN_PREGUNTA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>PK_EXAMEN_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:16 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9970003C-FC3A-6189-4691-CAC5319BBE61"/>
+<colUsage columnID="CBCD1231-D419-44D6-16DC-DC1D9BBE1140"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="17D5852B-1816-ED27-4959-B2D84744B039" schemaObject="FBF8DD6A-3839-FCD4-3A55-6551AEA375DB" name="PK_EXAMEN_PREGUNTA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>PK_EXAMEN_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Unique Plain Index</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9970003C-FC3A-6189-4691-CAC5319BBE61"/>
+<colUsage columnID="CBCD1231-D419-44D6-16DC-DC1D9BBE1140"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="54CE436B-0252-B9C0-B3BB-64475D816531" name="SYS_C008588">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9970003C-FC3A-6189-4691-CAC5319BBE61"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="F8903A69-111B-FA6C-F3E6-104350CC48FF" name="SYS_C008589">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="CBCD1231-D419-44D6-16DC-DC1D9BBE1140"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

@@ -1,0 +1,193 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="F58637C9-680A-A0E2-94FC-14B49C69FDCF" schemaObject="FBF8DD6A-3839-FCD4-3A55-6551AEA375DB" name="EXAMEN">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:14 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_EXAMEN" id="271CA2E8-C0B0-FB7D-9128-39390A14623E">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>ID_EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<defaultValue>&quot;ROOT&quot;.&quot;SEQ_EXAMEN&quot;.&quot;NEXTVAL&quot;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="NOMBRE" id="C5851975-976D-FBD0-083D-8A2B80AAD7C8">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>NOMBRE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>100 BYTE</dataTypeSize>
+<ownDataTypeParameters>100 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="DESCRIPCION" id="E87856B1-FA99-3CB3-66DF-316D1E3E9961">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>DESCRIPCION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>255 BYTE</dataTypeSize>
+<ownDataTypeParameters>255 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="FECHA_INICIO" id="DD71A19F-5B56-8299-682C-D36E7D59AC06">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>FECHA_INICIO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<dataTypeSize>7</dataTypeSize>
+<ownDataTypeParameters>7,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="FECHA_FIN" id="768CC33B-79F8-0944-C4E2-12312C850C54">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>FECHA_FIN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<dataTypeSize>7</dataTypeSize>
+<ownDataTypeParameters>7,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TIEMPO_LIMITE" id="5B4B747A-A789-8209-4EBF-FECE0CE79F22">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>TIEMPO_LIMITE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_DOCENTE" id="F4C591D5-41EB-C2FC-1D50-20D41EE1F6A2">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>ID_DOCENTE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="B1053FB9-542B-BC36-2325-C4A145E1F744" referredColumn="1736FDBC-3E2F-A241-AD6D-5926D623BD32"/>
+</associations>
+</Column>
+<Column name="NUMERO_PREGUNTAS" id="1C5F2778-8410-BE12-E21C-8C86B67430B3">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>NUMERO_PREGUNTAS</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="MODO_SELECCION" id="9D9CAB0E-22A9-D16F-7366-D0AA44CA559B">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>MODO_SELECCION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<constraintName>SYS_C008597</constraintName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>20 BYTE</dataTypeSize>
+<listOfValues>
+<valueDef value="&apos;Aleatorio&apos;" description=""/>
+<valueDef value="&apos;Manual&apos;" description=""/>
+</listOfValues>
+<ownDataTypeParameters>20 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TIEMPO_POR_PREGUNTA" id="66B47A6F-1FC5-4592-53AE-FF78F95E879E">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>EXAMEN</sourceObjSchema>
+<sourceObjName>TIEMPO_POR_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="D4B0D3BD-52AC-21CE-4FF0-A810D0984EA3" schemaObject="FBF8DD6A-3839-FCD4-3A55-6551AEA375DB" name="EXAMEN_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>SYS_C008579</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:15 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="271CA2E8-C0B0-FB7D-9128-39390A14623E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="801274FA-E9E8-8584-C342-C7C60B016AC2" name="SYS_C008587">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="F4C591D5-41EB-C2FC-1D50-20D41EE1F6A2"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

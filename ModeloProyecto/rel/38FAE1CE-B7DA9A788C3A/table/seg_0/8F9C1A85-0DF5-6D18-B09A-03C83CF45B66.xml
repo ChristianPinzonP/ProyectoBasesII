@@ -1,0 +1,57 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="8F9C1A85-0DF5-6D18-B09A-03C83CF45B66" schemaObject="384F21A0-9DD0-3AFE-C862-776658D04BB0" name="TEMA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>TEMA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:01 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_TEMA" id="FCE46CCF-A3E4-B9E5-32F3-D8809E5033F4">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>TEMA</sourceObjSchema>
+<sourceObjName>ID_TEMA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="NOMBRE" id="AD89EAFB-5B7A-098E-B1ED-A0CBFE2A951A">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>TEMA</sourceObjSchema>
+<sourceObjName>NOMBRE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>100 BYTE</dataTypeSize>
+<ownDataTypeParameters>100 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="8BEC7507-4B80-5916-2C2C-45FE2ACBC38E" schemaObject="384F21A0-9DD0-3AFE-C862-776658D04BB0" name="TEMA_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>SYS_C009288</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="FCE46CCF-A3E4-B9E5-32F3-D8809E5033F4"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

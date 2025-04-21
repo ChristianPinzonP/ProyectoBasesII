@@ -1,0 +1,126 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="43AEFABF-7D33-63F8-015A-E94321EF8875" schemaObject="384F21A0-9DD0-3AFE-C862-776658D04BB0" name="PRESENTACION_EXAMEN">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>PRESENTACION_EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:01 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_PRESENTACION" id="E59B9371-F197-2DBC-B68A-BCDDDE5B5846">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>ID_PRESENTACION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_EXAMEN" id="35EC8844-C785-3F8D-A981-3730EA8031D4">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>ID_EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="DC207429-71BE-98BE-59E8-A47889B4DD62" referredColumn="BF154E1E-48A7-5A9A-80BA-BB898F58DE6A"/>
+</associations>
+</Column>
+<Column name="ID_ESTUDIANTE" id="EDA28251-CC22-CF96-3AB7-1545CAF36B82">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>ID_ESTUDIANTE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="A1F6C295-B05B-4708-E1D8-ED6A01620337" referredColumn="1E850488-458F-3D9C-D13C-A6DD10465B8F"/>
+</associations>
+</Column>
+<Column name="FECHA_PRESENTACION" id="2AF1CEA2-D0BF-CF60-227D-434A28B6F2B1">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>FECHA_PRESENTACION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<dataTypeSize>7</dataTypeSize>
+<ownDataTypeParameters>7,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="CALIFICACION" id="54538AB9-9AF3-BCFA-7677-1B422C8D44E1">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>CALIFICACION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="457618DD-F6C1-BC9E-2296-5A51B75B6AF1" schemaObject="384F21A0-9DD0-3AFE-C862-776658D04BB0" name="PRESENTACION_EXAMEN_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>SYS_C008571</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="E59B9371-F197-2DBC-B68A-BCDDDE5B5846"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="9D0A3FD7-B7A7-18C9-62AE-D6AE08AF6A32" name="SYS_C008591">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:06 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="35EC8844-C785-3F8D-A981-3730EA8031D4"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="B9202985-7C09-BEE2-3B7F-C485E63ED9C4" name="SYS_C008592">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:06 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="EDA28251-CC22-CF96-3AB7-1545CAF36B82"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

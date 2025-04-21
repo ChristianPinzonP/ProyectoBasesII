@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="39B5704C-2421-F5A4-F686-62FCC21FB8B9" containerWithKeyObject="1528460B-11A1-D566-E235-3376902E2F29" localFKIndex="A9C23CE4-98B6-BD93-6C96-7BCC2C0F7D79" name="SYS_C008590">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT</sourceObjSchema>
+<sourceObjName>SYS_C008590</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:04:18 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<referredTableLongName>ROOT.BANCO_PREGUNTAS</referredTableLongName>
+<deleteRule>NO ACTION</deleteRule>
+<referredTableID>1E844BEE-87A6-AB67-6BBA-8836574140D8</referredTableID>
+<keyObject>949E2EF7-876E-220B-C099-42779EC6E69E</keyObject>
+<referredKeyID>949E2EF7-876E-220B-C099-42779EC6E69E</referredKeyID>
+<mandatory>false</mandatory>
+<refColNames>ID_BANCO</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

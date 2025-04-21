@@ -1,0 +1,62 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxyOraclev12c class="oracle.dbtools.crest.model.design.storage.oracle.v12c.TableProxyOraclev12c" name="EXAMEN_PREGUNTA" directorySegmentName="seg_0" id="32A7EE9A-07E5-9C77-04D5-A6F5A7FE65CE">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:01 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<schemaObject>384F21A0-9DD0-3AFE-C862-776658D04BB0</schemaObject>
+<logging>YES</logging>
+<partitionedRowMovement>DISABLE</partitionedRowMovement>
+<segment>E722B2CA-CE25-5847-AB03-30176730E3B1</segment>
+<tableSpace>BA5C4F8C-EB1A-C64E-E3DA-4F7E6731D762</tableSpace>
+<temporaryChanged>false</temporaryChanged>
+<accessDriverType>oracle_loader</accessDriverType>
+<rejectLimit></rejectLimit>
+<inMemory>NO</inMemory>
+<columnProxies itemClass="oracle.dbtools.crest.model.design.storage.oracle.v12c.ColumnProxyOraclev12c">
+<ColumnProxy name="ID_EXAMEN" id="153F95D6-2479-5BD4-9006-83EB4505F610">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="ID_PREGUNTA" id="9320D289-481C-37D2-28FF-46CF526357FC">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<indexProxies>
+<IndexProxy class="oracle.dbtools.crest.model.design.storage.oracle.v10g.IndexProxyOraclev10g" name="PK_EXAMEN_PREGUNTA" id="26E2F557-4BCC-4A6B-9533-2C9D7C0FFB45">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:02 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<schemaObject>384F21A0-9DD0-3AFE-C862-776658D04BB0</schemaObject>
+<segment>FD6CA286-D464-2D2A-E41E-ACC7D8410CC9</segment>
+<tableSpace>BA5C4F8C-EB1A-C64E-E3DA-4F7E6731D762</tableSpace>
+</IndexProxy>
+</indexProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="SYS_C008588" id="192D97CF-B703-C7E5-118A-854D75C9341C">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:06 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="SYS_C008589" id="71773CC9-618B-40DC-5FFD-D7B37BC2AECE">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:06 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.PKProxyOraclev10g" name="PK_EXAMEN_PREGUNTA" id="38FD0BD4-3B27-873A-1C57-E8901553A7E7">
+<createdBy>acm91</createdBy>
+<createdTime>2025-04-21 04:00:03 UTC</createdTime>
+<ownerDesignName>ModeloProyecto</ownerDesignName>
+<segment>FD6CA286-D464-2D2A-E41E-ACC7D8410CC9</segment>
+<tableSpace>BA5C4F8C-EB1A-C64E-E3DA-4F7E6731D762</tableSpace>
+<existingIndex>26E2F557-4BCC-4A6B-9533-2C9D7C0FFB45</existingIndex>
+<indexSegment>FD6CA286-D464-2D2A-E41E-ACC7D8410CC9</indexSegment>
+<indexSort>SORTED</indexSort>
+<usingIndex>BY INDEX NAME</usingIndex>
+</PrimaryKey>
+</primaryKeys>
+</TableProxyOraclev12c>
