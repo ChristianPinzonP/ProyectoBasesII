@@ -22,7 +22,7 @@ public class ExamenPreguntaDAO {
         }
     }
 
-    public static List<Integer> obtenerPreguntasPorExamen(int idExamen) {
+    /*public static List<Integer> obtenerPreguntasPorExamen(int idExamen) {
         List<Integer> preguntas = new ArrayList<>();
         String query = "SELECT id_pregunta FROM Examen_Pregunta WHERE id_examen = ?";
 
@@ -40,13 +40,14 @@ public class ExamenPreguntaDAO {
             e.printStackTrace();
         }
         return preguntas;
-    }
+    }*/
     //Metodo para obtener las preguntas del examen
     public static List<Pregunta> obtenerPreguntasDeExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
-        String sql = "SELECT p.id_pregunta, p.texto, p.tipo, p.id_banco, p.id_tema " +
+        String sql = "SELECT p.id_pregunta, p.texto, p.tipo, p.id_banco, p.id_tema, t.nombre as nombre_tema " +
                 "FROM Pregunta p " +
                 "JOIN Examen_Pregunta ep ON p.id_pregunta = ep.id_pregunta " +
+                "LEFT JOIN TEMA t ON p.id_tema = t.id_tema " +
                 "WHERE ep.id_examen = ?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -60,20 +61,15 @@ public class ExamenPreguntaDAO {
                 String texto = rs.getString("texto");
                 String tipo = rs.getString("tipo");
                 int idBanco = rs.getInt("id_banco");
-                String nombreTema = rs.getString("inombreTema");
-                boolean publica = rs.getBoolean("publica");
+                int idTema = rs.getInt("id_tema");
+                String nombreTema = rs.getString("nombre_tema");
 
                 // 🔥 Obtener las opciones de respuesta para la pregunta
                 List<OpcionRespuesta> opciones = obtenerOpcionesRespuesta(idPregunta);
 
                 // ✅ Crear el objeto Pregunta con la lista de opciones
-                Pregunta pregunta = new Pregunta(
-                        rs.getInt("ID_PREGUNTA"),
-                        rs.getString("TEXTO"),
-                        rs.getString("TIPO"),
-                        rs.getInt("ID_BANCO"),
-                        rs.getInt("ID_TEMA")
-                );
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idBanco, idTema, opciones);
+                pregunta.setNombreTema(nombreTema);
 
                 preguntas.add(pregunta);
             }
@@ -84,25 +80,30 @@ public class ExamenPreguntaDAO {
     }
 
 //Metodo para obtener las opciones de respuesta
-    private static List<OpcionRespuesta> obtenerOpcionesRespuesta(int idPregunta) {
-        List<OpcionRespuesta> opciones = new ArrayList<>();
-        String sql = "SELECT texto, correcta FROM RESPUESTA WHERE id_pregunta = ?";
+private static List<OpcionRespuesta> obtenerOpcionesRespuesta(int idPregunta) {
+    List<OpcionRespuesta> opciones = new ArrayList<>();
+    String sql = "SELECT id_respuesta, texto, ES_CORRECTA FROM RESPUESTA WHERE id_pregunta = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, idPregunta);
-            ResultSet rs = stmt.executeQuery();
+        stmt.setInt(1, idPregunta);
+        ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                String texto = rs.getString("texto");
-                boolean correcta = rs.getBoolean("correcta");
-                opciones.add(new OpcionRespuesta(texto, correcta));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        while (rs.next()) {
+            int idRespuesta = rs.getInt("id_respuesta");
+            String texto = rs.getString("texto");
+            String esCorrectaStr = rs.getString("ES_CORRECTA");
+
+            // Convertir "S" o "N" a booleano
+            boolean esCorrecta = "S".equalsIgnoreCase(esCorrectaStr);
+
+            opciones.add(new OpcionRespuesta(idRespuesta, texto, esCorrecta));
         }
-        return opciones;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return opciones;
+}
 }
 
