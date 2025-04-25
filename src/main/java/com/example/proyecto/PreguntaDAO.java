@@ -234,10 +234,13 @@ public class PreguntaDAO {
                 int idBanco = rs.getInt("ID_BANCO");
                 String nombreTema = rs.getString("NOMBRE_TEMA");
 
-                List<OpcionRespuesta> opciones = obtenerOpcionesDePregunta(idPregunta);
+                // Obtener las opciones de respuesta para la pregunta
+                List<OpcionRespuesta> opciones = PreguntaDAO.obtenerOpcionesDePregunta(idPregunta);
+
 
                 Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idBanco, idTema, opciones);
                 pregunta.setNombreTema(nombreTema);
+
                 listaPreguntas.add(pregunta);
             }
 

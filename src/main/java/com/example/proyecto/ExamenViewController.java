@@ -50,20 +50,50 @@ public class ExamenViewController {
         colTiempoLimite.setCellValueFactory(new PropertyValueFactory<>("tiempoLimite"));
         colIdDocente.setCellValueFactory(new PropertyValueFactory<>("idDocente"));
 
-        // Asociar la lista de exámenes con la tabla
-        tablaExamenes.setItems(listaExamenes);
+        // Cargar exámenes de la BD al abrir la vista
+        cargarExamenes();
 
+        // Cargar temas en el combobox
+        listaTemas = TemaDAO.obtenerTemas();
+        cbTema.setItems(FXCollections.observableArrayList(listaTemas));
+
+        // Agregar listener para el combobox de temas
+        cbTema.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                System.out.println("Tema seleccionado: " + newVal.getNombre() + " (ID: " + newVal.getId() + ")");
+                cargarPreguntasDisponiblesPorTema(newVal.getId());
+            }
+        });
+
+        // Agregar listener para la selección de exámenes en la tabla
         tablaExamenes.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 seleccionarExamen();
             }
         });
 
-        // Cargar exámenes de la BD al abrir la vista
-        cargarExamenes();
-        listaTemas = TemaDAO.obtenerTemas();
-        cbTema.setItems(FXCollections.observableArrayList(listaTemas));
+        // Configurar filtro de búsqueda
+        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
+            filtroExamenes.setPredicate(examen -> {
+                if (newValue == null || newValue.trim().isEmpty()) return true;
+
+                String lowerCaseFilter = newValue.toLowerCase();
+                return examen.getNombre().toLowerCase().contains(lowerCaseFilter) ||
+                        examen.getDescripcion().toLowerCase().contains(lowerCaseFilter) ||
+                        String.valueOf(examen.getIdDocente()).contains(lowerCaseFilter);
+            });
+        });
+
+        // Inicializar la lista filtrada de exámenes
+        listaExamenes = FXCollections.observableArrayList(ExamenDAO.obtenerTodosLosExamenes());
+        filtroExamenes = new FilteredList<>(listaExamenes, p -> true);
+
+        // Configurar la lista ordenada
+        SortedList<Examen> sortedData = new SortedList<>(filtroExamenes);
+        sortedData.comparatorProperty().bind(tablaExamenes.comparatorProperty());
+        tablaExamenes.setItems(sortedData);
     }
+
     @FXML
     public void cargarExamenes() {
         listaExamenes = FXCollections.observableArrayList(ExamenDAO.obtenerTodosLosExamenes());
@@ -306,6 +336,12 @@ public class ExamenViewController {
 
     public void cargarPreguntasDisponiblesPorTema(int idTema) {
         List<Pregunta> preguntasFiltradas = PreguntaDAO.obtenerPreguntasPorTema(idTema);
+        System.out.println("Preguntas cargadas para tema ID " + idTema + ": " + preguntasFiltradas.size());
+
+        if (preguntasFiltradas.isEmpty()) {
+            mostrarAlerta("Información", "No hay preguntas disponibles para este tema.", Alert.AlertType.INFORMATION);
+        }
+
         listPreguntasDisponibles.setItems(FXCollections.observableArrayList(preguntasFiltradas));
     }
 

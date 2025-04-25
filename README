@@ -1,0 +1,10 @@
+GESTIÓN DE EXAMENES
+
+1)  Asignación de preguntas por  tema a los exmenes --> COMPLETADO
+2)  Editar examen, falta ponerle la opción para que elimine una pregunta determinada --> PENDIENTE
+2)  Errores: al seleccionar un examen autmaticamente muestra una alerta de que "no hay preguntas disponibles
+    para el tema", no afecta el funcionamiento pero falta corregirlo --> PENDIENTE
+3)  Crear preguntas por tema --> COMPLETADO
+4)  Al crear la pregunta la está guardando con el tema de Ciberseguridad autmomaticamente,
+    falta corregir eso --> EN PROCESO
+5)  Eliminar el uso del idBanco, eliminar la tabla BANCO --> PENDIENTE
