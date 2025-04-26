@@ -7,7 +7,8 @@ import java.util.List;
 public class PreguntaDAO {
 
     public static boolean agregarPregunta(Pregunta pregunta) {
-        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_BANCO, ID_TEMA) VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_BANCO, ID_TEMA) " +
+                "VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, new String[]{"ID_PREGUNTA"})) {

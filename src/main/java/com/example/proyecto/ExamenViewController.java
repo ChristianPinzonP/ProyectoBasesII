@@ -25,13 +25,12 @@ public class ExamenViewController {
     @FXML private TableColumn<Examen, Integer> colIdDocente;
     @FXML private ListView<Pregunta> listPreguntasDisponibles;
     @FXML private ListView<Pregunta> listPreguntasAsignadas;
-    @FXML private Button btnAsignarPregunta;
     @FXML private TextField txtNombre;
     @FXML private TextField txtDescripcion;
     @FXML private DatePicker dpFechaInicio;
     @FXML private DatePicker dpFechaFin;
     @FXML private TextField txtTiempoLimite;
-    @FXML private TextField txtIdDocente;
+    @FXML private TextField txtIdDocente, txtIdTema;
     @FXML private TextField txtBuscar;
     @FXML private ComboBox<Tema> cbTema;
     private List<Tema> listaTemas;
@@ -121,6 +120,14 @@ public class ExamenViewController {
 
     @FXML
     public void agregarExamen() {
+        String nombreExamen = txtNombre.getText();
+        String descripcionExamen = txtDescripcion.getText();// Convertir DatePicker a java.sql.Date
+        Date fechaInicio = Date.valueOf(dpFechaInicio.getValue());
+        Date fechaFin = Date.valueOf(dpFechaFin.getValue());
+        int tiempoLimite = Integer.parseInt(txtTiempoLimite.getText());
+        int idDocente = Integer.parseInt(txtIdDocente.getText());
+        int idTema = Integer.parseInt(txtIdTema.getText());
+
         try {
             if (!validarFormulario()) return;
 
@@ -131,19 +138,16 @@ public class ExamenViewController {
                 return;
             }
 
-            // Convertir DatePicker a java.sql.Date
-            Date fechaInicio = Date.valueOf(dpFechaInicio.getValue());
-            Date fechaFin = Date.valueOf(dpFechaFin.getValue());
-
             // Crear examen con ID_TEMA incluido
             Examen nuevoExamen = new Examen(
                     0,
-                    txtNombre.getText(),
-                    txtDescripcion.getText(),
+                    nombreExamen,
+                    descripcionExamen,
                     fechaInicio,
                     fechaFin,
-                    Integer.parseInt(txtTiempoLimite.getText()),
-                    Integer.parseInt(txtIdDocente.getText())
+                    tiempoLimite,
+                    idDocente,
+                    idTema
             );
             nuevoExamen.setIdTema(temaSeleccionado.getId());
 

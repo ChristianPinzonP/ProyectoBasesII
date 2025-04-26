@@ -14,7 +14,7 @@ import java.util.List;
 public class PreguntaViewController {
     @FXML private TextArea txtTexto;
     @FXML private ComboBox<String> cbTipoPregunta;
-    @FXML private TextField txtIdBanco;
+    @FXML private TextField txtIdBanco, txtIdTema;
     @FXML private VBox vboxOpciones;
     @FXML private TableView<Pregunta> tablaPreguntas;
     @FXML private TableColumn<Pregunta, Integer> colId, colTema, colBanco;
@@ -71,7 +71,7 @@ public class PreguntaViewController {
     public void agregarPregunta() {
         String textoPregunta = txtTexto.getText().trim();
         String tipoPregunta = cbTipoPregunta.getValue();
-        int idTema = Integer.parseInt(txtIdBanco.getText().trim());
+        int idTema = Integer.parseInt(txtIdTema.getText().trim());
         int idBanco;
 
         try {
@@ -104,7 +104,14 @@ public class PreguntaViewController {
 
         System.out.println("Número de opciones antes de enviar: " + opciones.size());
 
-        Pregunta nuevaPregunta = new Pregunta(0, textoPregunta, tipoPregunta, idBanco, idTema, opciones);
+        Pregunta nuevaPregunta = new Pregunta(
+                0,
+                textoPregunta,
+                tipoPregunta,
+                idBanco,
+                idTema,
+                opciones
+        );
 
         if (PreguntaDAO.agregarPregunta(nuevaPregunta)) {
             mostrarAlerta("Éxito", "Pregunta agregada correctamente.", Alert.AlertType.INFORMATION);

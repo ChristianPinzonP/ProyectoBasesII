@@ -7,57 +7,40 @@ import java.util.List;
 
 public class ExamenDAO {
 
-    // Método para obtener todos los exámenes
-    public static List<Examen> obtenerExamenes() {
-        List<Examen> examenes = new ArrayList<>();
-        String sql = "SELECT * FROM EXAMEN";
-
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                examenes.add(new Examen(
-                        rs.getInt("id_examen"),
-                        rs.getString("nombre"),
-                        rs.getString("descripcion"),
-                        rs.getDate("fecha_inicio"),
-                        rs.getDate("fecha_fin"),
-                        rs.getInt("tiempo_limite"),
-                        rs.getInt("id_docente")
-                ));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return examenes;
-    }
 // Metodo para obtener los examenes para la tabla
     public static List<Examen> obtenerTodosLosExamenes() {
-        List<Examen> lista = new ArrayList<>();
-        String sql = "SELECT * FROM EXAMEN";
+        List<Examen> listaExamenes = new ArrayList<>();
+        String sql = "SELECT e.id_examen, e.nombre, e.descripcion, e.fecha_inicio, e.fecha_fin, e.tiempo_limite, e.id_docente, e.id_tema, t.NOMBRE as NOMBRE_TEMA " +
+                "FROM EXAMEN e " +
+                "LEFT JOIN TEMA t ON e.ID_TEMA = t.ID_TEMA " +
+                "ORDER BY e.id_examen DESC";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+             Statement pstmt = conn.createStatement();
+             ResultSet rs = pstmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                Examen examen = new Examen(
-                        rs.getInt("id_examen"),
-                        rs.getString("nombre"),
-                        rs.getString("descripcion"),
-                        rs.getDate("fecha_inicio"),
-                        rs.getDate("fecha_fin"),
-                        rs.getInt("tiempo_limite"),
-                        rs.getInt("id_docente")
-                );
-                lista.add(examen);
+                int idExamen = rs.getInt("id_examen");
+                String nombreExamen = rs.getString("nombre");
+                String descripcion = rs.getString("descripcion");
+                Date fechaInicio = rs.getDate("fecha_inicio");
+                Date fechaFin = rs.getDate("fecha_fin");
+                int tiempoLimite = rs.getInt("tiempo_limite");
+                int idDocente = rs.getInt("id_docente");
+                int idTema = rs.getInt("id_tema");
+                String nombreTema = rs.getString("NOMBRE_TEMA");
+
+                Examen examen = new Examen(idExamen, nombreExamen, descripcion, fechaInicio, fechaFin, tiempoLimite, idDocente, idTema);
+                examen.setNombre(nombreTema);
+                listaExamenes.add(examen);
+
+                //System.out.println("✅ Pregunta obtenida: ID=" + idExamen + "nombre:" + nombreExamen + ", descripcion=" + descripcion + ", Tema=" + nombreTema);
             }
         } catch (SQLException e) {
             System.out.println("🚨 Error al obtener exámenes: " + e.getMessage());
         }
 
-        return lista;
+        return listaExamenes;
     }
 
     //Metodo para editar los examenes
