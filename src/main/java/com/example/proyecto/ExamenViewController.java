@@ -328,16 +328,6 @@ public class ExamenViewController {
         }
     }
 
-
-    private void limpiarCampos() {
-        txtNombre.clear();
-        txtDescripcion.clear();
-        dpFechaInicio.setValue(null);
-        dpFechaFin.setValue(null);
-        txtTiempoLimite.clear();
-        txtIdDocente.clear();
-    }
-
     public void cargarPreguntasDisponiblesPorTema(int idTema) {
         List<Pregunta> preguntasFiltradas = PreguntaDAO.obtenerPreguntasPorTema(idTema);
         System.out.println("Preguntas cargadas para tema ID " + idTema + ": " + preguntasFiltradas.size());
@@ -375,5 +365,30 @@ public class ExamenViewController {
         }
     }
 
+    @FXML
+    public void eliminarPreguntaAsignada() {
+        Examen examenSeleccionado = tablaExamenes.getSelectionModel().getSelectedItem();
+        Pregunta preguntaSeleccionada = listPreguntasAsignadas.getSelectionModel().getSelectedItem();
+
+        if (examenSeleccionado == null || preguntaSeleccionada == null) {
+            mostrarAlerta("Error", "Debes seleccionar un examen y una pregunta asignada.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // Confirmar eliminación
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmación");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Seguro que deseas eliminar esta pregunta del examen?");
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+        if (resultado.isEmpty() || resultado.get() != ButtonType.OK) return;
+
+        if (ExamenPreguntaDAO.eliminarPreguntaDeExamen(examenSeleccionado.getId(), preguntaSeleccionada.getId())) {
+            mostrarAlerta("Éxito", "Pregunta eliminada del examen correctamente.", Alert.AlertType.INFORMATION);
+            cargarPreguntasDeExamen(); // 🔥 Refrescar la lista de asignadas
+        } else {
+            mostrarAlerta("Error", "No se pudo eliminar la pregunta del examen.", Alert.AlertType.ERROR);
+        }
+    }
 
 }

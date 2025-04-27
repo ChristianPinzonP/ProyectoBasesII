@@ -51,6 +51,11 @@
             onAction="#asignarPregunta"
             GridPane.columnIndex="1" GridPane.rowIndex="8"/>
 
+    <Button text="Eliminar Pregunta Asignada" fx:id="btnEliminarPreguntaAsignada"
+            onAction="#eliminarPreguntaAsignada"
+            GridPane.columnIndex="2" GridPane.rowIndex="8"/>
+
+
     <HBox spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="5">
         <Button text="Agregar" fx:id="btnAgregar" onAction="#agregarExamen"/>
         <Button text="Editar Examen" onAction="#editarExamen"/>

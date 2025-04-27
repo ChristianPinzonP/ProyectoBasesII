@@ -22,25 +22,6 @@ public class ExamenPreguntaDAO {
         }
     }
 
-    /*public static List<Integer> obtenerPreguntasPorExamen(int idExamen) {
-        List<Integer> preguntas = new ArrayList<>();
-        String query = "SELECT id_pregunta FROM Examen_Pregunta WHERE id_examen = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setInt(1, idExamen);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                preguntas.add(rs.getInt("id_pregunta"));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return preguntas;
-    }*/
     //Metodo para obtener las preguntas del examen
     public static List<Pregunta> obtenerPreguntasDeExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
@@ -79,31 +60,45 @@ public class ExamenPreguntaDAO {
         return preguntas;
     }
 
-//Metodo para obtener las opciones de respuesta
-private static List<OpcionRespuesta> obtenerOpcionesRespuesta(int idPregunta) {
-    List<OpcionRespuesta> opciones = new ArrayList<>();
-    String sql = "SELECT id_respuesta, texto, ES_CORRECTA FROM RESPUESTA WHERE id_pregunta = ?";
-
-    try (Connection conn = DBConnection.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-        stmt.setInt(1, idPregunta);
-        ResultSet rs = stmt.executeQuery();
-
-        while (rs.next()) {
-            int idRespuesta = rs.getInt("id_respuesta");
-            String texto = rs.getString("texto");
-            String esCorrectaStr = rs.getString("ES_CORRECTA");
-
-            // Convertir "S" o "N" a booleano
-            boolean esCorrecta = "S".equalsIgnoreCase(esCorrectaStr);
-
-            opciones.add(new OpcionRespuesta(idRespuesta, texto, esCorrecta));
+    public static boolean eliminarPreguntaDeExamen(int idExamen, int idPregunta) {
+        String sql = "DELETE FROM EXAMEN_PREGUNTA WHERE ID_EXAMEN = ? AND ID_PREGUNTA = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idExamen);
+            stmt.setInt(2, idPregunta);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("❌ Error al eliminar pregunta del examen: " + e.getMessage());
+            return false;
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-    return opciones;
-}
+
+
+    //Metodo para obtener las opciones de respuesta
+    private static List<OpcionRespuesta> obtenerOpcionesRespuesta(int idPregunta) {
+        List<OpcionRespuesta> opciones = new ArrayList<>();
+        String sql = "SELECT id_respuesta, texto, ES_CORRECTA FROM RESPUESTA WHERE id_pregunta = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idPregunta);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int idRespuesta = rs.getInt("id_respuesta");
+                String texto = rs.getString("texto");
+                String esCorrectaStr = rs.getString("ES_CORRECTA");
+
+                // Convertir "S" o "N" a booleano
+                boolean esCorrecta = "S".equalsIgnoreCase(esCorrectaStr);
+
+                opciones.add(new OpcionRespuesta(idRespuesta, texto, esCorrecta));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return opciones;
+    }
 }
 
