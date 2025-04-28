@@ -34,6 +34,8 @@
         </items>
     </ComboBox>
 
+    <!--ERROR AL AGREGAR PREGUNTA, CORREGIRLOOOOOOOOO-->
+
     <!-- ✅ Aquí antes había un HBox que no tenía índice de GridPane -->
     <!-- Se corrigió y ahora está como los demás controles -->
     <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>

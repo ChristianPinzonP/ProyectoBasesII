@@ -14,7 +14,7 @@ import java.util.List;
 public class PreguntaViewController {
     @FXML private TextArea txtTexto;
     @FXML private ComboBox<String> cbTipoPregunta;
-    @FXML private TextField txtIdBanco, txtIdTema;
+    @FXML private TextField txtIdBanco;
     @FXML private VBox vboxOpciones;
     @FXML private TableView<Pregunta> tablaPreguntas;
     @FXML private TableColumn<Pregunta, Integer> colId, colTema, colBanco;
@@ -71,8 +71,23 @@ public class PreguntaViewController {
     public void agregarPregunta() {
         String textoPregunta = txtTexto.getText().trim();
         String tipoPregunta = cbTipoPregunta.getValue();
-        int idTema = Integer.parseInt(txtIdTema.getText().trim());
+        int idTema;
         int idBanco;
+
+        try {
+            // Obtener el índice seleccionado en el ComboBox
+            int indiceSeleccionado = cbTema.getSelectionModel().getSelectedIndex();
+            if (indiceSeleccionado >= 0) {
+                // Obtener el ID del tema correspondiente al nombre seleccionado
+                idTema = listaTemas.get(indiceSeleccionado).getId();
+            } else {
+                mostrarAlerta("Error", "Debe seleccionar un tema.", Alert.AlertType.WARNING);
+                return;
+            }
+        } catch (Exception e) {
+            mostrarAlerta("Error", "Error al obtener el tema seleccionado.", Alert.AlertType.WARNING);
+            return;
+        }
 
         try {
             idBanco = Integer.parseInt(txtIdBanco.getText().trim());
@@ -285,7 +300,7 @@ public class PreguntaViewController {
 
         String nuevoTexto = txtTexto.getText().trim();
         String nuevoTipo = cbTipoPregunta.getValue();
-        int nuevoIdTema = Integer.parseInt(txtIdBanco.getText());
+        int nuevoIdTema;
         int nuevoIdBanco;
 
         try {
