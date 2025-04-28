@@ -2,7 +2,7 @@
 /out/
 target/
 build/
-
+.idea
 # Maven
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
