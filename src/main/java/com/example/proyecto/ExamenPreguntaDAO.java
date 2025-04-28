@@ -25,7 +25,7 @@ public class ExamenPreguntaDAO {
     //Metodo para obtener las preguntas del examen
     public static List<Pregunta> obtenerPreguntasDeExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
-        String sql = "SELECT p.id_pregunta, p.texto, p.tipo, p.id_banco, p.id_tema, t.nombre as nombre_tema " +
+        String sql = "SELECT p.id_pregunta, p.texto, p.tipo, p.id_tema, t.nombre as nombre_tema " +
                 "FROM Pregunta p " +
                 "JOIN Examen_Pregunta ep ON p.id_pregunta = ep.id_pregunta " +
                 "LEFT JOIN TEMA t ON p.id_tema = t.id_tema " +
@@ -41,7 +41,6 @@ public class ExamenPreguntaDAO {
                 int idPregunta = rs.getInt("id_pregunta");
                 String texto = rs.getString("texto");
                 String tipo = rs.getString("tipo");
-                int idBanco = rs.getInt("id_banco");
                 int idTema = rs.getInt("id_tema");
                 String nombreTema = rs.getString("nombre_tema");
 
@@ -49,7 +48,7 @@ public class ExamenPreguntaDAO {
                 List<OpcionRespuesta> opciones = obtenerOpcionesRespuesta(idPregunta);
 
                 // ✅ Crear el objeto Pregunta con la lista de opciones
-                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idBanco, idTema, opciones);
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
                 pregunta.setNombreTema(nombreTema);
 
                 preguntas.add(pregunta);

@@ -41,19 +41,16 @@
     <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
     <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="250"/>
 
-    <Label text="Banco de Preguntas ID:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-    <TextField fx:id="txtIdBanco" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
-
-    <Label text="Opciones de Respuesta:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-    <VBox fx:id="vboxOpciones" GridPane.columnIndex="1" GridPane.rowIndex="5" spacing="8"
+    <Label text="Opciones de Respuesta:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <VBox fx:id="vboxOpciones" GridPane.columnIndex="1" GridPane.rowIndex="4" spacing="8"
           style="-fx-padding: 10px; -fx-border-color: #cccccc; -fx-border-width: 1px;"/>
 
-    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="6" alignment="CENTER">
+    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="5" alignment="CENTER">
         <Button text="Guardar Pregunta" onAction="#agregarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
     </HBox>
 
-    <Label text="Lista de Preguntas" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
-    <TableView fx:id="tablaPreguntas" GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="2">
+    <Label text="Lista de Preguntas" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+    <TableView fx:id="tablaPreguntas" GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="2">
         <columns>
             <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
             <TableColumn fx:id="colTexto" text="Texto" prefWidth="200"/>
@@ -63,7 +60,7 @@
         </columns>
     </TableView>
 
-    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="9" alignment="CENTER">
+    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="8" alignment="CENTER">
         <Button text="Editar Pregunta" onAction="#editarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
         <Button text="Guardar Cambios" onAction="#guardarEdicion" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
         <Button text="Eliminar Pregunta" onAction="#eliminarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>

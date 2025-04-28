@@ -7,16 +7,15 @@ import java.util.List;
 public class PreguntaDAO {
 
     public static boolean agregarPregunta(Pregunta pregunta) {
-        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_BANCO, ID_TEMA) " +
-                "VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_TEMA) " +
+                "VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, new String[]{"ID_PREGUNTA"})) {
 
             stmt.setString(1, pregunta.getTexto());
             stmt.setString(2, pregunta.getTipo());
-            stmt.setInt(3, pregunta.getIdBanco());
-            stmt.setInt(4, pregunta.getIdTema());
+            stmt.setInt(3, pregunta.getIdTema());
 
             int filasInsertadas = stmt.executeUpdate();
 
@@ -105,7 +104,7 @@ public class PreguntaDAO {
 
     public static List<Pregunta> obtenerTodasLasPreguntas() {
         List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_BANCO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA " +
+        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA " +
                 "FROM PREGUNTA p " +
                 "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
                 "ORDER BY p.ID_PREGUNTA DESC";
@@ -119,16 +118,15 @@ public class PreguntaDAO {
                 String texto = rs.getString("TEXTO");
                 String tipo = rs.getString("TIPO");
                 int idTema = rs.getInt("ID_TEMA");
-                int idBanco = rs.getInt("ID_BANCO");
                 String nombreTema = rs.getString("NOMBRE_TEMA");
 
                 List<OpcionRespuesta> opciones = obtenerOpcionesDePregunta(idPregunta);
 
-                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idBanco, idTema, opciones);
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
                 pregunta.setNombreTema(nombreTema);
                 listaPreguntas.add(pregunta);
 
-                System.out.println("✅ Pregunta obtenida: ID=" + idPregunta + ", Texto=" + texto + ", Tipo=" + tipo + ", Tema=" + nombreTema+ ", ID Banco=" + idBanco);
+                System.out.println("✅ Pregunta obtenida: ID=" + idPregunta + ", Texto=" + texto + ", Tipo=" + tipo + ", Tema=" + nombreTema);
                 System.out.println("✅ Opciones encontradas: " + opciones.size());
             }
 
@@ -139,17 +137,16 @@ public class PreguntaDAO {
         return listaPreguntas;
     }
 
-    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdBanco, int nuevoIdTema, List<OpcionRespuesta> nuevasOpciones) {
-        String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_BANCO = ?, ID_TEMA = ? WHERE ID_PREGUNTA = ?";
+    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema, List<OpcionRespuesta> nuevasOpciones) {
+        String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_TEMA = ? WHERE ID_PREGUNTA = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, nuevoTexto);
             stmt.setString(2, nuevoTipo);
-            stmt.setInt(3, nuevoIdBanco);
-            stmt.setInt(4, nuevoIdTema);
-            stmt.setInt(5, idPregunta);
+            stmt.setInt(3, nuevoIdTema);
+            stmt.setInt(4, idPregunta);
 
             int filasActualizadas = stmt.executeUpdate();
             System.out.println("Filas actualizadas en tabla PREGUNTA: " + filasActualizadas);
@@ -217,7 +214,7 @@ public class PreguntaDAO {
 
     public static List<Pregunta> obtenerPreguntasPorTema(int idTema) {
         List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_BANCO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA " +
+        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA " +
                 "FROM PREGUNTA p " +
                 "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
                 "WHERE p.ID_TEMA = ?";
@@ -232,14 +229,13 @@ public class PreguntaDAO {
                 int idPregunta = rs.getInt("ID_PREGUNTA");
                 String texto = rs.getString("TEXTO");
                 String tipo = rs.getString("TIPO");
-                int idBanco = rs.getInt("ID_BANCO");
                 String nombreTema = rs.getString("NOMBRE_TEMA");
 
                 // Obtener las opciones de respuesta para la pregunta
                 List<OpcionRespuesta> opciones = PreguntaDAO.obtenerOpcionesDePregunta(idPregunta);
 
 
-                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idBanco, idTema, opciones);
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
                 pregunta.setNombreTema(nombreTema);
 
                 listaPreguntas.add(pregunta);

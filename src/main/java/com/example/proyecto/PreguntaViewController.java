@@ -14,7 +14,6 @@ import java.util.List;
 public class PreguntaViewController {
     @FXML private TextArea txtTexto;
     @FXML private ComboBox<String> cbTipoPregunta;
-    @FXML private TextField txtIdBanco;
     @FXML private VBox vboxOpciones;
     @FXML private TableView<Pregunta> tablaPreguntas;
     @FXML private TableColumn<Pregunta, Integer> colId, colTema, colBanco;
@@ -41,7 +40,6 @@ public class PreguntaViewController {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colTexto.setCellValueFactory(new PropertyValueFactory<>("texto"));
         colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
-        colBanco.setCellValueFactory(new PropertyValueFactory<>("idBanco"));
         colTema.setCellValueFactory(new PropertyValueFactory<>("nombreTema"));
 
         cargarPreguntas();
@@ -72,7 +70,6 @@ public class PreguntaViewController {
         String textoPregunta = txtTexto.getText().trim();
         String tipoPregunta = cbTipoPregunta.getValue();
         int idTema;
-        int idBanco;
 
         try {
             // Obtener el índice seleccionado en el ComboBox
@@ -86,13 +83,6 @@ public class PreguntaViewController {
             }
         } catch (Exception e) {
             mostrarAlerta("Error", "Error al obtener el tema seleccionado.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        try {
-            idBanco = Integer.parseInt(txtIdBanco.getText().trim());
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "ID Banco debe ser un número válido.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -123,7 +113,6 @@ public class PreguntaViewController {
                 0,
                 textoPregunta,
                 tipoPregunta,
-                idBanco,
                 idTema,
                 opciones
         );
@@ -207,7 +196,6 @@ public class PreguntaViewController {
         // Cargar los datos en los campos de texto y el ComboBox
         txtTexto.setText(seleccionada.getTexto());
         cbTipoPregunta.setValue(seleccionada.getTipo());
-        txtIdBanco.setText(String.valueOf(seleccionada.getIdBanco()));
 
         // Seleccionar el tema en el ComboBox por nombre
         for (int i = 0; i < listaTemas.size(); i++) {
@@ -301,7 +289,6 @@ public class PreguntaViewController {
         String nuevoTexto = txtTexto.getText().trim();
         String nuevoTipo = cbTipoPregunta.getValue();
         int nuevoIdTema;
-        int nuevoIdBanco;
 
         try {
             // Obtener el índice seleccionado en el ComboBox
@@ -315,13 +302,6 @@ public class PreguntaViewController {
             }
         } catch (Exception e) {
             mostrarAlerta("Error", "Error al obtener el tema seleccionado.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        try {
-            nuevoIdBanco = Integer.parseInt(txtIdBanco.getText().trim());
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "ID Banco debe ser un número válido.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -380,12 +360,11 @@ public class PreguntaViewController {
         System.out.println("Actualizando pregunta ID: " + seleccionada.getId());
         System.out.println("Nuevo texto: " + nuevoTexto);
         System.out.println("Nuevo tipo: " + nuevoTipo);
-        System.out.println("Nuevo ID Banco: " + nuevoIdBanco);
         System.out.println("Nuevo ID Tema: " + nuevoIdTema);
         System.out.println("Nuevas opciones: " + nuevasOpciones.size());
 
         // Llamar a la base de datos para actualizar la pregunta
-        boolean exito = PreguntaDAO.actualizarPregunta(seleccionada.getId(), nuevoTexto, nuevoTipo, nuevoIdBanco, nuevoIdTema, nuevasOpciones);
+        boolean exito = PreguntaDAO.actualizarPregunta(seleccionada.getId(), nuevoTexto, nuevoTipo, nuevoIdTema, nuevasOpciones);
 
         if (exito) {
             mostrarAlerta("Éxito", "Pregunta actualizada correctamente.", Alert.AlertType.INFORMATION);
@@ -406,7 +385,6 @@ public class PreguntaViewController {
 
     private void limpiarFormulario() {
         txtTexto.clear();
-        txtIdBanco.clear();
         cbTipoPregunta.getSelectionModel().clearSelection();
         vboxOpciones.getChildren().clear();
         System.out.println("Formulario limpiado.");

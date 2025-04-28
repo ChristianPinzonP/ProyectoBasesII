@@ -1,5 +1,3 @@
 GESTIÓN DE EXAMENES
 
-4)  Al crear la pregunta la está guardando con el tema de Ciberseguridad autmomaticamente,
-    falta corregir eso --> SOLUCIONADO
-5)  Eliminar el uso del idBanco, eliminar la tabla BANCO --> PENDIENTE
+5)  Eliminar el uso del idBanco, eliminar la tabla BANCO --> TERMINADO

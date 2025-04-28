@@ -8,25 +8,22 @@ public class Pregunta {
     private String texto;
     private String tipo;
     private String nombreTema;
-    private int idBanco;
     private int idTema;
 
     private List<OpcionRespuesta> opciones;
     // Constructor para Respuesta Corta (sin opciones)
-    public Pregunta(int id, String texto, String tipo, int idBanco, int idTema) {
+    public Pregunta(int id, String texto, String tipo, int idTema) {
         this.id = id;
         this.texto = texto;
         this.tipo = tipo;
-        this.idBanco = idBanco;
         this.idTema = idTema;
     }
 
     // Constructor para Opción Múltiple y Verdadero/Falso (con opciones)
-    public Pregunta(int id, String texto, String tipo, int idBanco, int idTema, List<OpcionRespuesta> opciones) {
+    public Pregunta(int id, String texto, String tipo, int idTema, List<OpcionRespuesta> opciones) {
         this.id = id;
         this.texto = texto;
         this.tipo = tipo;
-        this.idBanco = idBanco;
         this.idTema = idTema;
         this.opciones = opciones;
     }
@@ -45,9 +42,6 @@ public class Pregunta {
         return idTema;
     }
     public void setIdTema(int idTema) {this.idTema = idTema; }
-
-    public int getIdBanco() { return idBanco; }
-    public void setIdBanco(int idBanco) { this.idBanco = idBanco; }
 
     // Método getter para el nombre del tema
     public String getNombreTema() {
