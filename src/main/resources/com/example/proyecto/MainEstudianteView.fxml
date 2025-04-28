@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.proyecto.MainEstudianteViewController">
+
+    <!-- Menú Superior -->
+    <top>
+        <MenuBar>
+            <menus>
+                <Menu text="Opciones">
+                    <MenuItem text="Gestión de Exámenes" />
+                    <MenuItem text="Gestión de Preguntas"/>
+                    <MenuItem text="Cerrar Sesión" />
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+
+    <!-- Centro vacío (se irá cambiando dinámicamente) -->
+    <center>
+        <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+        </BorderPane>
+    </center>
+
+</BorderPane>
