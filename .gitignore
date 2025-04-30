@@ -28,6 +28,9 @@ build/
 hs_err_pid*
 replay_pid*
 
+#mvn
+.mvn/
+
 # IDEs
 ## IntelliJ IDEA
 .idea/
