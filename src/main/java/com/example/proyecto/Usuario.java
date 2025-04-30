@@ -1,5 +1,5 @@
 package com.example.proyecto;
-
+// Clase padre Usuario.java
 public class Usuario {
     private int idUsuario;
     private String nombre;

@@ -8,7 +8,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
+//MainDocenteViewController
 public class MainDocenteViewController {
     private Docente docenteActual;
 

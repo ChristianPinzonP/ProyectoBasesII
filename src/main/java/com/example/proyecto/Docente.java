@@ -1,5 +1,5 @@
 package com.example.proyecto;
-
+//Clase Docente.java
 public class Docente extends Usuario {
     private String departamento;
     private String especialidad;

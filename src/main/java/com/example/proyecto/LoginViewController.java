@@ -12,7 +12,7 @@ import javafx.scene.Scene;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
+//ACTUALIZACIÓN DEL LOGIN
 public class LoginViewController {
     @FXML private TextField txtCorreo;
     @FXML private PasswordField txtContrasena;

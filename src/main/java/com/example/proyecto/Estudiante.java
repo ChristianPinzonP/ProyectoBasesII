@@ -1,5 +1,5 @@
 package com.example.proyecto;
-
+//Clase Estudiante.java
 public class Estudiante extends Usuario {
     private Grupo grupo;
     private String fechaIngresoGrupo;

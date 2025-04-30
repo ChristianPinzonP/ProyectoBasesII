@@ -1,5 +1,5 @@
 package com.example.proyecto;
-
+//Clase Grupo.java
 public class Grupo {
     private int idGrupo;
     private String nombre;
