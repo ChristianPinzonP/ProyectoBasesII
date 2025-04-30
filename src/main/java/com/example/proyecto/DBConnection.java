@@ -6,8 +6,8 @@ import java.sql.SQLException;
 public class DBConnection {
     //COMENTARIO PARA PODER SUBIR ARCHIVO AL REPOSITORIO
     private static final String URL = "jdbc:oracle:thin:@localhost:1521/XEPDB1";
-    private static final String USER = "root"; // Usuario según tu configuración en SQL Developer
-    private static final String PASSWORD = "root"; // Reemplaza con la contraseña correcta
+    private static final String USER = "root2"; // Usuario según tu configuración en SQL Developer
+    private static final String PASSWORD = "root2"; // Reemplaza con la contraseña correcta
 
     public static Connection getConnection() {
         try {
