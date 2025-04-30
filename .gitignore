@@ -2,7 +2,6 @@
 /out/
 target/
 build/
-.idea
 # Maven
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -28,6 +27,8 @@ build/
 hs_err_pid*
 replay_pid*
 
+#mvn
+.mvn/
 # IDEs
 ## IntelliJ IDEA
 .idea/
