@@ -8,8 +8,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
-public class MainDocenteController {
+//MainDocenteViewController
+public class MainDocenteViewController {
+    private Docente docenteActual;
 
     @FXML
     private BorderPane rootPane; // Asegúrate de tener este fx:id en MainDocenteView.fxml
@@ -48,6 +49,17 @@ public class MainDocenteController {
         }
     }
 
+    public void inicializarDocente(Docente docente) {
+        this.docenteActual = docente;
+        // Inicializar la interfaz con los datos del docente
+        actualizarInterfaz();
+    }
+
+    private void actualizarInterfaz() {
+        // Actualizar elementos de la interfaz con información del docente
+        // Por ejemplo:
+        // lblNombreDocente.setText("Bienvenido, " + docenteActual.getNombre());
+    }
 
     private void cargarVista(String rutaFXML) {
         try {
@@ -67,4 +79,5 @@ public class MainDocenteController {
             e.printStackTrace();
         }
     }
+
 }
