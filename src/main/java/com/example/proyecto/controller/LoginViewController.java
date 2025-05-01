@@ -1,5 +1,9 @@
-package com.example.proyecto;
+package com.example.proyecto.controller;
 
+import com.example.proyecto.DBConnection;
+import com.example.proyecto.Docente;
+import com.example.proyecto.Estudiante;
+import com.example.proyecto.Grupo;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;

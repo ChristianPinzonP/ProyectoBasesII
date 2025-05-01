@@ -1,4 +1,8 @@
-package com.example.proyecto;
+package com.example.proyecto.dao;
+
+import com.example.proyecto.DBConnection;
+import com.example.proyecto.OpcionRespuesta;
+import com.example.proyecto.Pregunta;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

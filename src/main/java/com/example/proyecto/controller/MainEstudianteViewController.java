@@ -1,4 +1,7 @@
-package com.example.proyecto;
+package com.example.proyecto.controller;
+
+import com.example.proyecto.Estudiante;
+
 //MainEstudianteViewController
 public class MainEstudianteViewController {
     private Estudiante estudianteActual;

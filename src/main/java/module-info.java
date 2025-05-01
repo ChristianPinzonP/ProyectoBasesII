@@ -6,4 +6,8 @@ module com.example.proyecto {
 
     opens com.example.proyecto to javafx.fxml;
     exports com.example.proyecto;
+    exports com.example.proyecto.controller;
+    opens com.example.proyecto.controller to javafx.fxml;
+    exports com.example.proyecto.dao;
+    opens com.example.proyecto.dao to javafx.fxml;
 }

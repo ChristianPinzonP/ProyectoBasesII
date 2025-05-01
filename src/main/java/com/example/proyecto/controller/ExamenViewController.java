@@ -1,13 +1,16 @@
-package com.example.proyecto;
+package com.example.proyecto.controller;
+import com.example.proyecto.*;
+import com.example.proyecto.dao.ExamenPreguntaDAO;
+import com.example.proyecto.dao.PreguntaDAO;
+import com.example.proyecto.dao.TemaDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import com.example.proyecto.ExamenPreguntaDAO;
+
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +33,7 @@ public class ExamenViewController {
     @FXML private DatePicker dpFechaInicio;
     @FXML private DatePicker dpFechaFin;
     @FXML private TextField txtTiempoLimite;
-    @FXML private TextField txtIdDocente, txtIdTema;
+    @FXML private TextField txtIdDocente;
     @FXML private TextField txtBuscar;
     @FXML private ComboBox<Tema> cbTema;
     private List<Tema> listaTemas;
@@ -126,7 +129,6 @@ public class ExamenViewController {
         Date fechaFin = Date.valueOf(dpFechaFin.getValue());
         int tiempoLimite = Integer.parseInt(txtTiempoLimite.getText());
         int idDocente = Integer.parseInt(txtIdDocente.getText());
-        int idTema = Integer.parseInt(txtIdTema.getText());
 
         try {
             if (!validarFormulario()) return;
@@ -147,7 +149,7 @@ public class ExamenViewController {
                     fechaFin,
                     tiempoLimite,
                     idDocente,
-                    idTema
+                    temaSeleccionado.getId()
             );
             nuevoExamen.setIdTema(temaSeleccionado.getId());
 
