@@ -16,6 +16,7 @@ public class MainDocenteViewController {
     @FXML private Label lblNombreDocente;
     @FXML private BorderPane rootPane; // Asegúrate de tener este fx:id en MainDocenteView.fxml
     @FXML private MenuItem menuCerrarSesion;
+
     private Docente docenteActual;
 
     @FXML
