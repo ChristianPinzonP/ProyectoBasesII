@@ -9,7 +9,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-<<<<<<<< HEAD:src/main/java/com/example/proyecto/controller/MainDocenteViewController.java
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
@@ -17,12 +16,6 @@ public class MainDocenteViewController {
     @FXML private Label lblNombreDocente;
     @FXML private BorderPane rootPane; // Asegúrate de tener este fx:id en MainDocenteView.fxml
     @FXML private MenuItem menuCerrarSesion;
-========
-//MainDocenteViewController
-public class MainDocenteViewController {
-    private Docente docenteActual;
->>>>>>>> main:src/main/java/com/example/proyecto/MainDocenteViewController.java
-
     private Docente docenteActual;
 
     @FXML
@@ -65,11 +58,7 @@ public class MainDocenteViewController {
     private void actualizarInterfaz() {
         // Actualizar elementos de la interfaz con información del docente
         // Por ejemplo:
-<<<<<<<< HEAD:src/main/java/com/example/proyecto/controller/MainDocenteViewController.java
         lblNombreDocente.setText("Bienvenido, " + docenteActual.getNombre());
-========
-        // lblNombreDocente.setText("Bienvenido, " + docenteActual.getNombre());
->>>>>>>> main:src/main/java/com/example/proyecto/MainDocenteViewController.java
     }
 
     private void cargarVista(String rutaFXML) {
@@ -90,9 +79,4 @@ public class MainDocenteViewController {
             e.printStackTrace();
         }
     }
-
-<<<<<<<< HEAD:src/main/java/com/example/proyecto/controller/MainDocenteViewController.java
 }
-========
-}
->>>>>>>> main:src/main/java/com/example/proyecto/MainDocenteViewController.java
