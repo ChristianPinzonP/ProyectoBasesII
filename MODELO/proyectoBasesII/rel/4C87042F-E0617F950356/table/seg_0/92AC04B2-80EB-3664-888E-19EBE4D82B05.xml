@@ -1,0 +1,126 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="92AC04B2-80EB-3664-888E-19EBE4D82B05" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="ESTADISTICAS_EXAMEN">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>ESTADISTICAS_EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:04 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_ESTADISTICA" id="5D684F66-CE5B-6D4B-AAF6-AB39EC696D7B">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTADISTICAS_EXAMEN</sourceObjSchema>
+<sourceObjName>ID_ESTADISTICA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_EXAMEN" id="D905BD7A-5F78-3153-CE81-06DFAA0D3CDC">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTADISTICAS_EXAMEN</sourceObjSchema>
+<sourceObjName>ID_EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="C6708AFA-B68C-D9C2-E09F-A3E6372968E6" referredColumn="64B7120F-C512-2B3D-9E84-C073F765B368"/>
+</associations>
+</Column>
+<Column name="TOTAL_PRESENTADOS" id="5381A900-9A45-C615-0A05-663F45BAD626">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTADISTICAS_EXAMEN</sourceObjSchema>
+<sourceObjName>TOTAL_PRESENTADOS</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="PROMEDIO_NOTA" id="2FDC0C40-27AF-84AA-4815-A180C8A09878">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTADISTICAS_EXAMEN</sourceObjSchema>
+<sourceObjName>PROMEDIO_NOTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="MAX_NOTA" id="83864652-A6B5-27AA-8701-FBE9215C4F12">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTADISTICAS_EXAMEN</sourceObjSchema>
+<sourceObjName>MAX_NOTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="MIN_NOTA" id="1901C342-9F50-EE63-DB8E-48DDC2DDCE35">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTADISTICAS_EXAMEN</sourceObjSchema>
+<sourceObjName>MIN_NOTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="155022DD-A155-1DC5-929D-ED727EACFBE8" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="ESTADISTICAS_EXAMEN_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>SYS_C009830</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:06 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="5D684F66-CE5B-6D4B-AAF6-AB39EC696D7B"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="DF0EC5F5-6A06-63A9-3C5D-93F9679654E3" name="SYS_C009858">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="D905BD7A-5F78-3153-CE81-06DFAA0D3CDC"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

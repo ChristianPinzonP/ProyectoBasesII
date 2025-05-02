@@ -1,0 +1,103 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxyOraclev12c class="oracle.dbtools.crest.model.design.storage.oracle.v12c.TableProxyOraclev12c" name="EXAMEN" directorySegmentName="seg_0" id="B1A1E84E-F937-D334-05BB-ADD494535F5B">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:04 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<schemaObject>6E8E7B9C-802C-95F4-524F-3C4504DAFCAB</schemaObject>
+<logging>YES</logging>
+<partitionedRowMovement>DISABLE</partitionedRowMovement>
+<segment>0FCA929B-4D28-2DBA-057A-52C0B3AD5061</segment>
+<tableSpace>4BAFBCF5-1E0A-3E4C-9E9A-8B2B9BF553FA</tableSpace>
+<temporaryChanged>false</temporaryChanged>
+<accessDriverType>oracle_loader</accessDriverType>
+<rejectLimit></rejectLimit>
+<inMemory>NO</inMemory>
+<columnProxies itemClass="oracle.dbtools.crest.model.design.storage.oracle.v12c.ColumnProxyOraclev12c">
+<ColumnProxy name="TIEMPO_POR_PREGUNTA" id="13BB62E3-6787-CF64-E96F-7BBA749E1585">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="FECHA_INICIO" id="32B7E386-1193-4827-25A2-004C6254E53F">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="ID_DOCENTE" id="42D9E07D-B41A-52CC-0F5A-3E594C5E8073">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="ID_EXAMEN" id="64B7120F-C512-2B3D-9E84-C073F765B368">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<defaultValue>&quot;ROOT2&quot;.&quot;SEQ_EXAMEN&quot;.&quot;NEXTVAL&quot;</defaultValue>
+</ColumnProxy>
+<ColumnProxy name="ID_TEMA" id="744CA025-21B4-95ED-523B-B3F833FD63EF">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="MODO_SELECCION" id="A4BB4510-2CC9-BB93-97DB-99F61EC3F961">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="FECHA_FIN" id="B793A6A3-4AB1-CF46-A46E-35316DAC125F">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="NOMBRE" id="C75A6B82-300A-427E-7D7E-9AB42431FF74">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="NUMERO_PREGUNTAS" id="E81B5A05-7ACD-14E8-4CEF-AC974550C83D">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="TIEMPO_LIMITE" id="EC6A897C-2472-0987-67D0-EB67C3DC2853">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="DESCRIPCION" id="EDA1F9D4-035B-F1D7-3937-E80F9E8D8870">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="FK_EXAMEN_TEMA" id="D2D5A803-BEA8-944C-3B75-82FBE6E9F8C2">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="FK_EXAMEN_DOCENTE" id="D390D62F-E0A8-79E9-B164-42380CCE6BC3">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ForeignKey>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="SYS_C009865" id="F3DF51FD-2E80-4094-CB3D-FBBCAB8A3FC9">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.PKProxyOraclev10g" name="EXAMEN_PK" id="E7D15B75-1B0A-6AC8-F154-EC6705947DFE">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:12 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<schemaObject>6E8E7B9C-802C-95F4-524F-3C4504DAFCAB</schemaObject>
+<segment>B2F5A0D7-F3FE-16DF-33EB-DF521B9F51EB</segment>
+<tableSpace>4BAFBCF5-1E0A-3E4C-9E9A-8B2B9BF553FA</tableSpace>
+<indexSegment>B2F5A0D7-F3FE-16DF-33EB-DF521B9F51EB</indexSegment>
+<indexSort>SORTED</indexSort>
+<usingIndex>BY INDEX NAME</usingIndex>
+</PrimaryKey>
+</primaryKeys>
+</TableProxyOraclev12c>

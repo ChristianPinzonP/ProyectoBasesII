@@ -1,0 +1,26 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TriggerOraclev10g class="oracle.dbtools.crest.model.design.storage.oracle.v10g.TriggerOraclev10g" name="TRG_NO_DOCENTE_TITULAR" directorySegmentName="seg_0" id="A7A77515-E5BA-EC84-BB3F-A4F1C575CF09">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>TRG_NO_DOCENTE_TITULAR</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<actions>INSERT, UPDATE</actions>
+<body><![CDATA[DECLARE
+    v_titular NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_titular
+    FROM "ROOT2"."GRUPO"
+    WHERE "ID_GRUPO" = :NEW."ID_GRUPO" 
+    AND "ID_DOCENTE_TITULAR" = :NEW."ID_DOCENTE";
+
+    IF v_titular > 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'El docente ya es titular de este grupo');
+    END IF;
+END;
+]]></body>
+<triggerTime>BEFORE</triggerTime>
+<owner>43C7C509-E781-D180-45D1-BF457631952C</owner>
+<table>8CCFE5C9-B036-7F2D-EEC1-A18C054C47CF</table>
+</TriggerOraclev10g>

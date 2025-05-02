@@ -1,0 +1,84 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="8072E1CE-C3C0-619E-941E-83E08A502913" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="GRUPO">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>GRUPO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:04 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_GRUPO" id="8CC11D37-7D7A-A1DC-A822-307A0713FC22">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>GRUPO</sourceObjSchema>
+<sourceObjName>ID_GRUPO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="NOMBRE" id="9E1C5882-E3FD-1E68-F481-AD01222044CE">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>GRUPO</sourceObjSchema>
+<sourceObjName>NOMBRE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>100 BYTE</dataTypeSize>
+<ownDataTypeParameters>100 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_DOCENTE_TITULAR" id="1BC5164B-AEE7-4F9D-CA72-BE0E43884BEA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>GRUPO</sourceObjSchema>
+<sourceObjName>ID_DOCENTE_TITULAR</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="92C733BA-1D26-E349-A258-C13D035EB0D1" referredColumn="E292F296-0F2D-0450-A969-B0058C23037B"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="758D4918-2B11-ECCC-B080-DFCFCFCEB556" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="GRUPO_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>SYS_C009833</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:06 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="8CC11D37-7D7A-A1DC-A822-307A0713FC22"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="58C70B58-ED64-D511-0556-D0C43DF8CE95" name="FK_GRUPO_DOCENTE">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="1BC5164B-AEE7-4F9D-CA72-BE0E43884BEA"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

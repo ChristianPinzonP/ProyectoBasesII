@@ -1,0 +1,98 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="9008FBDD-9A48-CECB-7E23-A7119770E939" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="ESTUDIANTE">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>ESTUDIANTE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:04 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_ESTUDIANTE" id="D38F98E2-3B37-D422-6F51-586F4C5E4C89">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTUDIANTE</sourceObjSchema>
+<sourceObjName>ID_ESTUDIANTE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="993CD4C0-AE9E-4C4B-A36D-312DEF79BCFA" referredColumn="D97EABF4-A7CC-19BE-C24D-A6BD56936E39"/>
+</associations>
+</Column>
+<Column name="GRADO" id="72C4954E-F1DE-9668-63EA-89E831BA69C1">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTUDIANTE</sourceObjSchema>
+<sourceObjName>GRADO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>100 BYTE</dataTypeSize>
+<ownDataTypeParameters>100 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_GRUPO" id="463C3E22-8629-AC3A-9C1D-381ADB191768">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ESTUDIANTE</sourceObjSchema>
+<sourceObjName>ID_GRUPO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="579A21D3-BDF8-1D8E-097F-A17E703272BF" referredColumn="8CC11D37-7D7A-A1DC-A822-307A0713FC22"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="3BBC701A-C427-DDF8-AA71-23C781198E66" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="ESTUDIANTE_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>SYS_C009854</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:06 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="D38F98E2-3B37-D422-6F51-586F4C5E4C89"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="248DE5FB-DD75-928E-EB1E-012950597086" name="FK_ESTUDIANTE_GRUPO">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="463C3E22-8629-AC3A-9C1D-381ADB191768"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="9E223C11-3EEB-60F9-9469-B98DDA869275" name="FK_ESTUDIANTE_USUARIO">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="D38F98E2-3B37-D422-6F51-586F4C5E4C89"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

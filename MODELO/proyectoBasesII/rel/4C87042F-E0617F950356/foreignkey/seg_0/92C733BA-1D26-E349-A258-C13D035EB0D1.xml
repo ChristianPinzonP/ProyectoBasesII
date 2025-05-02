@@ -1,0 +1,19 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="92C733BA-1D26-E349-A258-C13D035EB0D1" containerWithKeyObject="8072E1CE-C3C0-619E-941E-83E08A502913" localFKIndex="58C70B58-ED64-D511-0556-D0C43DF8CE95" name="FK_GRUPO_DOCENTE">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>FK_GRUPO_DOCENTE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<referredTableLongName>ROOT2.DOCENTE</referredTableLongName>
+<deleteRule>NO ACTION</deleteRule>
+<referredTableID>AF02586B-DC12-0C96-FCA2-E2A619B8D77E</referredTableID>
+<keyObject>B584E394-E84C-ECD2-D886-E1AA263E23E9</keyObject>
+<referredKeyID>B584E394-E84C-ECD2-D886-E1AA263E23E9</referredKeyID>
+<mandatory>false</mandatory>
+<refColNames>ID_DOCENTE</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

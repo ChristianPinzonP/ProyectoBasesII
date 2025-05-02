@@ -1,0 +1,137 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="A100D9BC-C841-77A3-1D70-FD6A8D54E0B7" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="PRESENTACION_EXAMEN">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>PRESENTACION_EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:04 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_PRESENTACION" id="31510AA4-5C1B-7464-8A67-CEAED65E34EF">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>ID_PRESENTACION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_EXAMEN" id="B9646F16-4FF4-F6E6-9661-CBB0743CBF80">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>ID_EXAMEN</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="1A33E51D-3C37-AA1C-355B-CD025AA4691B" referredColumn="64B7120F-C512-2B3D-9E84-C073F765B368"/>
+</associations>
+</Column>
+<Column name="ID_ESTUDIANTE" id="DC05D287-6986-9F39-E03F-C6066B8329F0">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>ID_ESTUDIANTE</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="665BABE3-1B76-F4D9-BF9D-527D9B197BC8" referredColumn="D38F98E2-3B37-D422-6F51-586F4C5E4C89"/>
+<colAssociation fkAssociation="33C64EF3-5F35-C562-9F51-F37A3A70C661" referredColumn="D97EABF4-A7CC-19BE-C24D-A6BD56936E39"/>
+</associations>
+</Column>
+<Column name="FECHA_PRESENTACION" id="7F95D62F-3E29-E428-4126-ECC8F3737BF4">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>FECHA_PRESENTACION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT007</logicalDatatype>
+<dataTypeSize>7</dataTypeSize>
+<ownDataTypeParameters>7,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="CALIFICACION" id="9186DD11-8DA5-9A02-9292-7EB21ECB9C8F">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PRESENTACION_EXAMEN</sourceObjSchema>
+<sourceObjName>CALIFICACION</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="533C211E-0CDE-F052-3BEB-8138CD2EBA6C" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="PRESENTACION_EXAMEN_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>SYS_C009842</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:06 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="31510AA4-5C1B-7464-8A67-CEAED65E34EF"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="E643D6EA-B0D9-65E9-2E85-EC8D64BF2541" name="FK_PRESENTACION_ESTUDIANTE">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="DC05D287-6986-9F39-E03F-C6066B8329F0"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="33F62AF5-6E82-8201-8156-F68923ABF419" name="SYS_C009871">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="B9646F16-4FF4-F6E6-9661-CBB0743CBF80"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="CC619B9A-7442-2CA7-4FF9-1CEFDE722BD1" name="SYS_C009872">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="DC05D287-6986-9F39-E03F-C6066B8329F0"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

@@ -1,0 +1,40 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxyOraclev12c class="oracle.dbtools.crest.model.design.storage.oracle.v12c.TableProxyOraclev12c" name="TEMA" directorySegmentName="seg_0" id="041D77BF-DF13-0284-E36A-19A3FBBC2C3F">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:04 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<schemaObject>6E8E7B9C-802C-95F4-524F-3C4504DAFCAB</schemaObject>
+<logging>YES</logging>
+<partitionedRowMovement>DISABLE</partitionedRowMovement>
+<segment>0FCA929B-4D28-2DBA-057A-52C0B3AD5061</segment>
+<tableSpace>4BAFBCF5-1E0A-3E4C-9E9A-8B2B9BF553FA</tableSpace>
+<temporaryChanged>false</temporaryChanged>
+<accessDriverType>oracle_loader</accessDriverType>
+<rejectLimit></rejectLimit>
+<inMemory>NO</inMemory>
+<columnProxies itemClass="oracle.dbtools.crest.model.design.storage.oracle.v12c.ColumnProxyOraclev12c">
+<ColumnProxy name="NOMBRE" id="BCBA1B9D-1E69-1B16-81F7-07ED42C04CBA">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="ID_TEMA" id="F882913E-149A-7A03-680B-B3BFE4D1D17C">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.PKProxyOraclev10g" name="TEMA_PK" id="58321DBF-DD88-491D-09C1-9E53FE2C0DF7">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:12 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<schemaObject>6E8E7B9C-802C-95F4-524F-3C4504DAFCAB</schemaObject>
+<segment>B2F5A0D7-F3FE-16DF-33EB-DF521B9F51EB</segment>
+<tableSpace>4BAFBCF5-1E0A-3E4C-9E9A-8B2B9BF553FA</tableSpace>
+<indexSegment>B2F5A0D7-F3FE-16DF-33EB-DF521B9F51EB</indexSegment>
+<indexSort>SORTED</indexSort>
+<usingIndex>BY INDEX NAME</usingIndex>
+</PrimaryKey>
+</primaryKeys>
+</TableProxyOraclev12c>

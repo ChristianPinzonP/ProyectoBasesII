@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="AAC174DE-00A8-ED85-47B7-67ED0B81CD63" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="PREGUNTA">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:04 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="ID_PREGUNTA" id="6E6E8168-DA63-440B-79CD-3B8CF81ADB9E">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>ID_PREGUNTA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<defaultValue>&quot;ROOT2&quot;.&quot;SEQ_PREGUNTA&quot;.&quot;NEXTVAL&quot;</defaultValue>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TEXTO" id="9C8E4901-039F-AAC9-DA81-BBB0574B3183">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>TEXTO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT028</logicalDatatype>
+<dataTypeSize>4000</dataTypeSize>
+<ownDataTypeParameters>4000,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="TIPO" id="9C988DC7-E705-9A5D-98FE-B1C79C20CE74">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>TIPO</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50 BYTE</dataTypeSize>
+<ownDataTypeParameters>50 BYTE,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="ID_TEMA" id="066E528B-82DC-C385-C7A0-888F433D3036">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>PREGUNTA</sourceObjSchema>
+<sourceObjName>ID_TEMA</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="4E8C1FA0-0C96-7BEB-2CF8-A7A49D41824C" referredColumn="F882913E-149A-7A03-680B-B3BFE4D1D17C"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="4C3CF9FE-353A-3B7F-935D-784C82D1C7AD" schemaObject="6E8E7B9C-802C-95F4-524F-3C4504DAFCAB" name="PREGUNTA_PK">
+<sourceConnName>XEPDB1</sourceConnName>
+<sourceObjSchema>ROOT2</sourceObjSchema>
+<sourceObjName>SYS_C009845</sourceObjName>
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:06 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="6E6E8168-DA63-440B-79CD-3B8CF81ADB9E"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="E2C3180C-3FE8-E017-91DA-5AEB012FED99" name="FK_PREGUNTA_TEMA">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="066E528B-82DC-C385-C7A0-888F433D3036"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

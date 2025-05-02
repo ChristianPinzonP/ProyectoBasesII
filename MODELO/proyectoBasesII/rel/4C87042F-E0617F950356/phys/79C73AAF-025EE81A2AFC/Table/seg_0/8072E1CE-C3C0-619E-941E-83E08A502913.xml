@@ -1,0 +1,52 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<TableProxyOraclev12c class="oracle.dbtools.crest.model.design.storage.oracle.v12c.TableProxyOraclev12c" name="GRUPO" directorySegmentName="seg_0" id="8072E1CE-C3C0-619E-941E-83E08A502913">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:04 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<schemaObject>6E8E7B9C-802C-95F4-524F-3C4504DAFCAB</schemaObject>
+<logging>YES</logging>
+<partitionedRowMovement>DISABLE</partitionedRowMovement>
+<segment>0FCA929B-4D28-2DBA-057A-52C0B3AD5061</segment>
+<tableSpace>4BAFBCF5-1E0A-3E4C-9E9A-8B2B9BF553FA</tableSpace>
+<temporaryChanged>false</temporaryChanged>
+<accessDriverType>oracle_loader</accessDriverType>
+<rejectLimit></rejectLimit>
+<inMemory>NO</inMemory>
+<columnProxies itemClass="oracle.dbtools.crest.model.design.storage.oracle.v12c.ColumnProxyOraclev12c">
+<ColumnProxy name="ID_DOCENTE_TITULAR" id="1BC5164B-AEE7-4F9D-CA72-BE0E43884BEA">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="ID_GRUPO" id="8CC11D37-7D7A-A1DC-A822-307A0713FC22">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+<ColumnProxy name="NOMBRE" id="9E1C5882-E3FD-1E68-F481-AD01222044CE">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:05 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ColumnProxy>
+</columnProxies>
+<foreignKeys>
+<ForeignKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.FKProxyOraclev10g" name="FK_GRUPO_DOCENTE" id="58C70B58-ED64-D511-0556-D0C43DF8CE95">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:16 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+</ForeignKey>
+</foreignKeys>
+<primaryKeys>
+<PrimaryKey class="oracle.dbtools.crest.model.design.storage.oracle.v10g.PKProxyOraclev10g" name="GRUPO_PK" id="758D4918-2B11-ECCC-B080-DFCFCFCEB556">
+<createdBy>acm91</createdBy>
+<createdTime>2025-05-02 07:59:12 UTC</createdTime>
+<ownerDesignName>proyectoBasesII</ownerDesignName>
+<schemaObject>6E8E7B9C-802C-95F4-524F-3C4504DAFCAB</schemaObject>
+<segment>B2F5A0D7-F3FE-16DF-33EB-DF521B9F51EB</segment>
+<tableSpace>4BAFBCF5-1E0A-3E4C-9E9A-8B2B9BF553FA</tableSpace>
+<indexSegment>B2F5A0D7-F3FE-16DF-33EB-DF521B9F51EB</indexSegment>
+<indexSort>SORTED</indexSort>
+<usingIndex>BY INDEX NAME</usingIndex>
+</PrimaryKey>
+</primaryKeys>
+</TableProxyOraclev12c>
