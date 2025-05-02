@@ -1,4 +1,7 @@
-package com.example.proyecto;
+package com.example.proyecto.dao;
+
+import com.example.proyecto.DBConnection;
+import com.example.proyecto.Examen;
 
 import java.sql.*;
 import java.util.ArrayList;

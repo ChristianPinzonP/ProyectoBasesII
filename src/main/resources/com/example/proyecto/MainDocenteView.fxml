@@ -5,8 +5,12 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
+<<<<<<< HEAD
+            fx:controller="com.example.proyecto.controller.MainDocenteViewController">
+=======
             fx:controller="com.example.proyecto.MainDocenteViewController">
 
+>>>>>>> main
     <!-- Menú Superior -->
     <top>
         <MenuBar>
@@ -23,6 +27,11 @@
     <!-- Centro vacío (se irá cambiando dinámicamente) -->
     <center>
         <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+            <top>
+                <VBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 15px;">
+                    <Label fx:id="lblNombreDocente" text="Bienvenido, Docente" />
+                </VBox>
+            </top>
         </BorderPane>
     </center>
 

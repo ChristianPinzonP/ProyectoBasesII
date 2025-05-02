@@ -8,7 +8,11 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
+<<<<<<< HEAD
+            fx:controller="com.example.proyecto.controller.MainEstudianteViewController">
+=======
             fx:controller="com.example.proyecto.MainEstudianteViewController">
+>>>>>>> main
 
     <!-- Menú Superior -->
     <top>
@@ -26,6 +30,18 @@
     <!-- Centro vacío (se irá cambiando dinámicamente) -->
     <center>
         <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+<<<<<<< HEAD
+            <!-- Añadir un AnchorPane o VBox para contener las etiquetas -->
+            <top>
+                <VBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 15px;">
+                    <Label fx:id="lblNombreEstudiante" text="Bienvenido, Estudiante"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblGrupoEstudiante" text="Grupo: -"
+                           style="-fx-font-size: 14px;"/>
+                </VBox>
+            </top>
+=======
+>>>>>>> main
         </BorderPane>
     </center>
 

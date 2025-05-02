@@ -1,11 +1,13 @@
-package com.example.proyecto;
+package com.example.proyecto.controller;
 
+import com.example.proyecto.*;
+import com.example.proyecto.dao.PreguntaDAO;
+import com.example.proyecto.dao.TemaDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ public class PreguntaViewController {
     @FXML private ComboBox<String> cbTipoPregunta;
     @FXML private VBox vboxOpciones;
     @FXML private TableView<Pregunta> tablaPreguntas;
-    @FXML private TableColumn<Pregunta, Integer> colId, colTema, colBanco;
+    @FXML private TableColumn<Pregunta, Integer> colId, colTema;
     @FXML private TableColumn<Pregunta, String> colTexto, colTipo;
     @FXML private ComboBox<String> cbTema; // nombre visible
 
@@ -121,8 +123,6 @@ public class PreguntaViewController {
             mostrarAlerta("Éxito", "Pregunta agregada correctamente.", Alert.AlertType.INFORMATION);
             cargarPreguntas();
             limpiarFormulario();
-        } else {
-            mostrarAlerta("Error", "No se pudo agregar la pregunta. Verifique que el ID Banco exista.", Alert.AlertType.ERROR);
         }
     }
 
