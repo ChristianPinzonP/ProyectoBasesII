@@ -40,6 +40,7 @@ public class ExamenViewController {
     private List<Tema> listaTemas;
     private ObservableList<Examen> listaExamenes;
     private FilteredList<Examen> filtroExamenes;
+    private Docente docenteActual;
 
 
     @FXML
@@ -97,6 +98,12 @@ public class ExamenViewController {
         tablaExamenes.setItems(sortedData);
     }
 
+    public void inicializarDocente(Docente docente) {
+        this.docenteActual = docente;
+        txtIdDocente.setText(String.valueOf(docente.getIdDocente()));
+        txtIdDocente.setDisable(true); // opcional: evitar edición manual
+    }
+
     @FXML
     public void cargarExamenes() {
         listaExamenes = FXCollections.observableArrayList(ExamenDAO.obtenerTodosLosExamenes());
@@ -129,7 +136,7 @@ public class ExamenViewController {
         Date fechaInicio = Date.valueOf(dpFechaInicio.getValue());
         Date fechaFin = Date.valueOf(dpFechaFin.getValue());
         int tiempoLimite = Integer.parseInt(txtTiempoLimite.getText());
-        int idDocente = Integer.parseInt(txtIdDocente.getText());
+        int idDocente = docenteActual.getIdDocente();
 
         try {
             if (!validarFormulario()) return;
@@ -197,7 +204,7 @@ public class ExamenViewController {
 
         // Validar que el ID del docente sea un número entero positivo
         try {
-            int idDocente = Integer.parseInt(txtIdDocente.getText());
+            int idDocente = docenteActual.getIdDocente();
             if (idDocente <= 0) mensajeError += "⚠️ El ID del docente debe ser un número positivo.\n";
         } catch (NumberFormatException e) {
             mensajeError += "⚠️ El ID del docente debe ser un número entero.\n";

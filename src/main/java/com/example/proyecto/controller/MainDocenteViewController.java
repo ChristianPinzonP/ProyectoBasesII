@@ -69,7 +69,9 @@ public class MainDocenteViewController {
 
             // Aplicar también el CSS a la vista que cargamos
             vistaCargada.getStylesheets().add(getClass().getResource("/com/example/proyecto/application.css").toExternalForm());
-
+            // Pasar el docente al controlador
+            ExamenViewController controlador = loader.getController();
+            controlador.inicializarDocente(docenteActual);
             // Envolver en un StackPane para centrarla
             StackPane contenedorCentrado = new StackPane(vistaCargada);
             contenedorCentrado.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
