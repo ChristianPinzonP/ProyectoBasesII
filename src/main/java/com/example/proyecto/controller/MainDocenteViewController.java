@@ -9,15 +9,15 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-//MainDocenteViewController
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+
 public class MainDocenteViewController {
+    @FXML private Label lblNombreDocente;
+    @FXML private BorderPane rootPane; // Asegúrate de tener este fx:id en MainDocenteView.fxml
+    @FXML private MenuItem menuCerrarSesion;
+
     private Docente docenteActual;
-
-    @FXML
-    private BorderPane rootPane; // Asegúrate de tener este fx:id en MainDocenteView.fxml
-
-    @FXML
-    private MenuItem menuCerrarSesion;
 
     @FXML
     public void mostrarExamenes() {
@@ -59,7 +59,7 @@ public class MainDocenteViewController {
     private void actualizarInterfaz() {
         // Actualizar elementos de la interfaz con información del docente
         // Por ejemplo:
-        // lblNombreDocente.setText("Bienvenido, " + docenteActual.getNombre());
+        lblNombreDocente.setText("Bienvenido, " + docenteActual.getNombre());
     }
 
     private void cargarVista(String rutaFXML) {

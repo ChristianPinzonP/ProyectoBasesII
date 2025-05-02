@@ -1,9 +1,14 @@
 package com.example.proyecto.controller;
 
 import com.example.proyecto.Estudiante;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 
 //MainEstudianteViewController
 public class MainEstudianteViewController {
+    @FXML private Label lblNombreEstudiante;
+    @FXML private Label lblGrupoEstudiante;
+
     private Estudiante estudianteActual;
 
     // Otros elementos de la interfaz con @FXML
@@ -17,13 +22,13 @@ public class MainEstudianteViewController {
     private void actualizarInterfaz() {
         // Actualizar elementos de la interfaz con información del estudiante
         // Por ejemplo:
-        // lblNombreEstudiante.setText("Bienvenido, " + estudianteActual.getNombre());
+         lblNombreEstudiante.setText("Bienvenido, " + estudianteActual.getNombre());
 
         // Mostrar información del grupo si existe
         if (estudianteActual.getGrupo() != null) {
-            // lblGrupo.setText("Grupo: " + estudianteActual.getGrupo().getNombre());
+             lblGrupoEstudiante.setText("Grupo: " + estudianteActual.getGrupo().getNombre());
         } else {
-            // lblGrupo.setText("Sin grupo asignado");
+             lblGrupoEstudiante.setText("Sin grupo asignado");
         }
     }
 

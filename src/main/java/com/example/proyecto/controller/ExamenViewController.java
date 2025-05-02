@@ -1,5 +1,6 @@
 package com.example.proyecto.controller;
 import com.example.proyecto.*;
+import com.example.proyecto.dao.ExamenDAO;
 import com.example.proyecto.dao.ExamenPreguntaDAO;
 import com.example.proyecto.dao.PreguntaDAO;
 import com.example.proyecto.dao.TemaDAO;

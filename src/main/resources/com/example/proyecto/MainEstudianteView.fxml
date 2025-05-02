@@ -26,6 +26,15 @@
     <!-- Centro vacío (se irá cambiando dinámicamente) -->
     <center>
         <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+            <!-- Añadir un AnchorPane o VBox para contener las etiquetas -->
+            <top>
+                <VBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 15px;">
+                    <Label fx:id="lblNombreEstudiante" text="Bienvenido, Estudiante"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    <Label fx:id="lblGrupoEstudiante" text="Grupo: -"
+                           style="-fx-font-size: 14px;"/>
+                </VBox>
+            </top>
         </BorderPane>
     </center>
 
