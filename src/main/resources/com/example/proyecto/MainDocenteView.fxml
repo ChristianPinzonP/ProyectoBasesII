@@ -5,7 +5,12 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
+<<<<<<< HEAD
             fx:controller="com.example.proyecto.controller.MainDocenteViewController">
+=======
+            fx:controller="com.example.proyecto.MainDocenteViewController">
+
+>>>>>>> main
     <!-- Menú Superior -->
     <top>
         <MenuBar>
