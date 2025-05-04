@@ -14,6 +14,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 
 import java.sql.*;
+
+import static com.example.proyecto.dao.DocenteDAO.esDocente;
+import static com.example.proyecto.dao.DocenteDAO.obtenerDocenteCompleto;
+import static com.example.proyecto.dao.EstudianteDAO.esEstudiante;
+import static com.example.proyecto.dao.EstudianteDAO.obtenerEstudianteCompleto;
+
 //ACTUALIZACIÓN DEL LOGIN
 public class LoginViewController {
     @FXML private TextField txtCorreo;
@@ -65,66 +71,6 @@ public class LoginViewController {
             e.printStackTrace();
             mostrarAlerta("Error", "Error al conectar con la base de datos." + e.getMessage(), Alert.AlertType.ERROR);
         }
-    }
-
-    private boolean esDocente(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT 1 FROM DOCENTE WHERE id_docente = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        return rs.next();
-    }
-
-    private boolean esEstudiante(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT 1 FROM ESTUDIANTE WHERE id_estudiante = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        return rs.next();
-    }
-
-    private Docente obtenerDocenteCompleto(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT u.id_usuario, u.nombre, u.correo, d.asignatura " +
-                "FROM USUARIO u JOIN DOCENTE d ON u.id_usuario = d.id_docente WHERE u.id_usuario = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            Docente docente = new Docente();
-            docente.setIdUsuario(rs.getInt("id_usuario"));
-            docente.setNombre(rs.getString("nombre"));
-            docente.setCorreo(rs.getString("correo"));
-            docente.setAsignatura(rs.getString("asignatura"));
-            return docente;
-        }
-        return null;
-    }
-
-    private Estudiante obtenerEstudianteCompleto(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT u.id_usuario, u.nombre, u.correo, g.id_grupo, g.nombre AS nombre_grupo , g.id_docente_titular " +
-                "FROM USUARIO u JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante " +
-                "LEFT JOIN GRUPO g ON e.id_grupo = g.id_grupo " +
-                "LEFT JOIN DOCENTE d ON g.id_docente_titular = d.id_docente " +
-                "WHERE u.id_usuario = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            Estudiante estudiante = new Estudiante();
-            estudiante.setIdUsuario(rs.getInt("id_usuario"));
-            estudiante.setNombre(rs.getString("nombre"));
-            estudiante.setCorreo(rs.getString("correo"));
-
-            // Cargar grupo
-            Grupo grupo = new Grupo();
-            grupo.setIdGrupo(rs.getInt("id_grupo"));
-            grupo.setNombre(rs.getString("nombre_grupo"));
-            grupo.setIdDocente(rs.getInt("id_docente_titular"));
-            estudiante.setGrupo(grupo);
-
-            return estudiante;
-        }
-        return null;
     }
 
     private void mostrarVistaDocente(Docente docente) {
