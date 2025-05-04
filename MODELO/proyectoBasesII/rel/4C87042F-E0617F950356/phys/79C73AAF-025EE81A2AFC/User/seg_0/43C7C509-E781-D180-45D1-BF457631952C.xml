@@ -1,9 +1,0 @@
-<?xml version = '1.0' encoding = 'UTF-8'?>
-<UserOraclev10g class="oracle.dbtools.crest.model.design.storage.oracle.v10g.UserOraclev10g" name="ROOT2" directorySegmentName="seg_0" id="43C7C509-E781-D180-45D1-BF457631952C">
-<sourceConnName>XEPDB1</sourceConnName>
-<sourceObjName>ROOT2</sourceObjName>
-<createdBy>acm91</createdBy>
-<createdTime>2025-05-02 07:59:02 UTC</createdTime>
-<ownerDesignName>proyectoBasesII</ownerDesignName>
-<schemaObject>6E8E7B9C-802C-95F4-524F-3C4504DAFCAB</schemaObject>
-</UserOraclev10g>
