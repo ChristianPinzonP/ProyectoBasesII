@@ -1,5 +1,6 @@
 package com.example.proyecto;
-public class Grupo extends Docente{
+//Clase Grupo.java
+public class Grupo {
     private int idGrupo;
     private String nombre;
 
@@ -9,4 +10,12 @@ public class Grupo extends Docente{
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
+
+    @Override
+    public String toString() {
+        return "Grupo{" +
+                "idGrupo=" + idGrupo +
+                ", nombre='" + nombre +
+                '}';
+    }
 }
