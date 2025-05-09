@@ -20,7 +20,7 @@ public class PreguntaViewController {
     @FXML private TableView<Pregunta> tablaPreguntas;
     @FXML private TableColumn<Pregunta, Integer> colId, colTema;
     @FXML private TableColumn<Pregunta, String> colTexto, colTipo;
-    @FXML private ComboBox<String> cbTema; // nombre visible
+    @FXML private ComboBox<Tema> cbTema;
 
     private TextField txtOpcion1, txtOpcion2, txtOpcion3, txtOpcion4;
     private CheckBox chkCorrecta1, chkCorrecta2, chkCorrecta3, chkCorrecta4;
@@ -29,12 +29,22 @@ public class PreguntaViewController {
 
     @FXML
     public void initialize() {
-        listaTemas = TemaDAO.obtenerTemas();
-        ObservableList<String> nombresTemas = FXCollections.observableArrayList();
-        for (Tema tema : listaTemas) {
-            nombresTemas.add(tema.getNombre());
+        try {
+            listaTemas = TemaDAO.obtenerTemas();
+
+            if (listaTemas.isEmpty()) {
+                System.out.println("⚠️ No se cargaron temas. Verifica conexión o datos.");
+            } else {
+                System.out.println("✅ Temas cargados: " + listaTemas.size());
+            }
+
+            ObservableList<Tema> temas = FXCollections.observableArrayList(listaTemas);
+            cbTema.setItems(temas);
+
+        } catch (Exception e) {
+            System.out.println("❌ Error al inicializar el ComboBox de temas:");
+            e.printStackTrace();
         }
-        cbTema.setItems(nombresTemas);
 
         cbTipoPregunta.setItems(FXCollections.observableArrayList("Opción Múltiple", "Verdadero/Falso", "Respuesta Corta"));
         cbTipoPregunta.setOnAction(event -> actualizarOpcionesRespuesta());
@@ -47,7 +57,6 @@ public class PreguntaViewController {
         cargarPreguntas();
         inicializarOpciones();
     }
-
     private void inicializarOpciones() {
         txtOpcion1 = new TextField("Opción 1");
         chkCorrecta1 = new CheckBox("Correcto");
@@ -73,18 +82,11 @@ public class PreguntaViewController {
         String tipoPregunta = cbTipoPregunta.getValue();
         int idTema;
 
-        try {
-            // Obtener el índice seleccionado en el ComboBox
-            int indiceSeleccionado = cbTema.getSelectionModel().getSelectedIndex();
-            if (indiceSeleccionado >= 0) {
-                // Obtener el ID del tema correspondiente al nombre seleccionado
-                idTema = listaTemas.get(indiceSeleccionado).getId();
-            } else {
-                mostrarAlerta("Error", "Debe seleccionar un tema.", Alert.AlertType.WARNING);
-                return;
-            }
-        } catch (Exception e) {
-            mostrarAlerta("Error", "Error al obtener el tema seleccionado.", Alert.AlertType.WARNING);
+        Tema temaSeleccionado = cbTema.getValue();
+        if (temaSeleccionado != null) {
+            idTema = temaSeleccionado.getId();
+        } else {
+            mostrarAlerta("Error", "Debe seleccionar un tema.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -198,9 +200,9 @@ public class PreguntaViewController {
         cbTipoPregunta.setValue(seleccionada.getTipo());
 
         // Seleccionar el tema en el ComboBox por nombre
-        for (int i = 0; i < listaTemas.size(); i++) {
-            if (listaTemas.get(i).getId() == seleccionada.getIdTema()) {
-                cbTema.getSelectionModel().select(i);
+        for (Tema tema : listaTemas) {
+            if (tema.getId() == seleccionada.getIdTema()) {
+                cbTema.getSelectionModel().select(tema);
                 break;
             }
         }

@@ -5,19 +5,31 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 
 public class MainDocenteViewController {
+
     @FXML private Label lblNombreDocente;
-    @FXML private BorderPane rootPane; // Asegúrate de tener este fx:id en MainDocenteView.fxml
+    @FXML private BorderPane rootPane; // fx:id en MainDocenteView.fxml
     @FXML private MenuItem menuCerrarSesion;
+    @FXML private ImageView logoImage; // NUEVO: referencia al logo
 
     private Docente docenteActual;
+
+    @FXML
+    public void initialize() {
+        try {
+            logoImage.setImage(new Image(getClass().getResourceAsStream("/images/edusoft_logo.png")));
+        } catch (Exception e) {
+            System.out.println("Error cargando logo: " + e.getMessage());
+        }
+    }
 
     @FXML
     public void mostrarExamenes() {
@@ -32,11 +44,9 @@ public class MainDocenteViewController {
     @FXML
     public void cerrarSesion() {
         try {
-            // Cerrar la ventana actual
             Stage stageActual = (Stage) rootPane.getScene().getWindow();
             stageActual.close();
 
-            // Abrir la ventana de Login
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto/LoginView.fxml"));
             Scene sceneLogin = new Scene(loader.load(), 400, 300);
 
@@ -52,13 +62,10 @@ public class MainDocenteViewController {
 
     public void inicializarDocente(Docente docente) {
         this.docenteActual = docente;
-        // Inicializar la interfaz con los datos del docente
         actualizarInterfaz();
     }
 
     private void actualizarInterfaz() {
-        // Actualizar elementos de la interfaz con información del docente
-        // Por ejemplo:
         lblNombreDocente.setText("Bienvenido, " + docenteActual.getNombre());
     }
 
@@ -67,20 +74,16 @@ public class MainDocenteViewController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFXML));
             Parent vistaCargada = loader.load();
 
-            // Aplicar también el CSS a la vista que cargamos
             vistaCargada.getStylesheets().add(getClass().getResource("/com/example/proyecto/application.css").toExternalForm());
 
-            // Obtener el controlador sin hacer cast directamente
             Object controlador = loader.getController();
 
-            // Solo pasar el docente si es ExamenViewController
             if (controlador instanceof ExamenViewController) {
                 ((ExamenViewController) controlador).inicializarDocente(docenteActual);
             }
 
             StackPane contenedorCentrado = new StackPane(vistaCargada);
             contenedorCentrado.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
             rootPane.setCenter(contenedorCentrado);
 
         } catch (Exception e) {

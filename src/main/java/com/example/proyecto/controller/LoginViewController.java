@@ -30,33 +30,32 @@ public class LoginViewController {
         }
 
         try (Connection conn = DBConnection.getConnection()) {
-            // Primero verificamos si el usuario existe en la tabla base USUARIO
-            String sqlUsuario = "SELECT ID_USUARIO, NOMBRE, CORREO FROM USUARIO WHERE CORREO = ? AND CONTRASENA = ?";
-            PreparedStatement stmtUsuario = conn.prepareStatement(sqlUsuario);
-            stmtUsuario.setString(1, correo);
-            stmtUsuario.setString(2, contrasena);
+            String sql = "SELECT * FROM USUARIO WHERE CORREO = ? AND CONTRASENA = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, correo);
+            stmt.setString(2, contrasena);
 
-            ResultSet rsUsuario = stmtUsuario.executeQuery();
+            ResultSet rs = stmt.executeQuery();
 
-            if (rsUsuario.next()) {
-                int idUsuario = rsUsuario.getInt("ID_USUARIO");
-                String nombre = rsUsuario.getString("NOMBRE");
+            if (rs.next()) {
+                int idUsuario = rs.getInt("ID_USUARIO");
+                String nombre = rs.getString("NOMBRE");
+                String tipo = rs.getString("TIPO_USUARIO");
 
-                // Verificar si es docente
-                if (esDocente(conn, idUsuario)) {
-                    Docente docente = obtenerDocenteCompleto(conn, idUsuario);
+                if ("Docente".equalsIgnoreCase(tipo)) {
+                    Docente docente = new Docente();
+                    docente.setIdUsuario(idUsuario);
+                    docente.setNombre(nombre);
+                    docente.setCorreo(correo);
+                    // Puedes traer la asignatura si la tienes guardada en otra tabla, o establecer un valor por defecto.
+                    docente.setAsignatura("Asignatura por definir");
                     mostrarVistaDocente(docente);
-                    return;
-                }
-
-                // Verificar si es estudiante
-                if (esEstudiante(conn, idUsuario)) {
+                } else if ("Estudiante".equalsIgnoreCase(tipo)) {
                     Estudiante estudiante = obtenerEstudianteCompleto(conn, idUsuario);
                     mostrarVistaEstudiante(estudiante);
-                    return;
+                } else {
+                    mostrarAlerta("Error", "Tipo de usuario desconocido.", Alert.AlertType.ERROR);
                 }
-
-                mostrarAlerta("Error", "El usuario no está registrado como docente ni como estudiante.", Alert.AlertType.ERROR);
             } else {
                 mostrarAlerta("Error", "Credenciales inválidas.", Alert.AlertType.ERROR);
             }
@@ -66,6 +65,7 @@ public class LoginViewController {
             mostrarAlerta("Error", "Error al conectar con la base de datos." + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
+
 
     private boolean esDocente(Connection conn, int idUsuario) throws SQLException {
         String sql = "SELECT 1 FROM DOCENTE WHERE id_docente = ?";

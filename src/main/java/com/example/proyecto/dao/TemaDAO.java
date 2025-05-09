@@ -24,7 +24,8 @@ public class TemaDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("❌ Error al obtener los temas desde la base de datos:");
+            e.printStackTrace();  // Esto te mostrará errores en consola de ejecución
         }
 
         return temas;
@@ -45,3 +46,4 @@ public class TemaDAO {
         }
     }
 }
+

@@ -1,34 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.proyecto.controller.MainDocenteViewController">
+
     <!-- Menú Superior -->
     <top>
-        <MenuBar>
-            <menus>
-                <Menu text="Opciones">
-                    <MenuItem text="Gestión de Exámenes" onAction="#mostrarExamenes"/>
-                    <MenuItem text="Gestión de Preguntas" onAction="#mostrarPreguntas"/>
-                    <MenuItem text="Cerrar Sesión" onAction="#cerrarSesion"/>
-                </Menu>
-            </menus>
-        </MenuBar>
+        <VBox spacing="0">
+            <!-- Barra superior con logo y bienvenida -->
+            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #f4f4f4; -fx-padding: 10px;">
+                <ImageView fx:id="logoImage" fitHeight="60" fitWidth="60" />
+                <Label fx:id="lblNombreDocente" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button text="Cerrar Sesión" onAction="#cerrarSesion"
+                        style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"/>
+            </HBox>
+
+            <!-- Menú con gestión de preguntas y exámenes -->
+            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #e8e8e8; -fx-padding: 5px 10px;">
+                <Button text="Gestión de Exámenes" onAction="#mostrarExamenes" />
+                <Button text="Gestión de Preguntas" onAction="#mostrarPreguntas" />
+            </HBox>
+        </VBox>
     </top>
 
-    <!-- Centro vacío (se irá cambiando dinámicamente) -->
+    <!-- Centro dinámico -->
     <center>
-        <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
-            <top>
-                <VBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 15px;">
-                    <Label fx:id="lblNombreDocente" text="Bienvenido, Docente" />
-                </VBox>
-            </top>
-        </BorderPane>
+        <BorderPane fx:id="rootPane"/>
     </center>
 
 </BorderPane>
-
