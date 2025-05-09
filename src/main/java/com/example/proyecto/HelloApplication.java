@@ -29,7 +29,7 @@ public class HelloApplication extends Application {
             e.printStackTrace();
         }
     }
-
+//
     private void initRootLayout() {
         try {
             rootLayout = new BorderPane();
