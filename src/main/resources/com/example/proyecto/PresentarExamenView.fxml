@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.proyecto.controller.PresentarExamenController"
+      spacing="15">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label fx:id="lblTituloExamen" text="Título del Examen"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <ScrollPane fitToWidth="true" prefHeight="450">
+        <content>
+            <VBox fx:id="contenedorPreguntas" spacing="20">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+            </VBox>
+        </content>
+    </ScrollPane>
+
+    <Button text="Finalizar Examen" onAction="#finalizarExamen"
+            style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+</VBox>

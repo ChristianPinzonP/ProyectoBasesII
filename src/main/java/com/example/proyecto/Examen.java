@@ -9,11 +9,13 @@ public class Examen {
     private Date fechaInicio;
     private Date fechaFin;
     private int tiempoLimite;
-    private int idDocente; // Relación con la tabla Usuario (Docente)
+    private int idDocente;
     private int idTema;
-    private String nombreTema;
+    private int idGrupo;
+    private String nombreGrupo;
 
-    public Examen(int id, String nombre, String descripcion, Date fechaInicio, Date fechaFin, int tiempoLimite, int idDocente, int idTema) {
+    public Examen(int id, String nombre, String descripcion, Date fechaInicio, Date fechaFin,
+                  int tiempoLimite, int idDocente, int idTema, int idGrupo) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -22,6 +24,7 @@ public class Examen {
         this.tiempoLimite = tiempoLimite;
         this.idDocente = idDocente;
         this.idTema = idTema;
+        this.idGrupo = idGrupo;
     }
 
     // Getters y Setters
@@ -49,9 +52,9 @@ public class Examen {
     public int getIdTema() { return idTema; }
     public void setIdTema(int idTema) { this.idTema = idTema; }
 
-    // Método setter para el nombre del tema
-    public void setNombreTema(String nombreTema) {
-        this.nombreTema = nombreTema;
-    }
-}
+    public int getIdGrupo() { return idGrupo; }
+    public void setIdGrupo(int idGrupo) { this.idGrupo = idGrupo; }
 
+    public String getNombreGrupo() { return nombreGrupo; }
+    public void setNombreGrupo(String nombreGrupo) { this.nombreGrupo = nombreGrupo; }
+}

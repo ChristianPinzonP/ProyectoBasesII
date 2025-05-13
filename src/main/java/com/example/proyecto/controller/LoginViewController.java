@@ -5,16 +5,14 @@ import com.example.proyecto.Docente;
 import com.example.proyecto.Estudiante;
 import com.example.proyecto.Grupo;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import java.sql.*;
-//ACTUALIZACIÓN DEL LOGIN
+
 public class LoginViewController {
     @FXML private TextField txtCorreo;
     @FXML private PasswordField txtContrasena;
@@ -30,7 +28,7 @@ public class LoginViewController {
         }
 
         try (Connection conn = DBConnection.getConnection()) {
-            String sql = "SELECT * FROM USUARIO WHERE CORREO = ? AND CONTRASENA = ?";
+            String sql = "SELECT * FROM USUARIO WHERE CORREO = ? AND CONTRASENA = ? AND LOWER(TIPO_USUARIO) IN ('estudiante', 'docente')";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, correo);
             stmt.setString(2, contrasena);
@@ -42,13 +40,10 @@ public class LoginViewController {
                 String nombre = rs.getString("NOMBRE");
                 String tipo = rs.getString("TIPO_USUARIO");
 
+                System.out.println("✅ Usuario autenticado como: " + tipo);
+
                 if ("Docente".equalsIgnoreCase(tipo)) {
-                    Docente docente = new Docente();
-                    docente.setIdUsuario(idUsuario);
-                    docente.setNombre(nombre);
-                    docente.setCorreo(correo);
-                    // Puedes traer la asignatura si la tienes guardada en otra tabla, o establecer un valor por defecto.
-                    docente.setAsignatura("Asignatura por definir");
+                    Docente docente = obtenerDocenteCompleto(conn, idUsuario);
                     mostrarVistaDocente(docente);
                 } else if ("Estudiante".equalsIgnoreCase(tipo)) {
                     Estudiante estudiante = obtenerEstudianteCompleto(conn, idUsuario);
@@ -62,30 +57,14 @@ public class LoginViewController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "Error al conectar con la base de datos." + e.getMessage(), Alert.AlertType.ERROR);
+            mostrarAlerta("Error", "Error al conectar con la base de datos: " + e.getMessage(), Alert.AlertType.ERROR);
         }
-    }
-
-
-    private boolean esDocente(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT 1 FROM DOCENTE WHERE id_docente = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        return rs.next();
-    }
-
-    private boolean esEstudiante(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT 1 FROM ESTUDIANTE WHERE id_estudiante = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        return rs.next();
     }
 
     private Docente obtenerDocenteCompleto(Connection conn, int idUsuario) throws SQLException {
         String sql = "SELECT u.id_usuario, u.nombre, u.correo, d.asignatura " +
-                "FROM USUARIO u JOIN DOCENTE d ON u.id_usuario = d.id_docente WHERE u.id_usuario = ?";
+                "FROM USUARIO u JOIN DOCENTE d ON u.id_usuario = d.id_docente " +
+                "WHERE u.id_usuario = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setInt(1, idUsuario);
         ResultSet rs = stmt.executeQuery();
@@ -101,10 +80,9 @@ public class LoginViewController {
     }
 
     private Estudiante obtenerEstudianteCompleto(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT u.id_usuario, u.nombre, u.correo, g.id_grupo, g.nombre AS nombre_grupo , g.id_docente_titular " +
+        String sql = "SELECT u.id_usuario, u.nombre, u.correo, g.id_grupo, g.nombre AS nombre_grupo " +
                 "FROM USUARIO u JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante " +
                 "LEFT JOIN GRUPO g ON e.id_grupo = g.id_grupo " +
-                "LEFT JOIN DOCENTE d ON g.id_docente_titular = d.id_docente " +
                 "WHERE u.id_usuario = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setInt(1, idUsuario);
@@ -115,12 +93,11 @@ public class LoginViewController {
             estudiante.setNombre(rs.getString("nombre"));
             estudiante.setCorreo(rs.getString("correo"));
 
-            // Cargar grupo
             Grupo grupo = new Grupo();
             grupo.setIdGrupo(rs.getInt("id_grupo"));
             grupo.setNombre(rs.getString("nombre_grupo"));
-            estudiante.setGrupo(grupo);
 
+            estudiante.setGrupo(grupo);
             return estudiante;
         }
         return null;
@@ -130,18 +107,17 @@ public class LoginViewController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto/MainDocenteView.fxml"));
             Parent root = loader.load();
-            Scene escenaDocente = new Scene(root, 800, 600);
             MainDocenteViewController controlador = loader.getController();
             controlador.inicializarDocente(docente);
 
-            Stage docenteStage = new Stage();
-            docenteStage.setTitle("Panel Docente");
-            docenteStage.setScene(escenaDocente);
-            docenteStage.show();
-
+            Stage stage = new Stage();
+            stage.setTitle("Panel Docente");
+            stage.setScene(new Scene(root));
+            stage.show();
             cerrarVentanaActual();
         } catch (Exception e) {
             e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo cargar la vista del docente.", Alert.AlertType.ERROR);
         }
     }
 
@@ -149,18 +125,17 @@ public class LoginViewController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto/MainEstudianteView.fxml"));
             Parent root = loader.load();
-            Scene escenaEstudiante = new Scene(root, 800, 600);
             MainEstudianteViewController controlador = loader.getController();
             controlador.inicializarEstudiante(estudiante);
 
-            Stage estudianteStage = new Stage();
-            estudianteStage.setTitle("Panel Estudiante");
-            estudianteStage.setScene(escenaEstudiante);
-            estudianteStage.show();
-
+            Stage stage = new Stage();
+            stage.setTitle("Panel Estudiante");
+            stage.setScene(new Scene(root));
+            stage.show();
             cerrarVentanaActual();
         } catch (Exception e) {
             e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo cargar la vista del estudiante.", Alert.AlertType.ERROR);
         }
     }
 

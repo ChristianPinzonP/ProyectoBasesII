@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.proyecto.controller.EstudianteExamenesController"
+      spacing="15">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Exámenes Asignados"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+
+    <TableView fx:id="tablaExamenes" prefHeight="400">
+        <columns>
+            <TableColumn text="Nombre" fx:id="colNombre" />
+            <TableColumn text="Descripción" fx:id="colDescripcion" />
+            <TableColumn text="Fecha Inicio" fx:id="colFechaInicio" />
+            <TableColumn text="Fecha Fin" fx:id="colFechaFin" />
+        </columns>
+    </TableView>
+
+    <Button text="Presentar Examen"
+            fx:id="btnPresentar"
+            onAction="#presentarExamen"
+            style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+</VBox>

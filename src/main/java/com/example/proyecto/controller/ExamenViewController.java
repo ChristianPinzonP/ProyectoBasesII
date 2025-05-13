@@ -24,6 +24,7 @@ public class ExamenViewController {
     @FXML private TableColumn<Examen, Date> colFechaFin;
     @FXML private TableColumn<Examen, Integer> colTiempoLimite;
     @FXML private TableColumn<Examen, Integer> colIdDocente;
+    @FXML private TableColumn<Examen, String> colGrupo;
     @FXML private ListView<Pregunta> listPreguntasDisponibles;
     @FXML private ListView<Pregunta> listPreguntasAsignadas;
     @FXML private TextField txtNombre;
@@ -50,6 +51,7 @@ public class ExamenViewController {
         colFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         colTiempoLimite.setCellValueFactory(new PropertyValueFactory<>("tiempoLimite"));
         colIdDocente.setCellValueFactory(new PropertyValueFactory<>("idDocente"));
+        colGrupo.setCellValueFactory(new PropertyValueFactory<>("nombreGrupo"));
 
         cargarExamenes();
 
@@ -77,16 +79,10 @@ public class ExamenViewController {
 
     public void inicializarDocente(Docente docente) {
         this.docenteActual = docente;
-        System.out.println("→ inicializarDocente ejecutado con ID: " + docente.getIdDocente());
         txtIdDocente.setText(String.valueOf(docente.getIdDocente()));
         txtIdDocente.setDisable(true);
 
         List<Grupo> grupos = GrupoDAO.obtenerGruposPorDocente(docente.getIdDocente());
-        System.out.println("→ Grupos encontrados: " + grupos.size());
-        for (Grupo g : grupos) {
-            System.out.println("   - " + g.getNombre());
-        }
-
         cbGrupo.setItems(FXCollections.observableArrayList(grupos));
     }
 
@@ -120,12 +116,12 @@ public class ExamenViewController {
                     Date.valueOf(dpFechaFin.getValue()),
                     Integer.parseInt(txtTiempoLimite.getText()),
                     docenteActual.getIdDocente(),
-                    temaSeleccionado.getId()
+                    temaSeleccionado.getId(),
+                    grupoSeleccionado.getIdGrupo()
             );
 
             int idExamen = ExamenDAO.agregarExamenYRetornarId(nuevoExamen);
             if (idExamen > 0) {
-                ExamenDAO.asignarGrupoAExamen(idExamen, grupoSeleccionado.getIdGrupo());
                 mostrarAlerta("Éxito", "Examen agregado correctamente.", Alert.AlertType.INFORMATION);
                 cargarExamenes();
                 limpiarFormulario();
@@ -160,11 +156,11 @@ public class ExamenViewController {
         examen.setTiempoLimite(Integer.parseInt(txtTiempoLimite.getText()));
         examen.setIdTema(tema.getId());
         examen.setIdDocente(docenteActual.getIdDocente());
+        examen.setIdGrupo(grupo.getIdGrupo());
 
         boolean actualizado = ExamenDAO.editarExamen(examen);
-        boolean grupoActualizado = ExamenDAO.asignarGrupoAExamen(examen.getId(), grupo.getIdGrupo());
 
-        if (actualizado && grupoActualizado) {
+        if (actualizado) {
             mostrarAlerta("Éxito", "Examen actualizado correctamente.", Alert.AlertType.INFORMATION);
             cargarExamenes();
             limpiarFormulario();
@@ -291,6 +287,14 @@ public class ExamenViewController {
             dpFechaFin.setValue(examen.getFechaFin().toLocalDate());
             txtTiempoLimite.setText(String.valueOf(examen.getTiempoLimite()));
             txtIdDocente.setText(String.valueOf(examen.getIdDocente()));
+
+            for (Grupo g : cbGrupo.getItems()) {
+                if (g.getIdGrupo() == examen.getIdGrupo()) {
+                    cbGrupo.getSelectionModel().select(g);
+                    break;
+                }
+            }
+
             cargarPreguntasDeExamen();
         }
     }
