@@ -119,7 +119,6 @@ public class LoginViewController {
             Grupo grupo = new Grupo();
             grupo.setIdGrupo(rs.getInt("id_grupo"));
             grupo.setNombre(rs.getString("nombre_grupo"));
-            grupo.setIdDocente(rs.getInt("id_docente_titular"));
             estudiante.setGrupo(grupo);
 
             return estudiante;

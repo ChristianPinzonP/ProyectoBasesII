@@ -126,4 +126,49 @@ public class ExamenDAO {
             return false;
         }
     }
+
+    public static int agregarExamenYRetornarId(Examen examen) {
+        String sql = "INSERT INTO EXAMEN (id_examen, nombre, descripcion, fecha_inicio, fecha_fin, tiempo_limite, id_docente, id_tema) " +
+                "VALUES (SEQ_EXAMEN.NEXTVAL, ?, ?, ?, ?, ?, ?, ?)";
+        String[] keys = {"id_examen"};
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, keys)) {
+
+            pstmt.setString(1, examen.getNombre());
+            pstmt.setString(2, examen.getDescripcion());
+            pstmt.setDate(3, examen.getFechaInicio());
+            pstmt.setDate(4, examen.getFechaFin());
+            pstmt.setInt(5, examen.getTiempoLimite());
+            pstmt.setInt(6, examen.getIdDocente());
+            pstmt.setInt(7, examen.getIdTema());
+
+            int filas = pstmt.executeUpdate();
+            if (filas > 0) {
+                ResultSet rs = pstmt.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+    public static boolean asignarGrupoAExamen(int idExamen, int idGrupo) {
+        String sql = "INSERT INTO EXAMEN_GRUPO (ID_EXAMEN, ID_GRUPO) VALUES (?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idExamen);
+            stmt.setInt(2, idGrupo);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("❌ Error al asignar grupo al examen: " + e.getMessage());
+            return false;
+        }
+    }
+
 }

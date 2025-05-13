@@ -1,21 +1,18 @@
 package com.example.proyecto.controller;
+
 import com.example.proyecto.*;
-import com.example.proyecto.dao.ExamenDAO;
-import com.example.proyecto.dao.ExamenPreguntaDAO;
-import com.example.proyecto.dao.PreguntaDAO;
-import com.example.proyecto.dao.TemaDAO;
+import com.example.proyecto.dao.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.sql.*;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
-
-import javafx.scene.control.cell.PropertyValueFactory;
 
 public class ExamenViewController {
 
@@ -37,15 +34,15 @@ public class ExamenViewController {
     @FXML private TextField txtIdDocente;
     @FXML private TextField txtBuscar;
     @FXML private ComboBox<Tema> cbTema;
+    @FXML private ComboBox<Grupo> cbGrupo;
+
     private List<Tema> listaTemas;
     private ObservableList<Examen> listaExamenes;
     private FilteredList<Examen> filtroExamenes;
     private Docente docenteActual;
 
-
     @FXML
     public void initialize() {
-        // Vincular columnas con atributos de la clase Examen
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colDescripcion.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
@@ -54,306 +51,151 @@ public class ExamenViewController {
         colTiempoLimite.setCellValueFactory(new PropertyValueFactory<>("tiempoLimite"));
         colIdDocente.setCellValueFactory(new PropertyValueFactory<>("idDocente"));
 
-        // Cargar exámenes de la BD al abrir la vista
         cargarExamenes();
 
-        // Cargar temas en el combobox
         listaTemas = TemaDAO.obtenerTemas();
         cbTema.setItems(FXCollections.observableArrayList(listaTemas));
 
-        // Agregar listener para el combobox de temas
         cbTema.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                System.out.println("Tema seleccionado: " + newVal.getNombre() + " (ID: " + newVal.getId() + ")");
-                cargarPreguntasDisponiblesPorTema(newVal.getId());
-            }
+            if (newVal != null) cargarPreguntasDisponiblesPorTema(newVal.getId());
         });
 
-        // Agregar listener para la selección de exámenes en la tabla
-        tablaExamenes.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                seleccionarExamen();
-            }
+        tablaExamenes.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null) seleccionarExamen();
         });
 
-        // Configurar filtro de búsqueda
-        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
+        txtBuscar.textProperty().addListener((obs, oldVal, newVal) -> {
             filtroExamenes.setPredicate(examen -> {
-                if (newValue == null || newValue.trim().isEmpty()) return true;
-
-                String lowerCaseFilter = newValue.toLowerCase();
-                return examen.getNombre().toLowerCase().contains(lowerCaseFilter) ||
-                        examen.getDescripcion().toLowerCase().contains(lowerCaseFilter) ||
-                        String.valueOf(examen.getIdDocente()).contains(lowerCaseFilter);
+                if (newVal == null || newVal.trim().isEmpty()) return true;
+                String lower = newVal.toLowerCase();
+                return examen.getNombre().toLowerCase().contains(lower)
+                        || examen.getDescripcion().toLowerCase().contains(lower)
+                        || String.valueOf(examen.getIdDocente()).contains(lower);
             });
         });
-
-        // Inicializar la lista filtrada de exámenes
-        listaExamenes = FXCollections.observableArrayList(ExamenDAO.obtenerTodosLosExamenes());
-        filtroExamenes = new FilteredList<>(listaExamenes, p -> true);
-
-        // Configurar la lista ordenada
-        SortedList<Examen> sortedData = new SortedList<>(filtroExamenes);
-        sortedData.comparatorProperty().bind(tablaExamenes.comparatorProperty());
-        tablaExamenes.setItems(sortedData);
     }
 
     public void inicializarDocente(Docente docente) {
         this.docenteActual = docente;
+        System.out.println("→ inicializarDocente ejecutado con ID: " + docente.getIdDocente());
         txtIdDocente.setText(String.valueOf(docente.getIdDocente()));
-        txtIdDocente.setDisable(true); // opcional: evitar edición manual
+        txtIdDocente.setDisable(true);
+
+        List<Grupo> grupos = GrupoDAO.obtenerGruposPorDocente(docente.getIdDocente());
+        System.out.println("→ Grupos encontrados: " + grupos.size());
+        for (Grupo g : grupos) {
+            System.out.println("   - " + g.getNombre());
+        }
+
+        cbGrupo.setItems(FXCollections.observableArrayList(grupos));
     }
 
     @FXML
     public void cargarExamenes() {
         listaExamenes = FXCollections.observableArrayList(ExamenDAO.obtenerTodosLosExamenes());
         filtroExamenes = new FilteredList<>(listaExamenes, p -> true);
-
-        // Asegurar que la tabla tenga los datos iniciales
-        tablaExamenes.setItems(listaExamenes);
-
-        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
-            filtroExamenes.setPredicate(examen -> {
-                if (newValue == null || newValue.trim().isEmpty()) return true;
-
-                String lowerCaseFilter = newValue.toLowerCase();
-                return examen.getNombre().toLowerCase().contains(lowerCaseFilter) ||
-                        examen.getDescripcion().toLowerCase().contains(lowerCaseFilter) ||
-                        String.valueOf(examen.getIdDocente()).contains(lowerCaseFilter);
-            });
-        });
-
         SortedList<Examen> sortedData = new SortedList<>(filtroExamenes);
         sortedData.comparatorProperty().bind(tablaExamenes.comparatorProperty());
         tablaExamenes.setItems(sortedData);
     }
 
-
     @FXML
     public void agregarExamen() {
-        String nombreExamen = txtNombre.getText();
-        String descripcionExamen = txtDescripcion.getText();// Convertir DatePicker a java.sql.Date
-        Date fechaInicio = Date.valueOf(dpFechaInicio.getValue());
-        Date fechaFin = Date.valueOf(dpFechaFin.getValue());
-        int tiempoLimite = Integer.parseInt(txtTiempoLimite.getText());
-        int idDocente = docenteActual.getIdDocente();
-
         try {
             if (!validarFormulario()) return;
 
-            // Obtener tema seleccionado
-            Tema temaSeleccionado = cbTema.getSelectionModel().getSelectedItem();
-            if (temaSeleccionado == null) {
-                mostrarAlerta("Error", "⚠️ Debes seleccionar un tema.", Alert.AlertType.WARNING);
+            Tema temaSeleccionado = cbTema.getValue();
+            Grupo grupoSeleccionado = cbGrupo.getValue();
+
+            if (temaSeleccionado == null || grupoSeleccionado == null) {
+                mostrarAlerta("Error", "Debes seleccionar un tema y un grupo.", Alert.AlertType.WARNING);
                 return;
             }
 
-            // Crear examen con ID_TEMA incluido
             Examen nuevoExamen = new Examen(
                     0,
-                    nombreExamen,
-                    descripcionExamen,
-                    fechaInicio,
-                    fechaFin,
-                    tiempoLimite,
-                    idDocente,
+                    txtNombre.getText(),
+                    txtDescripcion.getText(),
+                    Date.valueOf(dpFechaInicio.getValue()),
+                    Date.valueOf(dpFechaFin.getValue()),
+                    Integer.parseInt(txtTiempoLimite.getText()),
+                    docenteActual.getIdDocente(),
                     temaSeleccionado.getId()
             );
-            nuevoExamen.setIdTema(temaSeleccionado.getId());
 
-            if (ExamenDAO.agregarExamen(nuevoExamen)) {
-                mostrarAlerta("Éxito", "✅ Examen agregado correctamente.", Alert.AlertType.INFORMATION);
-                cargarExamenes(); // 🔥 Refrescar la tabla
+            int idExamen = ExamenDAO.agregarExamenYRetornarId(nuevoExamen);
+            if (idExamen > 0) {
+                ExamenDAO.asignarGrupoAExamen(idExamen, grupoSeleccionado.getIdGrupo());
+                mostrarAlerta("Éxito", "Examen agregado correctamente.", Alert.AlertType.INFORMATION);
+                cargarExamenes();
                 limpiarFormulario();
-            } else {
-                mostrarAlerta("Error", "❌ No se pudo agregar el examen.", Alert.AlertType.ERROR);
             }
         } catch (Exception e) {
-            mostrarAlerta("Error", "❌ Error al agregar el examen: " + e.getMessage(), Alert.AlertType.ERROR);
+            mostrarAlerta("Error", "Error al agregar el examen: " + e.getMessage(), Alert.AlertType.ERROR);
         }
-    }
-
-    // Metodo para limpiar los campos al agregar el examen
-    private void limpiarFormulario() {
-        txtNombre.clear();
-        txtDescripcion.clear();
-        dpFechaInicio.setValue(null);
-        dpFechaFin.setValue(null);
-        txtTiempoLimite.clear();
-        txtIdDocente.clear();
-    }
-
-    private boolean validarFormulario() {
-        String mensajeError = "";
-
-        // Validar que los campos no estén vacíos
-        if (txtNombre.getText().isEmpty()) mensajeError += "⚠️ El nombre es obligatorio.\n";
-        if (txtDescripcion.getText().isEmpty()) mensajeError += "⚠️ La descripción es obligatoria.\n";
-        if (dpFechaInicio.getValue() == null) mensajeError += "⚠️ Debes seleccionar una fecha de inicio.\n";
-        if (dpFechaFin.getValue() == null) mensajeError += "⚠️ Debes seleccionar una fecha de fin.\n";
-        if (txtTiempoLimite.getText().isEmpty()) mensajeError += "⚠️ El tiempo límite es obligatorio.\n";
-        if (txtIdDocente.getText().isEmpty()) mensajeError += "⚠️ El ID del docente es obligatorio.\n";
-
-        // Validar que el tiempo límite sea un número entero positivo
-        try {
-            int tiempoLimite = Integer.parseInt(txtTiempoLimite.getText());
-            if (tiempoLimite <= 0) mensajeError += "⚠️ El tiempo límite debe ser un número positivo.\n";
-        } catch (NumberFormatException e) {
-            mensajeError += "⚠️ El tiempo límite debe ser un número entero.\n";
-        }
-
-        // Validar que el ID del docente sea un número entero positivo
-        try {
-            int idDocente = docenteActual.getIdDocente();
-            if (idDocente <= 0) mensajeError += "⚠️ El ID del docente debe ser un número positivo.\n";
-        } catch (NumberFormatException e) {
-            mensajeError += "⚠️ El ID del docente debe ser un número entero.\n";
-        }
-
-        // Validar que la fecha de inicio sea antes que la fecha de fin
-        if (dpFechaInicio.getValue() != null && dpFechaFin.getValue() != null) {
-            if (dpFechaInicio.getValue().isAfter(dpFechaFin.getValue())) {
-                mensajeError += "⚠️ La fecha de inicio no puede ser después de la fecha de fin.\n";
-            }
-        }
-
-        // Si hay errores, mostrar mensaje y retornar falso
-        if (!mensajeError.isEmpty()) {
-            mostrarAlerta("Error en el formulario", mensajeError, Alert.AlertType.WARNING);
-            return false;
-        }
-
-        return true;
-    }
-
-    // MÉTODO PARA MOSTRAR ALERTAS ⚠️
-    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
     }
 
     @FXML
     public void editarExamen() {
-        try {
-            Examen examenSeleccionado = tablaExamenes.getSelectionModel().getSelectedItem();
-            Tema temaSeleccionado = cbTema.getSelectionModel().getSelectedItem();
-            if (examenSeleccionado == null) {
-                mostrarAlerta("Error", "⚠️ Selecciona un examen para editar.", Alert.AlertType.WARNING);
-                return;
-            }
+        Examen examen = tablaExamenes.getSelectionModel().getSelectedItem();
+        if (examen == null) {
+            mostrarAlerta("Error", "Debes seleccionar un examen para editar.", Alert.AlertType.WARNING);
+            return;
+        }
 
-            if (!validarFormulario()) return;
+        if (!validarFormulario()) return;
 
-            if (temaSeleccionado == null) {
-                mostrarAlerta("Error", "⚠️ Debes seleccionar un tema.", Alert.AlertType.WARNING);
-                return;
-            }
+        Tema tema = cbTema.getValue();
+        Grupo grupo = cbGrupo.getValue();
 
-            // Confirmar edición
-            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmacion.setTitle("Confirmación");
-            confirmacion.setHeaderText(null);
-            confirmacion.setContentText("¿Estás seguro de editar este examen?");
-            Optional<ButtonType> resultado = confirmacion.showAndWait();
-            if (resultado.isEmpty() || resultado.get() != ButtonType.OK) return;
+        if (tema == null || grupo == null) {
+            mostrarAlerta("Error", "Debes seleccionar un tema y un grupo.", Alert.AlertType.WARNING);
+            return;
+        }
 
-            // Actualizar los datos del examen
-            examenSeleccionado.setNombre(txtNombre.getText());
-            examenSeleccionado.setDescripcion(txtDescripcion.getText());
-            examenSeleccionado.setFechaInicio(Date.valueOf(dpFechaInicio.getValue()));
-            examenSeleccionado.setFechaFin(Date.valueOf(dpFechaFin.getValue()));
-            examenSeleccionado.setTiempoLimite(Integer.parseInt(txtTiempoLimite.getText()));
-            examenSeleccionado.setIdDocente(Integer.parseInt(txtIdDocente.getText()));
-            examenSeleccionado.setIdTema(temaSeleccionado.getId());
+        examen.setNombre(txtNombre.getText());
+        examen.setDescripcion(txtDescripcion.getText());
+        examen.setFechaInicio(Date.valueOf(dpFechaInicio.getValue()));
+        examen.setFechaFin(Date.valueOf(dpFechaFin.getValue()));
+        examen.setTiempoLimite(Integer.parseInt(txtTiempoLimite.getText()));
+        examen.setIdTema(tema.getId());
+        examen.setIdDocente(docenteActual.getIdDocente());
 
-            if (ExamenDAO.editarExamen(examenSeleccionado)) {
-                mostrarAlerta("Éxito", "✅ Examen actualizado correctamente.", Alert.AlertType.INFORMATION);
-                cargarExamenes(); // 🔥 Refrescar la tabla
-                limpiarFormulario();
-            } else {
-                mostrarAlerta("Error", "❌ No se pudo actualizar el examen.", Alert.AlertType.ERROR);
-            }
-        } catch (Exception e) {
-            mostrarAlerta("Error", "❌ Error al editar el examen: " + e.getMessage(), Alert.AlertType.ERROR);
+        boolean actualizado = ExamenDAO.editarExamen(examen);
+        boolean grupoActualizado = ExamenDAO.asignarGrupoAExamen(examen.getId(), grupo.getIdGrupo());
+
+        if (actualizado && grupoActualizado) {
+            mostrarAlerta("Éxito", "Examen actualizado correctamente.", Alert.AlertType.INFORMATION);
+            cargarExamenes();
+            limpiarFormulario();
+        } else {
+            mostrarAlerta("Error", "Error al actualizar el examen.", Alert.AlertType.ERROR);
         }
     }
-
-
-    @FXML
-    private void seleccionarExamen() {
-        Examen examenSeleccionado = tablaExamenes.getSelectionModel().getSelectedItem();
-
-        if (examenSeleccionado != null) {
-            txtNombre.setText(examenSeleccionado.getNombre());
-            txtDescripcion.setText(examenSeleccionado.getDescripcion());
-            txtTiempoLimite.setText(String.valueOf(examenSeleccionado.getTiempoLimite()));
-            txtIdDocente.setText(String.valueOf(examenSeleccionado.getIdDocente()));
-            dpFechaInicio.setValue(examenSeleccionado.getFechaInicio().toLocalDate());
-            dpFechaFin.setValue(examenSeleccionado.getFechaFin().toLocalDate());
-
-            // Seleccionar el tema en el ComboBox
-            for (Tema tema : listaTemas) {
-                if (tema.getId() == examenSeleccionado.getIdTema()) {
-                    cbTema.getSelectionModel().select(tema);
-                    break;
-                }
-            }
-
-
-            // 🔥 Aquí cargas las preguntas filtradas por el tema del examen
-            cargarPreguntasDisponiblesPorTema(examenSeleccionado.getIdTema());
-            cargarPreguntasDeExamen(); // También actualiza la lista de asignadas
-        }
-    }
-
 
     @FXML
     public void eliminarExamen() {
-        try {
-            Examen examenSeleccionado = tablaExamenes.getSelectionModel().getSelectedItem();
-            if (examenSeleccionado == null) {
-                mostrarAlerta("Error", "⚠️ Selecciona un examen para eliminar.", Alert.AlertType.WARNING);
-                return;
-            }
+        Examen examen = tablaExamenes.getSelectionModel().getSelectedItem();
+        if (examen == null) {
+            mostrarAlerta("Error", "Debes seleccionar un examen para eliminar.", Alert.AlertType.WARNING);
+            return;
+        }
 
-            // Confirmar eliminación
-            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmacion.setTitle("Confirmación");
-            confirmacion.setHeaderText(null);
-            confirmacion.setContentText("¿Estás seguro de eliminar este examen?");
-            Optional<ButtonType> resultado = confirmacion.showAndWait();
-            if (resultado.isEmpty() || resultado.get() != ButtonType.OK) return;
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar eliminación");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Estás seguro de eliminar el examen seleccionado?");
 
-            if (ExamenDAO.eliminarExamen(examenSeleccionado.getId())) {
-                mostrarAlerta("Éxito", "✅ Examen eliminado correctamente.", Alert.AlertType.INFORMATION);
-                cargarExamenes(); // 🔥 Refrescar la tabla
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            boolean eliminado = ExamenDAO.eliminarExamen(examen.getId());
+            if (eliminado) {
+                mostrarAlerta("Éxito", "Examen eliminado correctamente.", Alert.AlertType.INFORMATION);
+                cargarExamenes();
+                limpiarFormulario();
             } else {
-                mostrarAlerta("Error", "❌ No se pudo eliminar el examen.", Alert.AlertType.ERROR);
+                mostrarAlerta("Error", "Error al eliminar el examen.", Alert.AlertType.ERROR);
             }
-        } catch (Exception e) {
-            mostrarAlerta("Error", "❌ Error al eliminar el examen: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
-    }
-
-    public void cargarPreguntasDisponiblesPorTema(int idTema) {
-        List<Pregunta> preguntasFiltradas = PreguntaDAO.obtenerPreguntasPorTema(idTema);
-        System.out.println("Preguntas cargadas para tema ID " + idTema + ": " + preguntasFiltradas.size());
-
-        if (preguntasFiltradas.isEmpty()) {
-            mostrarAlerta("Información", "No hay preguntas disponibles para este tema.", Alert.AlertType.INFORMATION);
-        }
-
-        listPreguntasDisponibles.setItems(FXCollections.observableArrayList(preguntasFiltradas));
-    }
-
-    public void cargarPreguntasDeExamen() {
-        Examen examenSeleccionado = tablaExamenes.getSelectionModel().getSelectedItem();
-        if (examenSeleccionado != null) {
-            List<Pregunta> preguntas = ExamenPreguntaDAO.obtenerPreguntasDeExamen(examenSeleccionado.getId());
-            listPreguntasAsignadas.setItems(FXCollections.observableArrayList(preguntas));
         }
     }
 
@@ -385,20 +227,71 @@ public class ExamenViewController {
             return;
         }
 
-        // Confirmar eliminación
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmación");
-        confirmacion.setHeaderText(null);
-        confirmacion.setContentText("¿Seguro que deseas eliminar esta pregunta del examen?");
-        Optional<ButtonType> resultado = confirmacion.showAndWait();
-        if (resultado.isEmpty() || resultado.get() != ButtonType.OK) return;
-
         if (ExamenPreguntaDAO.eliminarPreguntaDeExamen(examenSeleccionado.getId(), preguntaSeleccionada.getId())) {
-            mostrarAlerta("Éxito", "Pregunta eliminada del examen correctamente.", Alert.AlertType.INFORMATION);
-            cargarPreguntasDeExamen(); // 🔥 Refrescar la lista de asignadas
+            mostrarAlerta("Éxito", "Pregunta eliminada correctamente.", Alert.AlertType.INFORMATION);
+            cargarPreguntasDeExamen();
         } else {
             mostrarAlerta("Error", "No se pudo eliminar la pregunta del examen.", Alert.AlertType.ERROR);
         }
     }
 
+    private void cargarPreguntasDeExamen() {
+        Examen examen = tablaExamenes.getSelectionModel().getSelectedItem();
+        if (examen != null) {
+            List<Pregunta> preguntas = ExamenPreguntaDAO.obtenerPreguntasDeExamen(examen.getId());
+            listPreguntasAsignadas.setItems(FXCollections.observableArrayList(preguntas));
+        }
+    }
+
+    private void limpiarFormulario() {
+        txtNombre.clear();
+        txtDescripcion.clear();
+        dpFechaInicio.setValue(null);
+        dpFechaFin.setValue(null);
+        txtTiempoLimite.clear();
+        cbTema.getSelectionModel().clearSelection();
+        cbGrupo.getSelectionModel().clearSelection();
+    }
+
+    private boolean validarFormulario() {
+        String msg = "";
+        if (txtNombre.getText().isEmpty()) msg += "Nombre requerido.\n";
+        if (txtDescripcion.getText().isEmpty()) msg += "Descripción requerida.\n";
+        if (dpFechaInicio.getValue() == null || dpFechaFin.getValue() == null) msg += "Fechas requeridas.\n";
+        if (txtTiempoLimite.getText().isEmpty()) msg += "Tiempo requerido.\n";
+        if (cbTema.getValue() == null) msg += "Tema requerido.\n";
+        if (cbGrupo.getValue() == null) msg += "Grupo requerido.\n";
+
+        if (!msg.isEmpty()) {
+            mostrarAlerta("Formulario incompleto", msg, Alert.AlertType.WARNING);
+            return false;
+        }
+        return true;
+    }
+
+    private void mostrarAlerta(String titulo, String msg, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
+    public void cargarPreguntasDisponiblesPorTema(int idTema) {
+        List<Pregunta> preguntas = PreguntaDAO.obtenerPreguntasPorTema(idTema);
+        listPreguntasDisponibles.setItems(FXCollections.observableArrayList(preguntas));
+    }
+
+    private void seleccionarExamen() {
+        Examen examen = tablaExamenes.getSelectionModel().getSelectedItem();
+        if (examen != null) {
+            txtNombre.setText(examen.getNombre());
+            txtDescripcion.setText(examen.getDescripcion());
+            dpFechaInicio.setValue(examen.getFechaInicio().toLocalDate());
+            dpFechaFin.setValue(examen.getFechaFin().toLocalDate());
+            txtTiempoLimite.setText(String.valueOf(examen.getTiempoLimite()));
+            txtIdDocente.setText(String.valueOf(examen.getIdDocente()));
+            cargarPreguntasDeExamen();
+        }
+    }
 }

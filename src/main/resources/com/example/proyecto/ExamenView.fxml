@@ -9,7 +9,7 @@
           alignment="CENTER"
           hgap="10" vgap="10">
 
-    <Label text="Gestión de Exámenes" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+    <Label text="Gestión de Exámenes" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
     <TableView fx:id="tablaExamenes" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="5">
         <columns>
@@ -32,6 +32,12 @@
     <Label text="ID Docente:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
     <TextField fx:id="txtIdDocente" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
 
+    <Label text="Grupo:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+    <ComboBox fx:id="cbGrupo"
+              GridPane.columnIndex="1"
+              GridPane.rowIndex="5"
+              prefWidth="200"/>
+
     <Label text="Fecha Inicio:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
     <DatePicker fx:id="dpFechaInicio" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
 
@@ -41,30 +47,37 @@
     <Label text="Tiempo Límite (min):" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
     <TextField fx:id="txtTiempoLimite" GridPane.columnIndex="3" GridPane.rowIndex="4"/>
 
-    <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
-    <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="5" prefWidth="200"/>
+    <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+    <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="6" prefWidth="200"/>
 
-    <Label text="Preguntas del Tema" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-    <ListView fx:id="listPreguntasDisponibles" GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3"/>
+    <Label text="Preguntas del Tema" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+    <ListView fx:id="listPreguntasDisponibles" GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.columnSpan="3"/>
 
-    <Label text="Preguntas Asignadas" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
-    <ListView fx:id="listPreguntasAsignadas" GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.columnSpan="3"/>
+    <Label text="Preguntas Asignadas" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+    <ListView fx:id="listPreguntasAsignadas" GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.columnSpan="3"/>
 
-    <Button text="Asignar Pregunta Seleccionada" fx:id="btnAsignarPregunta"
+    <Button text="Asignar Pregunta Seleccionada"
+            fx:id="btnAsignarPregunta"
             onAction="#asignarPregunta"
-            GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+            GridPane.columnIndex="1"
+            GridPane.rowIndex="9"/>
 
-    <Button text="Eliminar Pregunta Asignada" fx:id="btnEliminarPreguntaAsignada"
+    <Button text="Eliminar Pregunta Asignada"
+            fx:id="btnEliminarPreguntaAsignada"
             onAction="#eliminarPreguntaAsignada"
-            GridPane.columnIndex="2" GridPane.rowIndex="8"/>
+            GridPane.columnIndex="2"
+            GridPane.rowIndex="9"/>
 
-
-    <HBox spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="5">
+    <HBox spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="6">
         <Button text="Agregar" fx:id="btnAgregar" onAction="#agregarExamen"/>
         <Button text="Editar Examen" onAction="#editarExamen"/>
         <Button text="Eliminar" fx:id="btnEliminar" onAction="#eliminarExamen"/>
     </HBox>
-    <TextField fx:id="txtBuscar" promptText="Buscar examen..." />
 
+    <TextField fx:id="txtBuscar"
+               promptText="Buscar examen..."
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="10"
+               GridPane.columnSpan="4"/>
 
 </GridPane>

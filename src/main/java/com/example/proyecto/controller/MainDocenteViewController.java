@@ -16,9 +16,9 @@ import javafx.stage.Stage;
 public class MainDocenteViewController {
 
     @FXML private Label lblNombreDocente;
-    @FXML private BorderPane rootPane; // fx:id en MainDocenteView.fxml
+    @FXML private BorderPane rootPane;
     @FXML private MenuItem menuCerrarSesion;
-    @FXML private ImageView logoImage; // NUEVO: referencia al logo
+    @FXML private ImageView logoImage;
 
     private Docente docenteActual;
 
