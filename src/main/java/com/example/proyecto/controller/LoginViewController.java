@@ -28,17 +28,21 @@ public class LoginViewController {
         }
 
         try (Connection conn = DBConnection.getConnection()) {
-            String sql = "SELECT * FROM USUARIO WHERE CORREO = ? AND CONTRASENA = ? AND LOWER(TIPO_USUARIO) IN ('estudiante', 'docente')";
-            PreparedStatement stmt = conn.prepareStatement(sql);
+            CallableStatement stmt = conn.prepareCall("{CALL LOGIN_USUARIO(?, ?, ?, ?, ?, ?)}");
             stmt.setString(1, correo);
             stmt.setString(2, contrasena);
+            stmt.registerOutParameter(3, Types.INTEGER); // ID_USUARIO
+            stmt.registerOutParameter(4, Types.VARCHAR); // NOMBRE
+            stmt.registerOutParameter(5, Types.VARCHAR); // TIPO_USUARIO
+            stmt.registerOutParameter(6, Types.VARCHAR); // ESTADO
 
-            ResultSet rs = stmt.executeQuery();
+            stmt.execute();
 
-            if (rs.next()) {
-                int idUsuario = rs.getInt("ID_USUARIO");
-                String nombre = rs.getString("NOMBRE");
-                String tipo = rs.getString("TIPO_USUARIO");
+            String estado = stmt.getString(6);
+            if ("OK".equals(estado)) {
+                int idUsuario = stmt.getInt(3);
+                String nombre = stmt.getString(4);
+                String tipo = stmt.getString(5);
 
                 System.out.println("✅ Usuario autenticado como: " + tipo);
 
@@ -51,8 +55,10 @@ public class LoginViewController {
                 } else {
                     mostrarAlerta("Error", "Tipo de usuario desconocido.", Alert.AlertType.ERROR);
                 }
-            } else {
+            } else if ("NO_ENCONTRADO".equals(estado)) {
                 mostrarAlerta("Error", "Credenciales inválidas.", Alert.AlertType.ERROR);
+            } else {
+                mostrarAlerta("Error", "Error inesperado en la autenticación.", Alert.AlertType.ERROR);
             }
 
         } catch (Exception e) {
@@ -62,46 +68,57 @@ public class LoginViewController {
     }
 
     private Docente obtenerDocenteCompleto(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT u.id_usuario, u.nombre, u.correo, d.asignatura " +
-                "FROM USUARIO u JOIN DOCENTE d ON u.id_usuario = d.id_docente " +
-                "WHERE u.id_usuario = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
+        CallableStatement stmt = conn.prepareCall("{CALL OBTENER_DOCENTE_COMPLETO(?, ?, ?, ?, ?)}");
         stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
+        stmt.registerOutParameter(2, Types.VARCHAR); // nombre
+        stmt.registerOutParameter(3, Types.VARCHAR); // correo
+        stmt.registerOutParameter(4, Types.VARCHAR); // asignatura
+        stmt.registerOutParameter(5, Types.VARCHAR); // estado
+
+        stmt.execute();
+
+        String estado = stmt.getString(5);
+        if ("OK".equals(estado)) {
             Docente docente = new Docente();
-            docente.setIdUsuario(rs.getInt("id_usuario"));
-            docente.setNombre(rs.getString("nombre"));
-            docente.setCorreo(rs.getString("correo"));
-            docente.setAsignatura(rs.getString("asignatura"));
+            docente.setIdUsuario(idUsuario);
+            docente.setNombre(stmt.getString(2));
+            docente.setCorreo(stmt.getString(3));
+            docente.setAsignatura(stmt.getString(4));
             return docente;
+        } else {
+            return null;
         }
-        return null;
     }
 
     private Estudiante obtenerEstudianteCompleto(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT u.id_usuario, u.nombre, u.correo, g.id_grupo, g.nombre AS nombre_grupo " +
-                "FROM USUARIO u JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante " +
-                "LEFT JOIN GRUPO g ON e.id_grupo = g.id_grupo " +
-                "WHERE u.id_usuario = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
+        CallableStatement stmt = conn.prepareCall("{CALL OBTENER_ESTUDIANTE_COMPLETO(?, ?, ?, ?, ?, ?)}");
         stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
+        stmt.registerOutParameter(2, Types.VARCHAR); // nombre
+        stmt.registerOutParameter(3, Types.VARCHAR); // correo
+        stmt.registerOutParameter(4, Types.INTEGER); // id_grupo
+        stmt.registerOutParameter(5, Types.VARCHAR); // nombre_grupo
+        stmt.registerOutParameter(6, Types.VARCHAR); // estado
+
+        stmt.execute();
+
+        String estado = stmt.getString(6);
+        if ("OK".equals(estado)) {
             Estudiante estudiante = new Estudiante();
-            estudiante.setIdUsuario(rs.getInt("id_usuario"));
-            estudiante.setNombre(rs.getString("nombre"));
-            estudiante.setCorreo(rs.getString("correo"));
+            estudiante.setIdUsuario(idUsuario);
+            estudiante.setNombre(stmt.getString(2));
+            estudiante.setCorreo(stmt.getString(3));
 
             Grupo grupo = new Grupo();
-            grupo.setIdGrupo(rs.getInt("id_grupo"));
-            grupo.setNombre(rs.getString("nombre_grupo"));
+            grupo.setIdGrupo(stmt.getInt(4));
+            grupo.setNombre(stmt.getString(5));
 
             estudiante.setGrupo(grupo);
             return estudiante;
+        } else {
+            return null;
         }
-        return null;
     }
+
 
     private void mostrarVistaDocente(Docente docente) {
         try {
@@ -152,3 +169,4 @@ public class LoginViewController {
         alert.showAndWait();
     }
 }
+
