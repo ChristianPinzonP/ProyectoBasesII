@@ -20,6 +20,7 @@
             <TableColumn text="Fecha Fin" fx:id="colFechaFin"/>
             <TableColumn text="Tiempo Límite" fx:id="colTiempoLimite"/>
             <TableColumn text="ID Docente" fx:id="colIdDocente"/>
+            <TableColumn text="Tema" fx:id="colTema"/>
             <TableColumn text="Grupo" fx:id="colGrupo"/>
         </columns>
     </TableView>

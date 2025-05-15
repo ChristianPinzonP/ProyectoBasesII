@@ -31,15 +31,17 @@ public class ExamenDAO {
                 int tiempoLimite = rs.getInt("tiempo_limite");
                 int idDocente = rs.getInt("id_docente");
                 int idTema = rs.getInt("id_tema");
+                String nombreTema = rs.getString("nombre_tema");
                 int idGrupo = rs.getInt("id_grupo");
                 String nombreGrupo = rs.getString("nombre_grupo");
 
                 Examen examen = new Examen(idExamen, nombre, descripcion, fechaInicio, fechaFin,
                         tiempoLimite, idDocente, idTema, idGrupo);
+                examen.setNombre(nombreTema);
                 examen.setNombreGrupo(nombreGrupo);
                 listaExamenes.add(examen);
+                //System.out.println("✅ Pregunta obtenida: ID=" + idExamen + "nombre:" + nombreExamen + ", descripcion=" + descripcion + ", Tema=" + nombreTema);
             }
-
         } catch (SQLException e) {
             System.out.println("\uD83D\uDEA8 Error al obtener exámenes: " + e.getMessage());
         }

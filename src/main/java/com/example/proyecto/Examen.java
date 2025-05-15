@@ -11,6 +11,7 @@ public class Examen {
     private int tiempoLimite;
     private int idDocente;
     private int idTema;
+    private String nombreTema;
     private int idGrupo;
     private String nombreGrupo;
 
@@ -51,6 +52,10 @@ public class Examen {
 
     public int getIdTema() { return idTema; }
     public void setIdTema(int idTema) { this.idTema = idTema; }
+
+    // Método setter para el nombre del tema
+    public String getNombreTema() { return nombreTema; }
+    public void setNombreTema(String nombreTema) { this.nombreTema = nombreTema; }
 
     public int getIdGrupo() { return idGrupo; }
     public void setIdGrupo(int idGrupo) { this.idGrupo = idGrupo; }
