@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 
 import java.sql.*;
 
+import static com.example.proyecto.dao.DocenteDAO.obtenerDocenteCompleto;
 import static com.example.proyecto.dao.EstudianteDAO.obtenerEstudianteCompleto;
 
 public class LoginViewController {
@@ -66,29 +67,6 @@ public class LoginViewController {
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error", "Error al conectar con la base de datos: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
-    }
-
-    private Docente obtenerDocenteCompleto(Connection conn, int idUsuario) throws SQLException {
-        CallableStatement stmt = conn.prepareCall("{CALL OBTENER_DOCENTE_COMPLETO(?, ?, ?, ?, ?)}");
-        stmt.setInt(1, idUsuario);
-        stmt.registerOutParameter(2, Types.VARCHAR); // nombre
-        stmt.registerOutParameter(3, Types.VARCHAR); // correo
-        stmt.registerOutParameter(4, Types.VARCHAR); // asignatura
-        stmt.registerOutParameter(5, Types.VARCHAR); // estado
-
-        stmt.execute();
-
-        String estado = stmt.getString(5);
-        if ("OK".equals(estado)) {
-            Docente docente = new Docente();
-            docente.setIdUsuario(idUsuario);
-            docente.setNombre(stmt.getString(2));
-            docente.setCorreo(stmt.getString(3));
-            docente.setAsignatura(stmt.getString(4));
-            return docente;
-        } else {
-            return null;
         }
     }
 
