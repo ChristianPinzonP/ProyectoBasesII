@@ -170,8 +170,7 @@
 --------------------------------------------------------
 
   CREATE TABLE "ROOT2"."ESTUDIANTE" 
-   (	"ID_ESTUDIANTE" NUMBER, 
-	"GRADO" VARCHAR2(100 BYTE)
+   (	"ID_ESTUDIANTE" NUMBER
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -212,7 +211,8 @@
 	"ES_SIN_TIEMPO" NUMBER(1,0) DEFAULT 0, 
 	"NUM_PREGUNTAS_ALEATORIAS" NUMBER, 
 	"PESO_CURSO" NUMBER(5,2), 
-	"NOTA_MINIMA_APROBACION" NUMBER(2,1) DEFAULT 3.0
+	"NOTA_MINIMA_APROBACION" NUMBER(2,1) DEFAULT 3.0, 
+	"ID_GRUPO" NUMBER
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -539,16 +539,16 @@ REM INSERTING into ROOT2.ESTADISTICAS_TEMA
 SET DEFINE OFF;
 REM INSERTING into ROOT2.ESTUDIANTE
 SET DEFINE OFF;
-Insert into ROOT2.ESTUDIANTE (ID_ESTUDIANTE,GRADO) values ('2','1');
+Insert into ROOT2.ESTUDIANTE (ID_ESTUDIANTE) values ('2');
 REM INSERTING into ROOT2.ESTUDIANTE_GRUPO
 SET DEFINE OFF;
 REM INSERTING into ROOT2.EXAMEN
 SET DEFINE OFF;
-Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION) values ('18','Redes','Prueba para redes',to_date('25/04/25','DD/MM/RR'),to_date('25/04/25','DD/MM/RR'),'40','1','10','Aleatorio','2','2','0',null,null,'3');
-Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION) values ('13','Bases de Datos','Pueba para Bases',to_date('09/03/25','DD/MM/RR'),to_date('10/03/25','DD/MM/RR'),'15','1','8','Aleatorio','3,75','3','0',null,null,'3');
-Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION) values ('16','Ciberseguridad','Prueba para Ciberseguridad',to_date('21/04/25','DD/MM/RR'),to_date('21/04/25','DD/MM/RR'),'30','1','15','Aleatorio','1','1','0',null,null,'3');
-Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION) values ('17','Ciberseguridad','Prueba para Ciberseguridad',to_date('21/04/25','DD/MM/RR'),to_date('21/04/25','DD/MM/RR'),'30','1','10','Aleatorio','3','1','0',null,null,'3');
-Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION) values ('12','Prueba sin docente','a ver si falla',to_date('07/05/25','DD/MM/RR'),to_date('14/05/25','DD/MM/RR'),'34','1',null,null,null,'3','0',null,null,'3');
+Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('18','Redes','Prueba para redes',to_date('25/04/25','DD/MM/RR'),to_date('25/04/25','DD/MM/RR'),'40','1','10','Aleatorio','2','2','0',null,null,'3',null);
+Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('13','Bases de Datos','Pueba para Bases',to_date('09/03/25','DD/MM/RR'),to_date('10/03/25','DD/MM/RR'),'15','1','8','Aleatorio','3,75','3','0',null,null,'3',null);
+Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('16','Ciberseguridad','Prueba para Ciberseguridad',to_date('21/04/25','DD/MM/RR'),to_date('21/04/25','DD/MM/RR'),'30','1','15','Aleatorio','1','1','0',null,null,'3',null);
+Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('17','Ciberseguridad','Prueba para Ciberseguridad',to_date('21/04/25','DD/MM/RR'),to_date('21/04/25','DD/MM/RR'),'30','1','10','Aleatorio','3','1','0',null,null,'3',null);
+Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('12','Prueba sin docente','a ver si falla',to_date('07/05/25','DD/MM/RR'),to_date('14/05/25','DD/MM/RR'),'34','1',null,null,null,'3','0',null,null,'3',null);
 REM INSERTING into ROOT2.EXAMEN_PREGUNTA
 SET DEFINE OFF;
 Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('13','402',null);
@@ -707,6 +707,117 @@ END Generar_Estadisticas_Pregunta;
 
 /
 --------------------------------------------------------
+--  DDL for Procedure LOGIN_USUARIO
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "ROOT2"."LOGIN_USUARIO" (
+    p_correo        IN  VARCHAR2,
+    p_contrasena    IN  VARCHAR2,
+    p_id_usuario    OUT NUMBER,
+    p_nombre        OUT VARCHAR2,
+    p_tipo_usuario  OUT VARCHAR2,
+    p_estado        OUT VARCHAR2
+)
+IS
+BEGIN
+SELECT ID_USUARIO, NOMBRE, TIPO_USUARIO
+INTO p_id_usuario, p_nombre, p_tipo_usuario
+FROM USUARIO
+WHERE CORREO = p_correo
+  AND CONTRASENA = p_contrasena
+  AND LOWER(TIPO_USUARIO) IN ('estudiante', 'docente');
+
+p_estado := 'OK';
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_estado := 'NO_ENCONTRADO';
+        p_id_usuario := NULL;
+        p_nombre := NULL;
+        p_tipo_usuario := NULL;
+WHEN OTHERS THEN
+        p_estado := 'ERROR';
+        p_id_usuario := NULL;
+        p_nombre := NULL;
+        p_tipo_usuario := NULL;
+END;
+
+/
+--------------------------------------------------------
+--  DDL for Procedure OBTENER_DOCENTE_COMPLETO
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "ROOT2"."OBTENER_DOCENTE_COMPLETO" (
+    p_id_usuario      IN  NUMBER,
+    p_nombre          OUT VARCHAR2,
+    p_correo          OUT VARCHAR2,
+    p_asignatura      OUT VARCHAR2,
+    p_estado          OUT VARCHAR2
+) AS
+BEGIN
+SELECT u.nombre, u.correo, d.asignatura
+INTO p_nombre, p_correo, p_asignatura
+FROM USUARIO u
+         JOIN DOCENTE d ON u.id_usuario = d.id_docente
+WHERE u.id_usuario = p_id_usuario;
+
+p_estado := 'OK';
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_estado := 'NO_ENCONTRADO';
+        p_nombre := NULL;
+        p_correo := NULL;
+        p_asignatura := NULL;
+WHEN OTHERS THEN
+        p_estado := 'ERROR';
+        p_nombre := NULL;
+        p_correo := NULL;
+        p_asignatura := NULL;
+END;
+
+/
+--------------------------------------------------------
+--  DDL for Procedure OBTENER_ESTUDIANTE_COMPLETO
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "ROOT2"."OBTENER_ESTUDIANTE_COMPLETO" (
+    p_id_usuario      IN  NUMBER,
+    p_nombre          OUT VARCHAR2,
+    p_correo          OUT VARCHAR2,
+    p_id_grupo        OUT NUMBER,
+    p_nombre_grupo    OUT VARCHAR2,
+    p_estado          OUT VARCHAR2
+) AS
+BEGIN
+    SELECT u.nombre, u.correo, g.id_grupo, g.nombre
+    INTO p_nombre, p_correo, p_id_grupo, p_nombre_grupo
+    FROM USUARIO u
+    JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante
+    LEFT JOIN ESTUDIANTE_GRUPO eg ON e.id_estudiante = eg.id_estudiante
+    LEFT JOIN GRUPO g ON eg.id_grupo = g.id_grupo
+    WHERE u.id_usuario = p_id_usuario;
+
+    p_estado := 'OK';
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_estado := 'NO_ENCONTRADO';
+        p_nombre := NULL;
+        p_correo := NULL;
+        p_id_grupo := NULL;
+        p_nombre_grupo := NULL;
+    WHEN OTHERS THEN
+        p_estado := 'ERROR';
+        p_nombre := NULL;
+        p_correo := NULL;
+        p_id_grupo := NULL;
+        p_nombre_grupo := NULL;
+END;
+
+/
+--------------------------------------------------------
 --  Constraints for Table ESTADISTICAS_ESTUDIANTE
 --------------------------------------------------------
 
@@ -729,7 +840,7 @@ END Generar_Estadisticas_Pregunta;
 
   ALTER TABLE "ROOT2"."CURSO" MODIFY ("NOMBRE" NOT NULL ENABLE);
   ALTER TABLE "ROOT2"."CURSO" ADD PRIMARY KEY ("ID_CURSO")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table TEMA
@@ -748,7 +859,7 @@ END Generar_Estadisticas_Pregunta;
 
   ALTER TABLE "ROOT2"."CONTENIDO" MODIFY ("ID_UNIDAD" NOT NULL ENABLE);
   ALTER TABLE "ROOT2"."CONTENIDO" ADD PRIMARY KEY ("ID_CONTENIDO")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table HORARIO
@@ -756,7 +867,7 @@ END Generar_Estadisticas_Pregunta;
 
   ALTER TABLE "ROOT2"."HORARIO" MODIFY ("ID_GRUPO" NOT NULL ENABLE);
   ALTER TABLE "ROOT2"."HORARIO" ADD PRIMARY KEY ("ID_HORARIO")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table PLAN_ESTUDIO
@@ -764,7 +875,7 @@ END Generar_Estadisticas_Pregunta;
 
   ALTER TABLE "ROOT2"."PLAN_ESTUDIO" MODIFY ("ID_CURSO" NOT NULL ENABLE);
   ALTER TABLE "ROOT2"."PLAN_ESTUDIO" ADD PRIMARY KEY ("ID_PLAN")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table PRESENTACION_EXAMEN
@@ -916,7 +1027,7 @@ END Generar_Estadisticas_Pregunta;
 
   ALTER TABLE "ROOT2"."UNIDAD" MODIFY ("ID_PLAN" NOT NULL ENABLE);
   ALTER TABLE "ROOT2"."UNIDAD" ADD PRIMARY KEY ("ID_UNIDAD")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Ref Constraints for Table CONTENIDO
@@ -992,6 +1103,8 @@ END Generar_Estadisticas_Pregunta;
 	  REFERENCES "ROOT2"."TEMA" ("ID_TEMA") ENABLE;
   ALTER TABLE "ROOT2"."EXAMEN" ADD CONSTRAINT "FK_EXAMEN_DOCENTE" FOREIGN KEY ("ID_DOCENTE")
 	  REFERENCES "ROOT2"."DOCENTE" ("ID_DOCENTE") ENABLE;
+  ALTER TABLE "ROOT2"."EXAMEN" ADD CONSTRAINT "FK_EXAMEN_GRUPO" FOREIGN KEY ("ID_GRUPO")
+	  REFERENCES "ROOT2"."GRUPO" ("ID_GRUPO") ENABLE;
 --------------------------------------------------------
 --  Ref Constraints for Table EXAMEN_PREGUNTA
 --------------------------------------------------------

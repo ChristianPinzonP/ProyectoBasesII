@@ -13,6 +13,8 @@ import javafx.stage.Stage;
 
 import java.sql.*;
 
+import static com.example.proyecto.dao.EstudianteDAO.obtenerEstudianteCompleto;
+
 public class LoginViewController {
     @FXML private TextField txtCorreo;
     @FXML private PasswordField txtContrasena;
@@ -89,36 +91,6 @@ public class LoginViewController {
             return null;
         }
     }
-
-    private Estudiante obtenerEstudianteCompleto(Connection conn, int idUsuario) throws SQLException {
-        CallableStatement stmt = conn.prepareCall("{CALL OBTENER_ESTUDIANTE_COMPLETO(?, ?, ?, ?, ?, ?)}");
-        stmt.setInt(1, idUsuario);
-        stmt.registerOutParameter(2, Types.VARCHAR); // nombre
-        stmt.registerOutParameter(3, Types.VARCHAR); // correo
-        stmt.registerOutParameter(4, Types.INTEGER); // id_grupo
-        stmt.registerOutParameter(5, Types.VARCHAR); // nombre_grupo
-        stmt.registerOutParameter(6, Types.VARCHAR); // estado
-
-        stmt.execute();
-
-        String estado = stmt.getString(6);
-        if ("OK".equals(estado)) {
-            Estudiante estudiante = new Estudiante();
-            estudiante.setIdUsuario(idUsuario);
-            estudiante.setNombre(stmt.getString(2));
-            estudiante.setCorreo(stmt.getString(3));
-
-            Grupo grupo = new Grupo();
-            grupo.setIdGrupo(stmt.getInt(4));
-            grupo.setNombre(stmt.getString(5));
-
-            estudiante.setGrupo(grupo);
-            return estudiante;
-        } else {
-            return null;
-        }
-    }
-
 
     private void mostrarVistaDocente(Docente docente) {
         try {

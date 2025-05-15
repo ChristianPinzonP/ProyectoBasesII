@@ -1,13 +1,11 @@
 package com.example.proyecto.dao;
 
+import com.example.proyecto.DBConnection;
 import com.example.proyecto.Docente;
 import com.example.proyecto.Estudiante;
 import com.example.proyecto.Grupo;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class EstudianteDAO {
 
@@ -20,42 +18,32 @@ public class EstudianteDAO {
     }
 
     public static Estudiante obtenerEstudianteCompleto(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT u.id_usuario, u.nombre, u.correo, g.id_grupo, g.nombre AS nombre_grupo " +
-                "FROM USUARIO u JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante " +
-                "LEFT JOIN GRUPO g ON e.id_grupo = g.id_grupo " +
-                "LEFT JOIN DOCENTE d ON g.id_docente_titular = d.id_docente " +
-                "WHERE u.id_usuario = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
+        CallableStatement stmt = conn.prepareCall("{CALL OBTENER_ESTUDIANTE_COMPLETO(?, ?, ?, ?, ?, ?)}");
         stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
+        stmt.registerOutParameter(2, Types.VARCHAR); // nombre
+        stmt.registerOutParameter(3, Types.VARCHAR); // correo
+        stmt.registerOutParameter(4, Types.INTEGER); // id_grupo
+        stmt.registerOutParameter(5, Types.VARCHAR); // nombre_grupo
+        stmt.registerOutParameter(6, Types.VARCHAR); // estado
+
+        stmt.execute();
+
+        String estado = stmt.getString(6);
+        if ("OK".equals(estado)) {
             Estudiante estudiante = new Estudiante();
-            estudiante.setIdUsuario(rs.getInt("id_usuario"));
-            estudiante.setNombre(rs.getString("nombre"));
-            estudiante.setCorreo(rs.getString("correo"));
+            estudiante.setIdUsuario(idUsuario);
+            estudiante.setNombre(stmt.getString(2));
+            estudiante.setCorreo(stmt.getString(3));
 
-            // Cargar grupo
             Grupo grupo = new Grupo();
-            grupo.setIdGrupo(rs.getInt("id_grupo"));
-            grupo.setNombre(rs.getString("nombre_grupo"));
-
-            //HACER EL CAMBIO PARA SABER QUÉ DOCENTE ESTÁ ACARGO DEL GRUPO
-            //REVISAR DÓNDE SE DEBE HACER, SI AQUÍ O EN
-            /**
-            // 1) Obtener el id del doc-ente titular que viene en la consulta
-            int idDocenteTitular = rs.getInt("id_docente_titular");
-
-            // 2) Construir (o buscar) el objeto Docente
-            Docente docenteTitular = new Docente();
-            docenteTitular.setIdDocente(idDocenteTitular);
-
-            // 3) Asociarlo al grupo
-            grupo.setIdDocenteTitular(docenteTitular);
+            grupo.setIdGrupo(stmt.getInt(4));
+            grupo.setNombre(stmt.getString(5));
 
             estudiante.setGrupo(grupo);
             return estudiante;
-             */
+        } else {
+            return null;
         }
-        return null;
     }
+
 }
