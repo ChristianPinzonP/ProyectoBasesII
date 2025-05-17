@@ -17,7 +17,6 @@ public class MainDocenteViewController {
 
     @FXML private Label lblNombreDocente;
     @FXML private BorderPane rootPane;
-    @FXML private MenuItem menuCerrarSesion;
     @FXML private ImageView logoImage;
 
     private Docente docenteActual;
@@ -44,21 +43,26 @@ public class MainDocenteViewController {
     @FXML
     public void cerrarSesion() {
         try {
-            Stage stageActual = (Stage) rootPane.getScene().getWindow();
-            stageActual.close();
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto/LoginView.fxml"));
-            Scene sceneLogin = new Scene(loader.load(), 400, 300);
+            Parent root = loader.load();
+            Scene loginScene = new Scene(root);
+
+            loginScene.getStylesheets().add(getClass().getResource("/com/example/proyecto/application.css").toExternalForm());
 
             Stage nuevoStage = new Stage();
             nuevoStage.setTitle("Login - Edusoft");
-            nuevoStage.setScene(sceneLogin);
+            nuevoStage.setScene(loginScene);
             nuevoStage.show();
+
+            // ✅ Cerrar la ventana actual de forma confiable
+            Stage ventanaActual = (Stage) rootPane.getScene().getWindow();
+            ventanaActual.close();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     public void inicializarDocente(Docente docente) {
         this.docenteActual = docente;
