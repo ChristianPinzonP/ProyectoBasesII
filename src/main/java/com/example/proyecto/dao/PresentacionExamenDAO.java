@@ -2,11 +2,7 @@ package com.example.proyecto.dao;
 
 import com.example.proyecto.DBConnection;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 
 public class PresentacionExamenDAO {
@@ -33,17 +29,37 @@ public class PresentacionExamenDAO {
         return -1;
     }
 
-    public static void actualizarCalificacion(int idPresentacion, double nota) {
-        String sql = "UPDATE PRESENTACION_EXAMEN SET CALIFICACION = ? WHERE ID_PRESENTACION = ?";
+    public static void calificarAutomaticamente(int idPresentacion) {
+        String sql = "{ call CALIFICAR_EXAMEN_AUTOMATICO(?, ?) }";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sql)) {
 
-            stmt.setDouble(1, nota);
-            stmt.setInt(2, idPresentacion);
-            stmt.executeUpdate();
+            stmt.setInt(1, idPresentacion);
+            stmt.registerOutParameter(2, Types.VARCHAR);
+            stmt.execute();
+
+            String estado = stmt.getString(2);
+            System.out.println("Estado de calificación automática: " + estado);
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static double obtenerCalificacion(int idPresentacion) {
+        String sql = "SELECT CALIFICACION FROM PRESENTACION_EXAMEN WHERE ID_PRESENTACION = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idPresentacion);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("CALIFICACION");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 }

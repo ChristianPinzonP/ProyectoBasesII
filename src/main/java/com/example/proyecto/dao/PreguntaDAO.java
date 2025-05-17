@@ -11,8 +11,8 @@ import java.util.List;
 public class PreguntaDAO {
 
     public static boolean agregarPregunta(Pregunta pregunta) {
-        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_TEMA) " +
-                "VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?)";
+        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_TEMA, VALOR_NOTA) " +
+                "VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, new String[]{"ID_PREGUNTA"})) {
@@ -20,6 +20,7 @@ public class PreguntaDAO {
             stmt.setString(1, pregunta.getTexto());
             stmt.setString(2, pregunta.getTipo());
             stmt.setInt(3, pregunta.getIdTema());
+            stmt.setDouble(4, pregunta.getValorNota());  // Aquí se asigna el valor de la nota
 
             int filasInsertadas = stmt.executeUpdate();
 
@@ -43,6 +44,7 @@ public class PreguntaDAO {
             return false;
         }
     }
+
 
     public static boolean agregarOpcionesRespuesta(int idPregunta, String tipoPregunta, List<OpcionRespuesta> opciones) {
         String sql = "INSERT INTO RESPUESTA (ID_RESPUESTA, ID_PREGUNTA, TEXTO, ES_CORRECTA) VALUES (SEQ_RESPUESTA.NEXTVAL, ?, ?, ?)";
@@ -108,7 +110,7 @@ public class PreguntaDAO {
 
     public static List<Pregunta> obtenerTodasLasPreguntas() {
         List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA " +
+        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA, NVL(p.VALOR_NOTA, 0) AS VALOR_NOTA " +
                 "FROM PREGUNTA p " +
                 "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
                 "ORDER BY p.ID_PREGUNTA DESC";
@@ -123,26 +125,27 @@ public class PreguntaDAO {
                 String tipo = rs.getString("TIPO");
                 int idTema = rs.getInt("ID_TEMA");
                 String nombreTema = rs.getString("NOMBRE_TEMA");
+                double valorNota = rs.getDouble("VALOR_NOTA");
 
-                List<OpcionRespuesta> opciones = obtenerOpcionesDePregunta(idPregunta);
+                System.out.println("Pregunta ID: " + idPregunta + ", Texto: " + texto);
 
-                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema);
                 pregunta.setNombreTema(nombreTema);
+                pregunta.setValorNota(valorNota);
                 listaPreguntas.add(pregunta);
-
-                System.out.println("✅ Pregunta obtenida: ID=" + idPregunta + ", Texto=" + texto + ", Tipo=" + tipo + ", Tema=" + nombreTema);
-                System.out.println("✅ Opciones encontradas: " + opciones.size());
             }
 
         } catch (SQLException e) {
+            System.out.println("Error al cargar preguntas: " + e.getMessage());
             e.printStackTrace();
         }
 
+        System.out.println("Total preguntas cargadas: " + listaPreguntas.size());
         return listaPreguntas;
     }
 
-    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema, List<OpcionRespuesta> nuevasOpciones) {
-        String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_TEMA = ? WHERE ID_PREGUNTA = ?";
+    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema, double nuevoValorNota, List<OpcionRespuesta> nuevasOpciones) {
+        String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_TEMA = ?, VALOR_NOTA = ? WHERE ID_PREGUNTA = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -150,7 +153,8 @@ public class PreguntaDAO {
             stmt.setString(1, nuevoTexto);
             stmt.setString(2, nuevoTipo);
             stmt.setInt(3, nuevoIdTema);
-            stmt.setInt(4, idPregunta);
+            stmt.setDouble(4, nuevoValorNota);  // Actualiza la nota
+            stmt.setInt(5, idPregunta);
 
             int filasActualizadas = stmt.executeUpdate();
             System.out.println("Filas actualizadas en tabla PREGUNTA: " + filasActualizadas);
@@ -177,6 +181,7 @@ public class PreguntaDAO {
             return false;
         }
     }
+
 
 
     public static boolean eliminarPregunta(int idPregunta) {

@@ -6,63 +6,65 @@
 <?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 
-<GridPane xmlns="http://javafx.com/javafx"
-          xmlns:fx="http://javafx.com/fxml"
-          fx:controller="com.example.proyecto.controller.PreguntaViewController"
-          alignment="CENTER"
-          hgap="10" vgap="10">
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.proyecto.controller.PreguntaViewController"
+            fitToWidth="true" fitToHeight="true">
 
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+    <content>
+        <GridPane alignment="CENTER" hgap="10" vgap="10">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
 
-    <Label text="Crear Pregunta" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"
-           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-padding: 10px;"/>
+            <Label text="Crear Pregunta" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-padding: 10px;"/>
 
-    <Label text="Texto de la Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-    <TextArea fx:id="txtTexto" GridPane.columnIndex="1" GridPane.rowIndex="1" prefRowCount="3" wrapText="true"
-              style="-fx-font-size: 14px; -fx-pref-width: 350px;"/>
+            <Label text="Texto de la Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextArea fx:id="txtTexto" GridPane.columnIndex="1" GridPane.rowIndex="1" prefRowCount="3" wrapText="true"
+                      style="-fx-font-size: 14px; -fx-pref-width: 350px;"/>
 
-    <Label text="Tipo de Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-    <ComboBox fx:id="cbTipoPregunta" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="250">
-        <items>
-            <FXCollections fx:factory="observableArrayList">
-                <String fx:value="Opción Múltiple"/>
-                <String fx:value="Verdadero/Falso"/>
-                <String fx:value="Respuesta Corta"/>
-            </FXCollections>
-        </items>
-    </ComboBox>
+            <Label text="Tipo de Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <ComboBox fx:id="cbTipoPregunta" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="250">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Opción Múltiple"/>
+                        <String fx:value="Verdadero/Falso"/>
+                        <String fx:value="Respuesta Corta"/>
+                    </FXCollections>
+                </items>
+            </ComboBox>
 
-    <!--ERROR AL AGREGAR PREGUNTA, CORREGIRLOOOOOOOOO-->
+            <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="250"/>
 
-    <!-- ✅ Aquí antes había un HBox que no tenía índice de GridPane -->
-    <!-- Se corrigió y ahora está como los demás controles -->
-    <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
-    <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="250"/>
+            <Label text="Opciones de Respuesta:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+            <VBox fx:id="vboxOpciones" GridPane.columnIndex="1" GridPane.rowIndex="4" spacing="8"
+                  style="-fx-padding: 10px; -fx-border-color: #cccccc; -fx-border-width: 1px;"/>
 
-    <Label text="Opciones de Respuesta:" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
-    <VBox fx:id="vboxOpciones" GridPane.columnIndex="1" GridPane.rowIndex="4" spacing="8"
-          style="-fx-padding: 10px; -fx-border-color: #cccccc; -fx-border-width: 1px;"/>
+            <Label text="Valor Nota (0-5):" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+            <TextField fx:id="txtValorNota" GridPane.columnIndex="1" GridPane.rowIndex="5" promptText="Ej: 0.5"/>
 
-    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="5" alignment="CENTER">
-        <Button text="Guardar Pregunta" onAction="#agregarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
-    </HBox>
+            <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="6" alignment="CENTER">
+                <Button text="Guardar Pregunta" onAction="#agregarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
+            </HBox>
 
-    <Label text="Lista de Preguntas" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
-    <TableView fx:id="tablaPreguntas" GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="2">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colTexto" text="Texto" prefWidth="200"/>
-            <TableColumn fx:id="colTipo" text="Tipo" prefWidth="100"/>
-            <TableColumn fx:id="colTema" text="Tema Pregunta" prefWidth="150"/>
-        </columns>
-    </TableView>
+            <Label text="Lista de Preguntas" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+            <TableView fx:id="tablaPreguntas" GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="2">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                    <TableColumn fx:id="colTexto" text="Texto" prefWidth="200"/>
+                    <TableColumn fx:id="colTipo" text="Tipo" prefWidth="100"/>
+                    <TableColumn fx:id="colTema" text="Tema Pregunta" prefWidth="150"/>
+                    <TableColumn fx:id="colValorNota" text="Nota" prefWidth="60"/>
+                </columns>
+            </TableView>
 
-    <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="8" alignment="CENTER">
-        <Button text="Editar Pregunta" onAction="#editarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
-        <Button text="Guardar Cambios" onAction="#guardarEdicion" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
-        <Button text="Eliminar Pregunta" onAction="#eliminarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
-    </HBox>
-
-</GridPane>
+            <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="9" alignment="CENTER">
+                <Button text="Editar Pregunta" onAction="#editarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
+                <Button text="Guardar Cambios" onAction="#guardarEdicion" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
+                <Button text="Eliminar Pregunta" onAction="#eliminarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
+            </HBox>
+        </GridPane>
+    </content>
+</ScrollPane>

@@ -12,7 +12,8 @@ public class ExamenDAO {
     public static List<Examen> obtenerTodosLosExamenes() {
         List<Examen> listaExamenes = new ArrayList<>();
         String sql = "SELECT e.id_examen, e.nombre, e.descripcion, e.fecha_inicio, e.fecha_fin, " +
-                "e.tiempo_limite, e.id_docente, e.id_tema, e.id_grupo, t.NOMBRE AS nombre_tema, g.NOMBRE AS nombre_grupo " +
+                "e.tiempo_limite, e.id_docente, e.id_tema, e.id_grupo, t.NOMBRE AS nombre_tema, g.NOMBRE AS nombre_grupo, " +
+                "e.numero_preguntas, e.modo_seleccion, e.tiempo_por_pregunta " +  // <- Agregado campos
                 "FROM EXAMEN e " +
                 "LEFT JOIN TEMA t ON e.id_tema = t.id_tema " +
                 "LEFT JOIN GRUPO g ON e.id_grupo = g.id_grupo " +
@@ -35,23 +36,71 @@ public class ExamenDAO {
                 int idGrupo = rs.getInt("id_grupo");
                 String nombreGrupo = rs.getString("nombre_grupo");
 
+                int numeroPreguntas = rs.getInt("numero_preguntas");
+                String modoSeleccion = rs.getString("modo_seleccion");
+                int tiempoPorPregunta = rs.getInt("tiempo_por_pregunta");
+
                 Examen examen = new Examen(idExamen, nombre, descripcion, fechaInicio, fechaFin,
                         tiempoLimite, idDocente, idTema, idGrupo);
-                examen.setNombre(nombreTema);
+
+                examen.setNombreTema(nombreTema);
                 examen.setNombreGrupo(nombreGrupo);
+
+                // Setear los nuevos campos
+                examen.setNumeroPreguntas(numeroPreguntas);
+                examen.setModoSeleccion(modoSeleccion);
+                examen.setTiempoPorPregunta(tiempoPorPregunta);
+
                 listaExamenes.add(examen);
-                //System.out.println("✅ Pregunta obtenida: ID=" + idExamen + "nombre:" + nombreExamen + ", descripcion=" + descripcion + ", Tema=" + nombreTema);
             }
         } catch (SQLException e) {
-            System.out.println("\uD83D\uDEA8 Error al obtener exámenes: " + e.getMessage());
+            System.out.println("⚠️ Error al obtener exámenes: " + e.getMessage());
         }
 
         return listaExamenes;
     }
 
+
+    public static int agregarExamenYRetornarId(Examen examen) {
+        String sql = "{ call CREAR_EXAMEN(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
+
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setString(1, examen.getNombre());                           // p_nombre
+            stmt.setString(2, examen.getDescripcion());                      // p_descripcion
+            stmt.setDate(3, examen.getFechaInicio());                        // p_fecha_inicio
+            stmt.setDate(4, examen.getFechaFin());                           // p_fecha_fin
+            stmt.setInt(5, examen.getTiempoLimite());                        // p_tiempo_limite
+            stmt.setInt(6, examen.getIdDocente());                           // p_id_docente
+            stmt.setInt(7, examen.getNumeroPreguntas());                     // p_numero_preguntas
+            stmt.setString(8, examen.getModoSeleccion());                    // p_modo_seleccion
+            stmt.setInt(9, examen.getTiempoPorPregunta());                   // p_tiempo_por_pregunta
+            stmt.setInt(10, examen.getIdTema());                             // p_id_tema
+            stmt.setDouble(11, 3.0);                                         // p_nota_minima_aprob (puedes usar examen.getNotaMinimaAprobacion() si tienes)
+            stmt.setInt(12, examen.getIdGrupo());                            // p_id_grupo
+
+            stmt.registerOutParameter(13, Types.VARCHAR);                    // p_estado OUT
+            stmt.registerOutParameter(14, Types.INTEGER);                    // p_id_generado OUT
+
+            stmt.execute();
+
+            String estado = stmt.getString(13);
+            if ("OK".equalsIgnoreCase(estado)) {
+                return stmt.getInt(14);
+            } else {
+                System.out.println("❌ Error en PL/SQL: Estado = " + estado);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("❌ Error al agregar examen con procedimiento: " + e.getMessage());
+        }
+        return -1;
+    }
+
     public static boolean editarExamen(Examen examen) {
         String sql = "UPDATE EXAMEN SET nombre = ?, descripcion = ?, fecha_inicio = ?, fecha_fin = ?, " +
-                "tiempo_limite = ?, id_docente = ?, id_tema = ?, id_grupo = ? WHERE id_examen = ?";
+                "tiempo_limite = ?, id_docente = ?, id_tema = ?, id_grupo = ?, numero_preguntas = ?, modo_seleccion = ?, tiempo_por_pregunta = ? WHERE id_examen = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -64,7 +113,10 @@ public class ExamenDAO {
             stmt.setInt(6, examen.getIdDocente());
             stmt.setInt(7, examen.getIdTema());
             stmt.setInt(8, examen.getIdGrupo());
-            stmt.setInt(9, examen.getId());
+            stmt.setInt(9, examen.getNumeroPreguntas());
+            stmt.setString(10, examen.getModoSeleccion());
+            stmt.setInt(11, examen.getTiempoPorPregunta());
+            stmt.setInt(12, examen.getId());
 
             return stmt.executeUpdate() > 0;
 
@@ -72,71 +124,6 @@ public class ExamenDAO {
             System.out.println("❌ Error al actualizar el examen: " + e.getMessage());
             return false;
         }
-    }
-
-    public static boolean agregarExamen(Examen examen) {
-        String sql = "INSERT INTO EXAMEN (id_examen, nombre, descripcion, fecha_inicio, fecha_fin, " +
-                "tiempo_limite, id_docente, id_tema, id_grupo) " +
-                "VALUES (SEQ_EXAMEN.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            conn.setAutoCommit(false);
-
-            stmt.setString(1, examen.getNombre());
-            stmt.setString(2, examen.getDescripcion());
-            stmt.setDate(3, examen.getFechaInicio());
-            stmt.setDate(4, examen.getFechaFin());
-            stmt.setInt(5, examen.getTiempoLimite());
-            stmt.setInt(6, examen.getIdDocente());
-            stmt.setInt(7, examen.getIdTema());
-            stmt.setInt(8, examen.getIdGrupo());
-
-            if (stmt.executeUpdate() > 0) {
-                conn.commit();
-                System.out.println("✅ Examen agregado correctamente.");
-                return true;
-            } else {
-                conn.rollback();
-                System.out.println("❌ No se pudo agregar el examen.");
-                return false;
-            }
-
-        } catch (SQLException e) {
-            System.out.println("\uD83D\uDEA8 Error al agregar examen: " + e.getMessage());
-            return false;
-        }
-    }
-
-    public static int agregarExamenYRetornarId(Examen examen) {
-        String sql = "INSERT INTO EXAMEN (id_examen, nombre, descripcion, fecha_inicio, fecha_fin, " +
-                "tiempo_limite, id_docente, id_tema, id_grupo) " +
-                "VALUES (SEQ_EXAMEN.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
-        String[] keys = {"id_examen"};
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, keys)) {
-
-            stmt.setString(1, examen.getNombre());
-            stmt.setString(2, examen.getDescripcion());
-            stmt.setDate(3, examen.getFechaInicio());
-            stmt.setDate(4, examen.getFechaFin());
-            stmt.setInt(5, examen.getTiempoLimite());
-            stmt.setInt(6, examen.getIdDocente());
-            stmt.setInt(7, examen.getIdTema());
-            stmt.setInt(8, examen.getIdGrupo());
-
-            if (stmt.executeUpdate() > 0) {
-                ResultSet rs = stmt.getGeneratedKeys();
-                if (rs.next()) return rs.getInt(1);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("❌ Error al agregar y retornar ID: " + e.getMessage());
-        }
-
-        return -1;
     }
 
     public static List<Examen> obtenerExamenesPorGrupo(int idGrupo) {
@@ -173,17 +160,35 @@ public class ExamenDAO {
     }
 
     public static boolean eliminarExamen(int idExamen) {
-        String sql = "DELETE FROM EXAMEN WHERE id_examen = ?";
+        String sqlEliminarRelaciones = "DELETE FROM EXAMEN_PREGUNTA WHERE id_examen = ?";
+        String sqlEliminarExamen = "DELETE FROM EXAMEN WHERE id_examen = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
 
-            stmt.setInt(1, idExamen);
-            return stmt.executeUpdate() > 0;
+            try (PreparedStatement stmtRel = conn.prepareStatement(sqlEliminarRelaciones);
+                 PreparedStatement stmtExamen = conn.prepareStatement(sqlEliminarExamen)) {
 
+                // Eliminar relaciones pregunta-examen
+                stmtRel.setInt(1, idExamen);
+                stmtRel.executeUpdate();
+
+                // Eliminar examen
+                stmtExamen.setInt(1, idExamen);
+                int rows = stmtExamen.executeUpdate();
+
+                conn.commit();
+                return rows > 0;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
 }

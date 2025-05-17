@@ -15,6 +15,11 @@ public class Examen {
     private int idGrupo;
     private String nombreGrupo;
 
+    // Nuevos campos
+    private int numeroPreguntas;
+    private String modoSeleccion;
+    private int tiempoPorPregunta;
+
     public Examen(int id, String nombre, String descripcion, Date fechaInicio, Date fechaFin,
                   int tiempoLimite, int idDocente, int idTema, int idGrupo) {
         this.id = id;
@@ -53,7 +58,6 @@ public class Examen {
     public int getIdTema() { return idTema; }
     public void setIdTema(int idTema) { this.idTema = idTema; }
 
-    // Método setter para el nombre del tema
     public String getNombreTema() { return nombreTema; }
     public void setNombreTema(String nombreTema) { this.nombreTema = nombreTema; }
 
@@ -62,4 +66,14 @@ public class Examen {
 
     public String getNombreGrupo() { return nombreGrupo; }
     public void setNombreGrupo(String nombreGrupo) { this.nombreGrupo = nombreGrupo; }
+
+    // Nuevos getters/setters
+    public int getNumeroPreguntas() { return numeroPreguntas; }
+    public void setNumeroPreguntas(int numeroPreguntas) { this.numeroPreguntas = numeroPreguntas; }
+
+    public String getModoSeleccion() { return modoSeleccion; }
+    public void setModoSeleccion(String modoSeleccion) { this.modoSeleccion = modoSeleccion; }
+
+    public int getTiempoPorPregunta() { return tiempoPorPregunta; }
+    public void setTiempoPorPregunta(int tiempoPorPregunta) { this.tiempoPorPregunta = tiempoPorPregunta; }
 }

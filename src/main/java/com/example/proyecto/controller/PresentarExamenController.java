@@ -110,8 +110,9 @@ public class PresentarExamenController {
             if (esCorrecto) correctas++;
         }
 
-        double nota = ((double) correctas / total) * 100;
-        PresentacionExamenDAO.actualizarCalificacion(idPresentacion, nota);
+        // Calificar automáticamente vía PL/SQL
+        PresentacionExamenDAO.calificarAutomaticamente(idPresentacion);
+        double nota = PresentacionExamenDAO.obtenerCalificacion(idPresentacion);
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Examen finalizado");
@@ -119,4 +120,5 @@ public class PresentarExamenController {
         alert.setContentText("Tu examen ha sido enviado.\nCalificación: " + nota + " puntos");
         alert.showAndWait();
     }
+
 }

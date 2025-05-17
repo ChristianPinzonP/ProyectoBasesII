@@ -9,8 +9,10 @@ public class Pregunta {
     private String tipo;
     private String nombreTema;
     private int idTema;
+    private double valorNota;
 
     private List<OpcionRespuesta> opciones;
+
     // Constructor para Respuesta Corta (sin opciones)
     public Pregunta(int id, String texto, String tipo, int idTema) {
         this.id = id;
@@ -38,26 +40,20 @@ public class Pregunta {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public int getIdTema() {
-        return idTema;
-    }
-    public void setIdTema(int idTema) {this.idTema = idTema; }
+    public int getIdTema() { return idTema; }
+    public void setIdTema(int idTema) { this.idTema = idTema; }
 
-    // Método getter para el nombre del tema
-    public String getNombreTema() {
-        return nombreTema;
-    }
+    public double getValorNota() { return valorNota; }
+    public void setValorNota(double valorNota) { this.valorNota = valorNota; }
 
-    // Método setter para el nombre del tema
-    public void setNombreTema(String nombreTema) {
-        this.nombreTema = nombreTema;
-    }
+    public String getNombreTema() { return nombreTema; }
+    public void setNombreTema(String nombreTema) { this.nombreTema = nombreTema; }
+
+    public List<OpcionRespuesta> getOpciones() { return opciones; }
+    public void setOpciones(List<OpcionRespuesta> opciones) { this.opciones = opciones; }
 
     @Override
     public String toString() {
         return "[" + id + "] " + texto + " - Tema: " + nombreTema;
     }
-
-    public List<OpcionRespuesta> getOpciones() { return opciones; }
-    public void setOpciones(List<OpcionRespuesta> opciones) { this.opciones = opciones; }
 }
