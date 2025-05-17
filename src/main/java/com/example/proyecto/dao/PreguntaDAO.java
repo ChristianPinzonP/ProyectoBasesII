@@ -144,7 +144,7 @@ public class PreguntaDAO {
         return listaPreguntas;
     }
 
-    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema, double nuevoValorNota, List<OpcionRespuesta> nuevasOpciones) {
+    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema, double nuevoValorNota, List<OpcionRespuesta> nuevasOpciones)  {
         String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_TEMA = ?, VALOR_NOTA = ? WHERE ID_PREGUNTA = ?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -221,31 +221,45 @@ public class PreguntaDAO {
     }
     public static List<Pregunta> obtenerPreguntasConOpcionesPorExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
-        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE AS NOMBRE_TEMA " +
-                "FROM PREGUNTA p " +
-                "JOIN EXAMEN_PREGUNTA ep ON ep.ID_PREGUNTA = p.ID_PREGUNTA " +
-                "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
-                "WHERE ep.ID_EXAMEN = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement psPreguntas = conn.prepareStatement(
+                    "SELECT p.id_pregunta, p.texto, p.tipo, p.id_tema " +
+                            "FROM examen_pregunta ep " +
+                            "JOIN pregunta p ON ep.id_pregunta = p.id_pregunta " +
+                            "WHERE ep.id_examen = ?");
+            psPreguntas.setInt(1, idExamen);
+            ResultSet rsPreguntas = psPreguntas.executeQuery();
 
-            stmt.setInt(1, idExamen);
-            ResultSet rs = stmt.executeQuery();
+            while (rsPreguntas.next()) {
+                int idPregunta = rsPreguntas.getInt("id_pregunta");
+                String texto = rsPreguntas.getString("texto");
+                String tipo = rsPreguntas.getString("tipo");
+                int idTema = rsPreguntas.getInt("id_tema");
 
-            while (rs.next()) {
-                int id = rs.getInt("ID_PREGUNTA");
-                String texto = rs.getString("TEXTO");
-                String tipo = rs.getString("TIPO");
-                int idTema = rs.getInt("ID_TEMA");
-                String nombreTema = rs.getString("NOMBRE_TEMA");
+                List<OpcionRespuesta> opciones = new ArrayList<>();
 
-                List<OpcionRespuesta> opciones = obtenerOpcionesDePregunta(id);
-                Pregunta p = new Pregunta(id, texto, tipo, idTema, opciones);
-                p.setNombreTema(nombreTema);
-                preguntas.add(p);
+                PreparedStatement psRespuestas = conn.prepareStatement(
+                        "SELECT id_respuesta, texto FROM respuesta WHERE id_pregunta = ?");
+                psRespuestas.setInt(1, idPregunta);
+                ResultSet rsRespuestas = psRespuestas.executeQuery();
+
+                while (rsRespuestas.next()) {
+                    int idRespuesta = rsRespuestas.getInt("id_respuesta");
+                    String textoRespuesta = rsRespuestas.getString("texto");
+                    OpcionRespuesta opcion = new OpcionRespuesta(idRespuesta, textoRespuesta, false);
+                    opciones.add(opcion);
+                }
+
+                rsRespuestas.close();
+                psRespuestas.close();
+
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
+                preguntas.add(pregunta);
             }
 
+            rsPreguntas.close();
+            psPreguntas.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -5,6 +5,13 @@ import com.example.proyecto.dao.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import java.sql.Connection;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
 
 import java.util.*;
 
@@ -38,21 +45,11 @@ public class PresentarExamenController {
             String tipoNormalizado = normalizarTipo(pregunta.getTipo());
 
             switch (tipoNormalizado) {
-                case "opcion multiple" -> {
+                case "opcion multiple", "verdadero/falso" -> {
                     ToggleGroup grupo = new ToggleGroup();
                     for (OpcionRespuesta op : pregunta.getOpciones()) {
                         RadioButton rb = new RadioButton(op.getTexto());
-                        rb.setUserData(op.getId());
-                        rb.setToggleGroup(grupo);
-                        preguntaBox.getChildren().add(rb);
-                    }
-                    respuestasEstudiante.put(pregunta.getId(), grupo);
-                }
-                case "verdadero/falso" -> {
-                    ToggleGroup grupo = new ToggleGroup();
-                    for (OpcionRespuesta op : pregunta.getOpciones()) {
-                        RadioButton rb = new RadioButton(op.getTexto());
-                        rb.setUserData(op.getId());
+                        rb.setUserData(op.getId()); // ✅ Usa el ID_RESPUESTA real
                         rb.setToggleGroup(grupo);
                         preguntaBox.getChildren().add(rb);
                     }
@@ -70,7 +67,6 @@ public class PresentarExamenController {
                     preguntaBox.getChildren().add(error);
                 }
             }
-
             contenedorPreguntas.getChildren().add(preguntaBox);
         }
     }
@@ -85,39 +81,70 @@ public class PresentarExamenController {
     }
 
     @FXML
-    public void finalizarExamen() {
-        int correctas = 0;
-        int total = respuestasEstudiante.size();
+    private void finalizarExamen() {
+        try (Connection conn = DBConnection.getConnection()) {
+            for (Map.Entry<Integer, Object> entry : respuestasEstudiante.entrySet()) {
+                int idPregunta = entry.getKey();
+                Object control = entry.getValue();
+                Integer idRespuestaSeleccionada = null;
 
-        for (Map.Entry<Integer, Object> entry : respuestasEstudiante.entrySet()) {
-            int idPregunta = entry.getKey();
-            Object control = entry.getValue();
-            int idRespuesta = -1;
-            String textoLibre = null;
-
-            if (control instanceof ToggleGroup group) {
-                Toggle selected = group.getSelectedToggle();
-                if (selected != null) {
-                    idRespuesta = (int) selected.getUserData();
+                if (control instanceof ToggleGroup grupo) {
+                    Toggle seleccion = grupo.getSelectedToggle();
+                    if (seleccion != null) {
+                        idRespuestaSeleccionada = (Integer) seleccion.getUserData();
+                    }
+                } else if (control instanceof TextArea area) {
+                    String respuestaTexto = area.getText().trim();
+                    if (!respuestaTexto.isEmpty()) {
+                        idRespuestaSeleccionada = RespuestaEstudianteDAO.insertarRespuestaTexto(idPresentacion, idPregunta, respuestaTexto, conn);
+                    }
                 }
-            } else if (control instanceof TextArea area) {
-                textoLibre = area.getText().trim();
+
+                if (idRespuestaSeleccionada != null) {
+                    RespuestaEstudianteDAO.insertarRespuestaSeleccion(idPresentacion, idPregunta, idRespuestaSeleccionada, conn);
+                }
             }
 
-            boolean esCorrecto = RespuestaEstudianteDAO.guardarRespuesta(
-                    idPresentacion, idPregunta, idRespuesta, textoLibre
-            );
-            if (esCorrecto) correctas++;
+            // Ejecutar procedimiento para calificar
+            CallableStatement stmt = conn.prepareCall("{ call CALIFICAR_EXAMEN_AUTOMATICO(?, ?) }");
+            stmt.setInt(1, idPresentacion);
+            stmt.registerOutParameter(2, Types.VARCHAR);
+            stmt.execute();
+
+            String estado = stmt.getString(2);
+            stmt.close();
+
+            if ("OK".equals(estado)) {
+                PreparedStatement ps = conn.prepareStatement(
+                        "SELECT CALIFICACION FROM PRESENTACION_EXAMEN WHERE ID_PRESENTACION = ?");
+                ps.setInt(1, idPresentacion);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    double nota = rs.getDouble("CALIFICACION");
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Examen finalizado");
+                    alert.setHeaderText("Tu examen ha sido calificado.");
+                    alert.setContentText("Tu nota es: " + nota);
+                    alert.showAndWait();
+                }
+                rs.close();
+                ps.close();
+            } else {
+                mostrarError("No se pudo calificar el examen. Estado: " + estado);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error al finalizar el examen: " + e.getMessage());
         }
+    }
 
-        // Calificar automáticamente vía PL/SQL
-        PresentacionExamenDAO.calificarAutomaticamente(idPresentacion);
-        double nota = PresentacionExamenDAO.obtenerCalificacion(idPresentacion);
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Examen finalizado");
-        alert.setHeaderText(null);
-        alert.setContentText("Tu examen ha sido enviado.\nCalificación: " + nota + " puntos");
+    private void mostrarError(String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Error");
+        alert.setContentText(mensaje);
         alert.showAndWait();
     }
 
