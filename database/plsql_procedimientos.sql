@@ -96,3 +96,63 @@ WHEN OTHERS THEN
         p_id_grupo := NULL;
         p_nombre_grupo := NULL;
 END;
+
+
+///////////////////7Secuencias//////////////////////////////////////////
+
+CREATE SEQUENCE SEQ_RESPUESTA_ESTUDIANTE
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE;
+
+CREATE SEQUENCE SEQ_RESPUESTA
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE;
+
+CREATE SEQUENCE SEQ_PRESENTACION_EXAMEN
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE;
+
+
+////////////////////////////////////Disparadores//////////////////////////////
+
+CREATE OR REPLACE NONEDITIONABLE TRIGGER TRG_CALIFICAR_AL_FINALIZAR
+AFTER INSERT ON RESPUESTA_ESTUDIANTE
+FOR EACH ROW
+DECLARE
+v_id_examen EXAMEN.ID_EXAMEN%TYPE;
+    v_total_preguntas NUMBER;
+    v_total_respondidas NUMBER;
+    v_estado VARCHAR2(20);
+BEGIN
+BEGIN
+        -- Obtener el examen asociado a la presentación
+SELECT ID_EXAMEN INTO v_id_examen
+FROM PRESENTACION_EXAMEN
+WHERE ID_PRESENTACION = :NEW.ID_PRESENTACION;
+
+-- Contar cuántas preguntas tiene el examen
+SELECT COUNT(*) INTO v_total_preguntas
+FROM EXAMEN_PREGUNTA
+WHERE ID_EXAMEN = v_id_examen;
+
+-- Contar cuántas preguntas ha respondido el estudiante
+SELECT COUNT(DISTINCT ID_PREGUNTA) INTO v_total_respondidas
+FROM RESPUESTA_ESTUDIANTE
+WHERE ID_PRESENTACION = :NEW.ID_PRESENTACION;
+
+-- Si ya respondió todas, calificamos
+IF v_total_respondidas = v_total_preguntas THEN
+            CALIFICAR_EXAMEN_AUTOMATICO(:NEW.ID_PRESENTACION, v_estado);
+END IF;
+
+EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            NULL; -- Silenciar la excepción si no se encuentra la presentación aún
+WHEN OTHERS THEN
+            NULL; -- (opcional) evita que cualquier otro error detenga la inserción
+END;
+END;
+/
