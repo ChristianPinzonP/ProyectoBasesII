@@ -59,7 +59,7 @@ WHEN OTHERS THEN
 END;
 /
 /////////////////////////////////////////////////////////////////
-CREATE OR REPLACE PROCEDURE OBTENER_ESTUDIANTE_COMPLETO (
+create or replace NONEDITIONABLE PROCEDURE OBTENER_ESTUDIANTE_COMPLETO (
     p_id_usuario      IN  NUMBER,
     p_nombre          OUT VARCHAR2,
     p_correo          OUT VARCHAR2,
@@ -68,15 +68,19 @@ CREATE OR REPLACE PROCEDURE OBTENER_ESTUDIANTE_COMPLETO (
     p_estado          OUT VARCHAR2
 ) AS
 BEGIN
-    SELECT u.nombre, u.correo, g.id_grupo, g.nombre
-    INTO p_nombre, p_correo, p_id_grupo, p_nombre_grupo
-    FROM USUARIO u
-    JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante
-    LEFT JOIN ESTUDIANTE_GRUPO eg ON e.id_estudiante = eg.id_estudiante
-    LEFT JOIN GRUPO g ON eg.id_grupo = g.id_grupo
-    WHERE u.id_usuario = p_id_usuario;
+SELECT u.nombre, u.correo, g.id_grupo, g.nombre
+INTO p_nombre, p_correo, p_id_grupo, p_nombre_grupo
+FROM USUARIO u
+         JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante
+         LEFT JOIN (
+    SELECT eg.id_estudiante, g.id_grupo, g.nombre
+    FROM ESTUDIANTE_GRUPO eg
+             JOIN GRUPO g ON eg.id_grupo = g.id_grupo
+    WHERE eg.estado = 'ACTIVO'
+) g ON e.id_estudiante = g.id_estudiante
+WHERE u.id_usuario = p_id_usuario;
 
-    p_estado := 'OK';
+p_estado := 'OK';
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -85,11 +89,10 @@ EXCEPTION
         p_correo := NULL;
         p_id_grupo := NULL;
         p_nombre_grupo := NULL;
-    WHEN OTHERS THEN
+WHEN OTHERS THEN
         p_estado := 'ERROR';
         p_nombre := NULL;
         p_correo := NULL;
         p_id_grupo := NULL;
         p_nombre_grupo := NULL;
 END;
-/

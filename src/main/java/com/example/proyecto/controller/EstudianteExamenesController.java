@@ -25,12 +25,27 @@ public class EstudianteExamenesController {
     @FXML private TableColumn<Examen, LocalDate> colFechaFin;
     @FXML private Button btnPresentar;
 
+    // NUEVO: Etiquetas para mostrar nombre y grupo
+    @FXML private Label lblNombreEstudiante;
+    @FXML private Label lblGrupo;
+
     private Estudiante estudiante;
     private ObservableList<Examen> examenesAsignados;
 
     public void inicializar(Estudiante estudiante) {
         this.estudiante = estudiante;
 
+        // Mostrar nombre del estudiante
+        lblNombreEstudiante.setText("Bienvenido, " + estudiante.getNombre());
+
+        // Mostrar grupo (si tiene)
+        if (estudiante.getGrupo() != null) {
+            lblGrupo.setText(estudiante.getGrupo().getNombre());
+        } else {
+            lblGrupo.setText("Sin grupo");
+        }
+
+        // Configurar columnas de la tabla
         colNombre.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNombre()));
         colDescripcion.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDescripcion()));
         colFechaInicio.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getFechaInicio().toLocalDate()));
@@ -40,9 +55,13 @@ public class EstudianteExamenesController {
     }
 
     private void cargarExamenes() {
-        List<Examen> lista = ExamenDAO.obtenerExamenesPorGrupo(estudiante.getGrupo().getIdGrupo());
-        examenesAsignados = FXCollections.observableArrayList(lista);
-        tablaExamenes.setItems(examenesAsignados);
+        if (estudiante.getGrupo() != null) {
+            List<Examen> lista = ExamenDAO.obtenerExamenesPorGrupo(estudiante.getGrupo().getIdGrupo());
+            examenesAsignados = FXCollections.observableArrayList(lista);
+            tablaExamenes.setItems(examenesAsignados);
+        } else {
+            mostrarAlerta("Sin grupo asignado", "No puedes ver exámenes hasta que se te asigne un grupo.", Alert.AlertType.WARNING);
+        }
     }
 
     @FXML
