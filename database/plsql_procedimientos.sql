@@ -59,6 +59,7 @@ WHEN OTHERS THEN
 END;
 /
 /////////////////////////////////////////////////////////////////
+
 create or replace NONEDITIONABLE PROCEDURE OBTENER_ESTUDIANTE_COMPLETO (
     p_id_usuario      IN  NUMBER,
     p_nombre          OUT VARCHAR2,
@@ -68,19 +69,16 @@ create or replace NONEDITIONABLE PROCEDURE OBTENER_ESTUDIANTE_COMPLETO (
     p_estado          OUT VARCHAR2
 ) AS
 BEGIN
-SELECT u.nombre, u.correo, g.id_grupo, g.nombre
-INTO p_nombre, p_correo, p_id_grupo, p_nombre_grupo
-FROM USUARIO u
-         JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante
-         LEFT JOIN (
-    SELECT eg.id_estudiante, g.id_grupo, g.nombre
-    FROM ESTUDIANTE_GRUPO eg
-             JOIN GRUPO g ON eg.id_grupo = g.id_grupo
-    WHERE eg.estado = 'ACTIVO'
-) g ON e.id_estudiante = g.id_estudiante
-WHERE u.id_usuario = p_id_usuario;
 
-p_estado := 'OK';
+    SELECT u.nombre, u.correo, g.id_grupo, g.nombre
+    INTO p_nombre, p_correo, p_id_grupo, p_nombre_grupo
+    FROM USUARIO u
+    JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante
+    LEFT JOIN ESTUDIANTE_GRUPO eg ON e.id_estudiante = eg.id_estudiante
+    LEFT JOIN GRUPO g ON eg.id_grupo = g.id_grupo
+    WHERE u.id_usuario = p_id_usuario;
+
+    p_estado := 'OK';
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -89,14 +87,14 @@ EXCEPTION
         p_correo := NULL;
         p_id_grupo := NULL;
         p_nombre_grupo := NULL;
-WHEN OTHERS THEN
+    WHEN OTHERS THEN
         p_estado := 'ERROR';
         p_nombre := NULL;
         p_correo := NULL;
         p_id_grupo := NULL;
         p_nombre_grupo := NULL;
 END;
-
+/
 
 ///////////////////7Secuencias//////////////////////////////////////////
 
@@ -115,7 +113,60 @@ CREATE SEQUENCE SEQ_PRESENTACION_EXAMEN
     INCREMENT BY 1
     NOCACHE;
 
+///////////////////////////////////////////////////////////////////////////////
 
+create or replace NONEDITIONABLE PROCEDURE CALIFICAR_EXAMEN_AUTOMATICO (
+    p_id_presentacion IN NUMBER,
+    p_estado OUT VARCHAR2
+)
+AS
+    v_total_posible   NUMBER := 0;
+    v_total_obtenido  NUMBER := 0;
+    v_id_examen       NUMBER;
+    v_calificacion    NUMBER(5,2);
+BEGIN
+    -- Obtener el ID del examen
+    SELECT ID_EXAMEN
+    INTO v_id_examen
+    FROM PRESENTACION_EXAMEN
+    WHERE ID_PRESENTACION = p_id_presentacion;
+
+    -- Total de puntos posibles (suma de VALOR_NOTA de todas las preguntas del examen)
+    SELECT NVL(SUM(VALOR_NOTA), 0)
+    INTO v_total_posible
+    FROM EXAMEN_PREGUNTA
+    WHERE ID_EXAMEN = v_id_examen;
+
+    -- Total obtenido por respuestas correctas del estudiante
+    SELECT NVL(SUM(ep.VALOR_NOTA), 0)
+    INTO v_total_obtenido
+    FROM RESPUESTA_ESTUDIANTE re
+    JOIN RESPUESTA r ON re.ID_RESPUESTA = r.ID_RESPUESTA
+    JOIN EXAMEN_PREGUNTA ep ON re.ID_PREGUNTA = ep.ID_PREGUNTA AND ep.ID_EXAMEN = v_id_examen
+    WHERE re.ID_PRESENTACION = p_id_presentacion
+      AND r.ES_CORRECTA = 'S';
+
+    -- Aplicar regla de 3 proporcional (nota final sobre 5)
+    IF v_total_posible > 0 THEN
+        v_calificacion := ROUND((v_total_obtenido * 5) / v_total_posible, 2);
+    ELSE
+        v_calificacion := 0;
+    END IF;
+
+    -- Guardar la nota en la tabla
+    UPDATE PRESENTACION_EXAMEN
+    SET CALIFICACION = v_calificacion
+    WHERE ID_PRESENTACION = p_id_presentacion;
+
+    p_estado := 'OK';
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_estado := 'NO_ENCONTRADO';
+    WHEN OTHERS THEN
+        p_estado := 'ERROR';
+END;
+/
 ////////////////////////////////////Disparadores//////////////////////////////
 
 CREATE OR REPLACE NONEDITIONABLE TRIGGER TRG_CALIFICAR_AL_FINALIZAR

@@ -1,5 +1,5 @@
 --------------------------------------------------------
--- Archivo creado  - miércoles-mayo-14-2025   
+-- Archivo creado  - martes-mayo-20-2025   
 --------------------------------------------------------
 --------------------------------------------------------
 --  DDL for Sequence SEQ_EXAMEN
@@ -15,35 +15,32 @@
 --  DDL for Sequence SEQ_ID_PREGUNTA
 --------------------------------------------------------
 
-   CREATE SEQUENCE  "ROOT2"."SEQ_ID_PREGUNTA"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 341 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
+   CREATE SEQUENCE  "ROOT2"."SEQ_ID_PREGUNTA"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 381 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
 --------------------------------------------------------
 --  DDL for Sequence SEQ_PREGUNTA
 --------------------------------------------------------
 
-   CREATE SEQUENCE  "ROOT2"."SEQ_PREGUNTA"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 81 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
+   CREATE SEQUENCE  "ROOT2"."SEQ_PREGUNTA"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 101 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_PRESENTACION_EXAMEN
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "ROOT2"."SEQ_PRESENTACION_EXAMEN"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 3 NOCACHE  NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
 --------------------------------------------------------
 --  DDL for Sequence SEQ_RESPUESTA
 --------------------------------------------------------
 
-   CREATE SEQUENCE  "ROOT2"."SEQ_RESPUESTA"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 81 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
+   CREATE SEQUENCE  "ROOT2"."SEQ_RESPUESTA"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 101 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_RESPUESTA_ESTUDIANTE
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "ROOT2"."SEQ_RESPUESTA_ESTUDIANTE"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 NOCACHE  NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
 --------------------------------------------------------
 --  DDL for Sequence SEQ_TEMA
 --------------------------------------------------------
 
    CREATE SEQUENCE  "ROOT2"."SEQ_TEMA"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
---------------------------------------------------------
---  DDL for Table CONTENIDO
---------------------------------------------------------
-
-  CREATE TABLE "ROOT2"."CONTENIDO" 
-   (	"ID_CONTENIDO" NUMBER, 
-	"ID_UNIDAD" NUMBER, 
-	"TITULO" VARCHAR2(100 BYTE), 
-	"DESCRIPCION" VARCHAR2(200 BYTE)
-   ) SEGMENT CREATION DEFERRED 
-  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
- NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  DDL for Table CURSO
 --------------------------------------------------------
@@ -52,9 +49,12 @@
    (	"ID_CURSO" NUMBER, 
 	"NOMBRE" VARCHAR2(100 BYTE), 
 	"DESCRIPCION" VARCHAR2(100 BYTE)
-   ) SEGMENT CREATION DEFERRED 
+   ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  DDL for Table DOCENTE
@@ -274,9 +274,12 @@
 	"ID_CURSO" NUMBER, 
 	"VERSION_PLAN" VARCHAR2(10 BYTE), 
 	"DESCRIPCION" VARCHAR2(200 BYTE)
-   ) SEGMENT CREATION DEFERRED 
+   ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  DDL for Table PREGUNTA
@@ -288,7 +291,8 @@
 	"TIPO" VARCHAR2(50 BYTE), 
 	"ID_TEMA" NUMBER, 
 	"ES_PUBLICA" CHAR(1 BYTE) DEFAULT 'N', 
-	"ID_PREGUNTA_PADRE" NUMBER
+	"ID_PREGUNTA_PADRE" NUMBER, 
+	"VALOR_NOTA" NUMBER(3,2)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -354,7 +358,8 @@
 
   CREATE TABLE "ROOT2"."TEMA" 
    (	"ID_TEMA" NUMBER, 
-	"NOMBRE" VARCHAR2(100 BYTE)
+	"NOMBRE" VARCHAR2(100 BYTE), 
+	"ID_UNIDAD" NUMBER
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -372,9 +377,12 @@
 	"NOMBRE" VARCHAR2(100 BYTE), 
 	"DESCRIPCION" VARCHAR2(200 BYTE), 
 	"ORDEN" NUMBER
-   ) SEGMENT CREATION DEFERRED 
+   ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  DDL for Table USUARIO
@@ -518,15 +526,22 @@ JOIN
 GROUP BY 
     t.id_tema, t.nombre
 ;
-REM INSERTING into ROOT2.CONTENIDO
-SET DEFINE OFF;
 REM INSERTING into ROOT2.CURSO
 SET DEFINE OFF;
+Insert into ROOT2.CURSO (ID_CURSO,NOMBRE,DESCRIPCION) values ('1','Bases de Datos 2','Asignatura de 6to semestre');
+Insert into ROOT2.CURSO (ID_CURSO,NOMBRE,DESCRIPCION) values ('2','Infraestructura de TI','Asignatura de 7mo semestre');
+Insert into ROOT2.CURSO (ID_CURSO,NOMBRE,DESCRIPCION) values ('3','Ingeniería de Software','Curso de desarrollo de software');
+Insert into ROOT2.CURSO (ID_CURSO,NOMBRE,DESCRIPCION) values ('4','Sistemas Distribuidos','Curso sobre arquitecturas distribuidas');
 REM INSERTING into ROOT2.DOCENTE
 SET DEFINE OFF;
 Insert into ROOT2.DOCENTE (ID_DOCENTE,ASIGNATURA) values ('1','Programación');
+Insert into ROOT2.DOCENTE (ID_DOCENTE,ASIGNATURA) values ('5','Ingeniería de Software');
+Insert into ROOT2.DOCENTE (ID_DOCENTE,ASIGNATURA) values ('6','Sistemas Distribuidos');
 REM INSERTING into ROOT2.DOCENTE_GRUPO
 SET DEFINE OFF;
+Insert into ROOT2.DOCENTE_GRUPO (ID_DOCENTE,ID_GRUPO) values ('1','1');
+Insert into ROOT2.DOCENTE_GRUPO (ID_DOCENTE,ID_GRUPO) values ('5','3');
+Insert into ROOT2.DOCENTE_GRUPO (ID_DOCENTE,ID_GRUPO) values ('6','2');
 REM INSERTING into ROOT2.ESTADISTICAS_ESTUDIANTE
 SET DEFINE OFF;
 REM INSERTING into ROOT2.ESTADISTICAS_EXAMEN
@@ -540,65 +555,118 @@ SET DEFINE OFF;
 REM INSERTING into ROOT2.ESTUDIANTE
 SET DEFINE OFF;
 Insert into ROOT2.ESTUDIANTE (ID_ESTUDIANTE) values ('2');
+Insert into ROOT2.ESTUDIANTE (ID_ESTUDIANTE) values ('7');
+Insert into ROOT2.ESTUDIANTE (ID_ESTUDIANTE) values ('8');
+Insert into ROOT2.ESTUDIANTE (ID_ESTUDIANTE) values ('9');
 REM INSERTING into ROOT2.ESTUDIANTE_GRUPO
 SET DEFINE OFF;
+Insert into ROOT2.ESTUDIANTE_GRUPO (ID_ESTUDIANTE,ID_GRUPO) values ('2','1');
+Insert into ROOT2.ESTUDIANTE_GRUPO (ID_ESTUDIANTE,ID_GRUPO) values ('7','3');
+Insert into ROOT2.ESTUDIANTE_GRUPO (ID_ESTUDIANTE,ID_GRUPO) values ('8','2');
+Insert into ROOT2.ESTUDIANTE_GRUPO (ID_ESTUDIANTE,ID_GRUPO) values ('9','3');
 REM INSERTING into ROOT2.EXAMEN
 SET DEFINE OFF;
-Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('18','Redes','Prueba para redes',to_date('25/04/25','DD/MM/RR'),to_date('25/04/25','DD/MM/RR'),'40','1','10','Aleatorio','2','2','0',null,null,'3',null);
-Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('13','Bases de Datos','Pueba para Bases',to_date('09/03/25','DD/MM/RR'),to_date('10/03/25','DD/MM/RR'),'15','1','8','Aleatorio','3,75','3','0',null,null,'3',null);
+Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('18','Redes','Prueba para redes',to_date('20/05/25','DD/MM/RR'),to_date('25/05/25','DD/MM/RR'),'40','1','10','Aleatorio','2','2','0',null,null,'3','1');
+Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('13','Bases de Datos','Pueba para Bases',to_date('09/03/25','DD/MM/RR'),to_date('10/03/25','DD/MM/RR'),'15','1','8','Aleatorio','3,75','3','0',null,null,'3','1');
 Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('16','Ciberseguridad','Prueba para Ciberseguridad',to_date('21/04/25','DD/MM/RR'),to_date('21/04/25','DD/MM/RR'),'30','1','15','Aleatorio','1','1','0',null,null,'3',null);
 Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('17','Ciberseguridad','Prueba para Ciberseguridad',to_date('21/04/25','DD/MM/RR'),to_date('21/04/25','DD/MM/RR'),'30','1','10','Aleatorio','3','1','0',null,null,'3',null);
 Insert into ROOT2.EXAMEN (ID_EXAMEN,NOMBRE,DESCRIPCION,FECHA_INICIO,FECHA_FIN,TIEMPO_LIMITE,ID_DOCENTE,NUMERO_PREGUNTAS,MODO_SELECCION,TIEMPO_POR_PREGUNTA,ID_TEMA,ES_SIN_TIEMPO,NUM_PREGUNTAS_ALEATORIAS,PESO_CURSO,NOTA_MINIMA_APROBACION,ID_GRUPO) values ('12','Prueba sin docente','a ver si falla',to_date('07/05/25','DD/MM/RR'),to_date('14/05/25','DD/MM/RR'),'34','1',null,null,null,'3','0',null,null,'3',null);
 REM INSERTING into ROOT2.EXAMEN_PREGUNTA
 SET DEFINE OFF;
+Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('18','501','3');
+Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('18','361','3');
+Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('18','322','3');
+Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('18','81','3');
+Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('18','345','0,6');
+Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('16','482','0,3');
 Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('13','402',null);
 Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('16','405',null);
-Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('16','482',null);
 Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('13','461',null);
+Insert into ROOT2.EXAMEN_PREGUNTA (ID_EXAMEN,ID_PREGUNTA,VALOR_NOTA) values ('17','364','0,5');
 REM INSERTING into ROOT2.GRUPO
 SET DEFINE OFF;
-Insert into ROOT2.GRUPO (ID_GRUPO,NOMBRE,ID_CURSO) values ('1','Grupo A',null);
+Insert into ROOT2.GRUPO (ID_GRUPO,NOMBRE,ID_CURSO) values ('1','Grupo A','1');
+Insert into ROOT2.GRUPO (ID_GRUPO,NOMBRE,ID_CURSO) values ('2','Grupo B','2');
+Insert into ROOT2.GRUPO (ID_GRUPO,NOMBRE,ID_CURSO) values ('3','Grupo C','3');
 REM INSERTING into ROOT2.HORARIO
 SET DEFINE OFF;
 REM INSERTING into ROOT2.PLAN_ESTUDIO
 SET DEFINE OFF;
+Insert into ROOT2.PLAN_ESTUDIO (ID_PLAN,ID_CURSO,VERSION_PLAN,DESCRIPCION) values ('1','1','Plan 2025','Plan de Estudios');
+Insert into ROOT2.PLAN_ESTUDIO (ID_PLAN,ID_CURSO,VERSION_PLAN,DESCRIPCION) values ('2','2','Plan 2025','Plan de Estudios');
+Insert into ROOT2.PLAN_ESTUDIO (ID_PLAN,ID_CURSO,VERSION_PLAN,DESCRIPCION) values ('3','3','Plan 2025','Plan de ingeniería de software');
+Insert into ROOT2.PLAN_ESTUDIO (ID_PLAN,ID_CURSO,VERSION_PLAN,DESCRIPCION) values ('4','4','Plan 2025','Plan de sistemas distribuidos');
 REM INSERTING into ROOT2.PREGUNTA
 SET DEFINE OFF;
-Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE) values ('405','Respuesta Corta','1','N',null);
-Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE) values ('461','Respuesta Corta','3','N',null);
-Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE) values ('501','Opción Múltiple','2','N',null);
-Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE) values ('482','Opción Múltiple','1','N',null);
-Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE) values ('361','Respuesta Corta','2','N',null);
-Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE) values ('402','Opción Múltiple','3','N',null);
-Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE) values ('321','Respuesta Corta','3','N',null);
-Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE) values ('322','Respuesta Corta','2','N',null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('81','Opción Múltiple','2','N',null,'3');
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('405','Respuesta Corta','1','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('461','Respuesta Corta','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('501','Opción Múltiple','2','N',null,'3');
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('482','Opción Múltiple','1','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('361','Respuesta Corta','2','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('402','Opción Múltiple','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('321','Respuesta Corta','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('322','Respuesta Corta','2','N',null,'3');
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('341','Respuesta Corta','1','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('342','Respuesta Corta','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('344','OpciÃ³n MÃºltiple','1','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('345','Respuesta Corta','2','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('346','OpciÃ³n MÃºltiple','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('347','Respuesta Corta','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('348','Respuesta Corta','2','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('362','Respuesta Corta','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('363','OpciÃ³n MÃºltiple','2','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('364','OpciÃ³n MÃºltiple','1','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('365','Respuesta Corta','2','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('366','OpciÃ³n MÃºltiple','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('367','Respuesta Corta','3','N',null,null);
+Insert into ROOT2.PREGUNTA (ID_PREGUNTA,TIPO,ID_TEMA,ES_PUBLICA,ID_PREGUNTA_PADRE,VALOR_NOTA) values ('368','Respuesta Corta','2','N',null,null);
 REM INSERTING into ROOT2.PRESENTACION_EXAMEN
 SET DEFINE OFF;
+Insert into ROOT2.PRESENTACION_EXAMEN (ID_PRESENTACION,ID_EXAMEN,ID_ESTUDIANTE,FECHA_PRESENTACION,CALIFICACION) values ('2','18','2',to_date('20/05/25','DD/MM/RR'),null);
+Insert into ROOT2.PRESENTACION_EXAMEN (ID_PRESENTACION,ID_EXAMEN,ID_ESTUDIANTE,FECHA_PRESENTACION,CALIFICACION) values ('1','18','2',to_date('20/05/25','DD/MM/RR'),null);
 REM INSERTING into ROOT2.RESPUESTA
 SET DEFINE OFF;
-Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('301','501','1234567890','S');
-Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('302','501','uytrew','N');
-Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('303','501','345ytgfds','N');
-Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('304','501','dfghyu787y','N');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('86','501','1234567890','S');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('87','501','uytrew','N');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('88','501','345ytgfds','N');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('89','501','dfghyu787y','N');
 Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('281','321','sí','S');
 Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('241','461','mnbvcvb','S');
 Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('263','405','Falló','S');
-Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('61','322','1','S');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('90','81','sí','S');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('85','322','1','S');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('91','81','no','N');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('92','81','23454','N');
+Insert into ROOT2.RESPUESTA (ID_RESPUESTA,ID_PREGUNTA,TEXTO,ES_CORRECTA) values ('93','81','345trfds','N');
 REM INSERTING into ROOT2.RESPUESTA_ESTUDIANTE
 SET DEFINE OFF;
 REM INSERTING into ROOT2.TEMA
 SET DEFINE OFF;
-Insert into ROOT2.TEMA (ID_TEMA,NOMBRE) values ('1','Ciberseguridad');
-Insert into ROOT2.TEMA (ID_TEMA,NOMBRE) values ('2','Redes');
-Insert into ROOT2.TEMA (ID_TEMA,NOMBRE) values ('3','Bases de Datos');
+Insert into ROOT2.TEMA (ID_TEMA,NOMBRE,ID_UNIDAD) values ('4','Sistemas Operativos','1');
+Insert into ROOT2.TEMA (ID_TEMA,NOMBRE,ID_UNIDAD) values ('5','Conectividad','2');
+Insert into ROOT2.TEMA (ID_TEMA,NOMBRE,ID_UNIDAD) values ('1','Ciberseguridad','1');
+Insert into ROOT2.TEMA (ID_TEMA,NOMBRE,ID_UNIDAD) values ('2','Redes','2');
+Insert into ROOT2.TEMA (ID_TEMA,NOMBRE,ID_UNIDAD) values ('3','Bases de Datos','1');
+Insert into ROOT2.TEMA (ID_TEMA,NOMBRE,ID_UNIDAD) values ('6','Patrones de Diseño','3');
+Insert into ROOT2.TEMA (ID_TEMA,NOMBRE,ID_UNIDAD) values ('7','Middleware','4');
 REM INSERTING into ROOT2.UNIDAD
 SET DEFINE OFF;
+Insert into ROOT2.UNIDAD (ID_UNIDAD,ID_PLAN,NOMBRE,DESCRIPCION,ORDEN) values ('1','1','Unidad 1 - Fundamentos','desc1','1');
+Insert into ROOT2.UNIDAD (ID_UNIDAD,ID_PLAN,NOMBRE,DESCRIPCION,ORDEN) values ('2','2','Unidad 2 - Redes Básicas','desc2','2');
+Insert into ROOT2.UNIDAD (ID_UNIDAD,ID_PLAN,NOMBRE,DESCRIPCION,ORDEN) values ('3','3','Unidad 1 - Requisitos','Ingeniería de requisitos','1');
+Insert into ROOT2.UNIDAD (ID_UNIDAD,ID_PLAN,NOMBRE,DESCRIPCION,ORDEN) values ('4','4','Unidad 1 - Introducción a Distribuidos','Conceptos básicos','1');
 REM INSERTING into ROOT2.USUARIO
 SET DEFINE OFF;
 Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('1','Docente Prueba','docente@ejemplo.com','1234','Docente');
 Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('2','Estudiante Prueba','estudiante@ejemplo.com','5678','Estudiante');
 Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('3','Jorve Ivan Triviño','trivinio@ejemplo.com','1234','Docente');
 Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('4','Alisson Campos Marin','alisson@ejemplo.com','5678','Estudiante');
+Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('5','Carlos Ruiz','cruiz@ejemplo.com','abcd','Docente');
+Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('6','Lucía Mendoza','lmendoza@ejemplo.com','abcd','Docente');
+Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('7','Pedro Londoño','plondonio@ejemplo.com','5678','Estudiante');
+Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('8','María Fernanda','mfernanda@ejemplo.com','5678','Estudiante');
+Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) values ('9','Andrés Parra','aparra@ejemplo.com','5678','Estudiante');
 --------------------------------------------------------
 --  DDL for Index PK_EXAMEN_PREGUNTA
 --------------------------------------------------------
@@ -610,20 +678,107 @@ Insert into ROOT2.USUARIO (ID_USUARIO,NOMBRE,CORREO,CONTRASENA,TIPO_USUARIO) val
   BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Trigger TRG_PREGUNTA_ID
+--  DDL for Trigger TRG_CALIFICAR_AL_FINALIZAR
 --------------------------------------------------------
 
-  CREATE OR REPLACE EDITIONABLE TRIGGER "ROOT2"."TRG_PREGUNTA_ID" 
-BEFORE INSERT ON PREGUNTA
+  CREATE OR REPLACE NONEDITIONABLE TRIGGER "ROOT2"."TRG_CALIFICAR_AL_FINALIZAR" 
+AFTER INSERT ON RESPUESTA_ESTUDIANTE
 FOR EACH ROW
+DECLARE
+v_id_examen EXAMEN.ID_EXAMEN%TYPE;
+    v_total_preguntas NUMBER;
+    v_total_respondidas NUMBER;
+    v_estado VARCHAR2(20);
 BEGIN
-    SELECT SEQ_ID_PREGUNTA.NEXTVAL INTO :NEW.ID_PREGUNTA FROM DUAL;
+BEGIN
+        -- Obtener el examen asociado a la presentaciÃ³n
+SELECT ID_EXAMEN INTO v_id_examen
+FROM PRESENTACION_EXAMEN
+WHERE ID_PRESENTACION = :NEW.ID_PRESENTACION;
+
+-- Contar cuÃ¡ntas preguntas tiene el examen
+SELECT COUNT(*) INTO v_total_preguntas
+FROM EXAMEN_PREGUNTA
+WHERE ID_EXAMEN = v_id_examen;
+
+-- Contar cuÃ¡ntas preguntas ha respondido el estudiante
+SELECT COUNT(DISTINCT ID_PREGUNTA) INTO v_total_respondidas
+FROM RESPUESTA_ESTUDIANTE
+WHERE ID_PRESENTACION = :NEW.ID_PRESENTACION;
+
+-- Si ya respondiÃ³ todas, calificamos
+IF v_total_respondidas = v_total_preguntas THEN
+            CALIFICAR_EXAMEN_AUTOMATICO(:NEW.ID_PRESENTACION, v_estado);
+END IF;
+
+EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            NULL; -- Silenciar la excepciÃ³n si no se encuentra la presentaciÃ³n aÃºn
+WHEN OTHERS THEN
+            NULL; -- (opcional) evita que cualquier otro error detenga la inserciÃ³n
+END;
 END;
 
+/
+ALTER TRIGGER "ROOT2"."TRG_CALIFICAR_AL_FINALIZAR" ENABLE;
+--------------------------------------------------------
+--  DDL for Procedure CALIFICAR_EXAMEN_AUTOMATICO
+--------------------------------------------------------
+set define off;
 
+  CREATE OR REPLACE NONEDITIONABLE PROCEDURE "ROOT2"."CALIFICAR_EXAMEN_AUTOMATICO" (
+    p_id_presentacion IN NUMBER,
+    p_estado OUT VARCHAR2
+)
+AS
+    v_total_posible   NUMBER := 0;
+    v_total_obtenido  NUMBER := 0;
+    v_id_examen       NUMBER;
+    v_calificacion    NUMBER(5,2);
+BEGIN
+    -- Obtener el ID del examen
+    SELECT ID_EXAMEN
+    INTO v_id_examen
+    FROM PRESENTACION_EXAMEN
+    WHERE ID_PRESENTACION = p_id_presentacion;
+
+    -- Total de puntos posibles (suma de VALOR_NOTA de todas las preguntas del examen)
+    SELECT NVL(SUM(VALOR_NOTA), 0)
+    INTO v_total_posible
+    FROM EXAMEN_PREGUNTA
+    WHERE ID_EXAMEN = v_id_examen;
+
+    -- Total obtenido por respuestas correctas del estudiante
+    SELECT NVL(SUM(ep.VALOR_NOTA), 0)
+    INTO v_total_obtenido
+    FROM RESPUESTA_ESTUDIANTE re
+    JOIN RESPUESTA r ON re.ID_RESPUESTA = r.ID_RESPUESTA
+    JOIN EXAMEN_PREGUNTA ep ON re.ID_PREGUNTA = ep.ID_PREGUNTA AND ep.ID_EXAMEN = v_id_examen
+    WHERE re.ID_PRESENTACION = p_id_presentacion
+      AND r.ES_CORRECTA = 'S';
+
+    -- Aplicar regla de 3 proporcional (nota final sobre 5)
+    IF v_total_posible > 0 THEN
+        v_calificacion := ROUND((v_total_obtenido * 5) / v_total_posible, 2);
+    ELSE
+        v_calificacion := 0;
+    END IF;
+
+    -- Guardar la nota en la tabla
+    UPDATE PRESENTACION_EXAMEN
+    SET CALIFICACION = v_calificacion
+    WHERE ID_PRESENTACION = p_id_presentacion;
+
+    p_estado := 'OK';
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_estado := 'NO_ENCONTRADO';
+    WHEN OTHERS THEN
+        p_estado := 'ERROR';
+END;
 
 /
-ALTER TRIGGER "ROOT2"."TRG_PREGUNTA_ID" ENABLE;
 --------------------------------------------------------
 --  DDL for Procedure GENERAR_ESTADISTICAS_ESTUDIANTE
 --------------------------------------------------------
@@ -647,6 +802,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Calificaci?n m?xima: ' || v_maxima);
     DBMS_OUTPUT.PUT_LINE('Calificaci?n m?nima: ' || v_minima);
 END Generar_Estadisticas_Estudiante;
+
 
 
 
@@ -677,6 +833,7 @@ END Generar_Estadisticas_Examen;
 
 
 
+
 /
 --------------------------------------------------------
 --  DDL for Procedure GENERAR_ESTADISTICAS_PREGUNTA
@@ -702,6 +859,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Respuestas correctas: ' || v_correctas);
     DBMS_OUTPUT.PUT_LINE('Respuestas incorrectas: ' || v_incorrectas);
 END Generar_Estadisticas_Pregunta;
+
 
 
 
@@ -782,7 +940,7 @@ END;
 --------------------------------------------------------
 set define off;
 
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "ROOT2"."OBTENER_ESTUDIANTE_COMPLETO" (
+  CREATE OR REPLACE NONEDITIONABLE PROCEDURE "ROOT2"."OBTENER_ESTUDIANTE_COMPLETO" (
     p_id_usuario      IN  NUMBER,
     p_nombre          OUT VARCHAR2,
     p_correo          OUT VARCHAR2,
@@ -791,6 +949,7 @@ set define off;
     p_estado          OUT VARCHAR2
 ) AS
 BEGIN
+
     SELECT u.nombre, u.correo, g.id_grupo, g.nombre
     INTO p_nombre, p_correo, p_id_grupo, p_nombre_grupo
     FROM USUARIO u
@@ -841,6 +1000,9 @@ END;
   ALTER TABLE "ROOT2"."CURSO" MODIFY ("NOMBRE" NOT NULL ENABLE);
   ALTER TABLE "ROOT2"."CURSO" ADD PRIMARY KEY ("ID_CURSO")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table TEMA
@@ -853,14 +1015,7 @@ END;
   PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
   BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table CONTENIDO
---------------------------------------------------------
-
-  ALTER TABLE "ROOT2"."CONTENIDO" MODIFY ("ID_UNIDAD" NOT NULL ENABLE);
-  ALTER TABLE "ROOT2"."CONTENIDO" ADD PRIMARY KEY ("ID_CONTENIDO")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
-  TABLESPACE "USERS"  ENABLE;
+  ALTER TABLE "ROOT2"."TEMA" MODIFY ("ID_UNIDAD" NOT NULL ENABLE);
 --------------------------------------------------------
 --  Constraints for Table HORARIO
 --------------------------------------------------------
@@ -876,6 +1031,9 @@ END;
   ALTER TABLE "ROOT2"."PLAN_ESTUDIO" MODIFY ("ID_CURSO" NOT NULL ENABLE);
   ALTER TABLE "ROOT2"."PLAN_ESTUDIO" ADD PRIMARY KEY ("ID_PLAN")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table PRESENTACION_EXAMEN
@@ -907,6 +1065,10 @@ END;
   ALTER TABLE "ROOT2"."EXAMEN" ADD CHECK (modo_seleccion IN ('Manual', 'Aleatorio')) ENABLE;
   ALTER TABLE "ROOT2"."EXAMEN" ADD CHECK (modo_seleccion IN ('Manual', 'Aleatorio')) ENABLE;
   ALTER TABLE "ROOT2"."EXAMEN" MODIFY ("ID_TEMA" NOT NULL ENABLE);
+  ALTER TABLE "ROOT2"."EXAMEN" ADD CHECK (modo_seleccion IN ('Manual', 'Aleatorio')) ENABLE;
+  ALTER TABLE "ROOT2"."EXAMEN" ADD CHECK (modo_seleccion IN ('Manual', 'Aleatorio')) ENABLE;
+  ALTER TABLE "ROOT2"."EXAMEN" ADD CHECK (modo_seleccion IN ('Manual', 'Aleatorio')) ENABLE;
+  ALTER TABLE "ROOT2"."EXAMEN" ADD CHECK (modo_seleccion IN ('Manual', 'Aleatorio')) ENABLE;
 --------------------------------------------------------
 --  Constraints for Table ESTADISTICAS_PREGUNTA
 --------------------------------------------------------
@@ -952,6 +1114,8 @@ END;
   PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
   BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS"  ENABLE;
+  ALTER TABLE "ROOT2"."PREGUNTA" ADD CHECK (es_publica IN ('S', 'N')) ENABLE;
+  ALTER TABLE "ROOT2"."PREGUNTA" ADD CHECK (es_publica IN ('S', 'N')) ENABLE;
   ALTER TABLE "ROOT2"."PREGUNTA" ADD CHECK (es_publica IN ('S', 'N')) ENABLE;
 --------------------------------------------------------
 --  Constraints for Table RESPUESTA
@@ -1001,6 +1165,7 @@ END;
   BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS"  ENABLE;
   ALTER TABLE "ROOT2"."GRUPO" MODIFY ("NOMBRE" NOT NULL ENABLE);
+  ALTER TABLE "ROOT2"."GRUPO" MODIFY ("ID_CURSO" NOT NULL ENABLE);
 --------------------------------------------------------
 --  Constraints for Table ESTUDIANTE
 --------------------------------------------------------
@@ -1028,13 +1193,10 @@ END;
   ALTER TABLE "ROOT2"."UNIDAD" MODIFY ("ID_PLAN" NOT NULL ENABLE);
   ALTER TABLE "ROOT2"."UNIDAD" ADD PRIMARY KEY ("ID_UNIDAD")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Ref Constraints for Table CONTENIDO
---------------------------------------------------------
-
-  ALTER TABLE "ROOT2"."CONTENIDO" ADD FOREIGN KEY ("ID_UNIDAD")
-	  REFERENCES "ROOT2"."UNIDAD" ("ID_UNIDAD") ENABLE;
 --------------------------------------------------------
 --  Ref Constraints for Table DOCENTE
 --------------------------------------------------------
@@ -1165,6 +1327,12 @@ END;
 	  REFERENCES "ROOT2"."PREGUNTA" ("ID_PREGUNTA") ENABLE;
   ALTER TABLE "ROOT2"."RESPUESTA_ESTUDIANTE" ADD FOREIGN KEY ("ID_RESPUESTA")
 	  REFERENCES "ROOT2"."RESPUESTA" ("ID_RESPUESTA") ENABLE;
+--------------------------------------------------------
+--  Ref Constraints for Table TEMA
+--------------------------------------------------------
+
+  ALTER TABLE "ROOT2"."TEMA" ADD CONSTRAINT "FK_TEMA_UNIDAD" FOREIGN KEY ("ID_UNIDAD")
+	  REFERENCES "ROOT2"."UNIDAD" ("ID_UNIDAD") ENABLE;
 --------------------------------------------------------
 --  Ref Constraints for Table UNIDAD
 --------------------------------------------------------
