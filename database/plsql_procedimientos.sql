@@ -156,3 +156,161 @@ WHEN OTHERS THEN
 END;
 END;
 /
+
+//////////////////////////////////////////////////////////////////////////
+
+--------------------------------------------------------
+--  DDL for Procedure GENERAR_ESTADISTICAS_ESTUDIANTE
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "ROOT2"."GENERAR_ESTADISTICAS_ESTUDIANTE" (
+    p_id_estudiante IN NUMBER
+) AS
+    v_total_examenes NUMBER;
+    v_promedio NUMBER;
+    v_maxima NUMBER;
+    v_minima NUMBER;
+BEGIN
+    SELECT COUNT(*), AVG(calificacion), MAX(calificacion), MIN(calificacion)
+    INTO v_total_examenes, v_promedio, v_maxima, v_minima
+    FROM Presentacion_Examen
+    WHERE id_estudiante = p_id_estudiante;
+
+    DBMS_OUTPUT.PUT_LINE('Total ex?menes presentados: ' || v_total_examenes);
+    DBMS_OUTPUT.PUT_LINE('Promedio de calificaciones: ' || v_promedio);
+    DBMS_OUTPUT.PUT_LINE('Calificaci?n m?xima: ' || v_maxima);
+    DBMS_OUTPUT.PUT_LINE('Calificaci?n m?nima: ' || v_minima);
+END Generar_Estadisticas_Estudiante;
+
+
+
+
+/
+///////////////////////////////////////////////////////////////////////////////////////
+--------------------------------------------------------
+--  DDL for Procedure GENERAR_ESTADISTICAS_EXAMEN
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "ROOT2"."GENERAR_ESTADISTICAS_EXAMEN" (
+    p_id_examen IN NUMBER
+) AS
+    v_total_presentaciones NUMBER;
+    v_promedio NUMBER;
+    v_maxima NUMBER;
+    v_minima NUMBER;
+BEGIN
+    SELECT COUNT(*), AVG(calificacion), MAX(calificacion), MIN(calificacion)
+    INTO v_total_presentaciones, v_promedio, v_maxima, v_minima
+    FROM Presentacion_Examen
+    WHERE id_examen = p_id_examen;
+
+    DBMS_OUTPUT.PUT_LINE('Total presentaciones: ' || v_total_presentaciones);
+    DBMS_OUTPUT.PUT_LINE('Promedio calificaciones: ' || v_promedio);
+    DBMS_OUTPUT.PUT_LINE('Nota m?xima: ' || v_maxima);
+    DBMS_OUTPUT.PUT_LINE('Nota m?nima: ' || v_minima);
+END Generar_Estadisticas_Examen;
+
+
+
+
+/
+--------------------------------------------------------
+--  DDL for Procedure GENERAR_ESTADISTICAS_PREGUNTA
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "ROOT2"."GENERAR_ESTADISTICAS_PREGUNTA" (
+    p_id_pregunta IN NUMBER
+) AS
+    v_total_respuestas NUMBER;
+    v_correctas NUMBER;
+    v_incorrectas NUMBER;
+BEGIN
+    SELECT COUNT(*), 
+           SUM(CASE WHEN r.es_correcta = 'S' THEN 1 ELSE 0 END), 
+           SUM(CASE WHEN r.es_correcta = 'N' THEN 1 ELSE 0 END)
+    INTO v_total_respuestas, v_correctas, v_incorrectas
+    FROM Respuesta_Estudiante re
+    JOIN Respuesta r ON re.id_respuesta = r.id_respuesta
+    WHERE re.id_pregunta = p_id_pregunta;
+
+    DBMS_OUTPUT.PUT_LINE('Total respuestas: ' || v_total_respuestas);
+    DBMS_OUTPUT.PUT_LINE('Respuestas correctas: ' || v_correctas);
+    DBMS_OUTPUT.PUT_LINE('Respuestas incorrectas: ' || v_incorrectas);
+END Generar_Estadisticas_Pregunta;
+
+
+
+
+/
+
+--------------------------------------------------------
+--  DDL for Procedure GENERAR_ESTADISTICAS_GRUPO
+--------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE GENERAR_ESTADISTICAS_GRUPO (
+    p_id_grupo IN NUMBER
+) AS
+    v_total_examenes NUMBER;
+    v_promedio NUMBER;
+    v_maxima NUMBER;
+    v_minima NUMBER;
+BEGIN
+    SELECT COUNT(DISTINCT pres.id_presentacion),
+           AVG(pres.calificacion),
+           MAX(pres.calificacion),
+           MIN(pres.calificacion)
+    INTO v_total_examenes, v_promedio, v_maxima, v_minima
+    FROM GRUPO g
+    JOIN ESTUDIANTE_GRUPO eg ON eg.id_grupo = g.id_grupo
+    JOIN PRESENTACION_EXAMEN pres ON pres.id_estudiante = eg.id_estudiante
+    WHERE g.id_grupo = p_id_grupo;
+
+    DBMS_OUTPUT.PUT_LINE('Grupo ID: ' || p_id_grupo);
+    DBMS_OUTPUT.PUT_LINE('Total exámenes presentados: ' || v_total_examenes);
+    DBMS_OUTPUT.PUT_LINE('Promedio general: ' || ROUND(v_promedio, 2));
+    DBMS_OUTPUT.PUT_LINE('Nota máxima: ' || v_maxima);
+    DBMS_OUTPUT.PUT_LINE('Nota mínima: ' || v_minima);
+END;
+/
+
+--------------------------------------------------------
+--  DDL for Procedure GENERAR_ESTADISTICAS_TEMA
+--------------------------------------------------------
+
+CREATE OR REPLACE PROCEDURE GENERAR_ESTADISTICAS_TEMA (
+    p_id_tema IN NUMBER
+) AS
+    v_total_respuestas NUMBER;
+    v_correctas NUMBER;
+    v_incorrectas NUMBER;
+    v_promedio_nota NUMBER;
+    v_max_nota NUMBER;
+    v_min_nota NUMBER;
+BEGIN
+    SELECT COUNT(re.id_respuesta_estudiante),
+           SUM(CASE WHEN r.es_correcta = 'S' THEN 1 ELSE 0 END),
+           SUM(CASE WHEN r.es_correcta = 'N' THEN 1 ELSE 0 END),
+           AVG(pres.calificacion),
+           MAX(pres.calificacion),
+           MIN(pres.calificacion)
+    INTO v_total_respuestas, v_correctas, v_incorrectas,
+         v_promedio_nota, v_max_nota, v_min_nota
+    FROM TEMA t
+    JOIN PREGUNTA p ON p.id_tema = t.id_tema
+    JOIN RESPUESTA r ON r.id_pregunta = p.id_pregunta
+    JOIN RESPUESTA_ESTUDIANTE re ON re.id_respuesta = r.id_respuesta
+    JOIN PRESENTACION_EXAMEN pres ON pres.id_presentacion = re.id_presentacion
+    WHERE t.id_tema = p_id_tema;
+
+    DBMS_OUTPUT.PUT_LINE('Tema ID: ' || p_id_tema);
+    DBMS_OUTPUT.PUT_LINE('Total respuestas: ' || v_total_respuestas);
+    DBMS_OUTPUT.PUT_LINE('Correctas: ' || v_correctas);
+    DBMS_OUTPUT.PUT_LINE('Incorrectas: ' || v_incorrectas);
+    DBMS_OUTPUT.PUT_LINE('Promedio nota: ' || ROUND(v_promedio_nota, 2));
+    DBMS_OUTPUT.PUT_LINE('Nota máxima: ' || v_max_nota);
+    DBMS_OUTPUT.PUT_LINE('Nota mínima: ' || v_min_nota);
+END;
+/
