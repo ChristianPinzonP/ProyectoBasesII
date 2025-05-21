@@ -10,4 +10,6 @@ module com.example.proyecto {
     opens com.example.proyecto.controller to javafx.fxml;
     exports com.example.proyecto.dao;
     opens com.example.proyecto.dao to javafx.fxml;
+    exports com.example.proyecto.sesion;
+    opens com.example.proyecto.sesion to javafx.fxml;
 }

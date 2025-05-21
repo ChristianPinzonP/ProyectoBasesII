@@ -1,11 +1,9 @@
 package com.example.proyecto.dao;
 
+import com.example.proyecto.DBConnection;
 import com.example.proyecto.Docente;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 
 public class DocenteDAO {
 
@@ -31,5 +29,33 @@ public class DocenteDAO {
             return null;
         }
     }
+
+    public static Docente obtenerDocentePorId(int idDocente) {
+        Docente docente = null;
+        String sql = "SELECT * FROM DOCENTE d JOIN USUARIO u ON d.id_usuario = u.id_usuario WHERE d.id_usuario = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idDocente);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    docente = new Docente();
+                    docente.setIdUsuario(rs.getInt("id_usuario"));
+                    docente.setNombre(rs.getString("nombre"));
+                    docente.setCorreo(rs.getString("correo"));
+                    docente.setContrasena(rs.getString("contrasenia"));
+                    // Agrega más campos si los tienes
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return docente;
+    }
+
 
 }

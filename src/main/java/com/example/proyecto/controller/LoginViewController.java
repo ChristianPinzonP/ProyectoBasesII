@@ -4,6 +4,7 @@ import com.example.proyecto.DBConnection;
 import com.example.proyecto.Docente;
 import com.example.proyecto.Estudiante;
 import com.example.proyecto.Grupo;
+import com.example.proyecto.sesion.SesionUsuario;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -72,8 +73,12 @@ public class LoginViewController {
 
     private void mostrarVistaDocente(Docente docente) {
         try {
+            // Guardar el docente en la sesión
+            SesionUsuario.setDocenteActual(docente);
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto/MainDocenteView.fxml"));
             Parent root = loader.load();
+
             MainDocenteViewController controlador = loader.getController();
             controlador.inicializarDocente(docente);
 
@@ -81,7 +86,10 @@ public class LoginViewController {
             stage.setTitle("Panel Docente");
             stage.setScene(new Scene(root));
             stage.show();
-            cerrarVentanaActual();
+
+            // Cerrar ventana actual
+            Stage ventanaActual = (Stage) txtCorreo.getScene().getWindow();
+            ventanaActual.close();
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo cargar la vista del docente.", Alert.AlertType.ERROR);
@@ -99,16 +107,14 @@ public class LoginViewController {
             stage.setTitle("Panel Estudiante");
             stage.setScene(new Scene(root));
             stage.show();
-            cerrarVentanaActual();
+
+            // Cerrar ventana actual
+            Stage ventanaActual = (Stage) txtCorreo.getScene().getWindow();
+            ventanaActual.close();
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo cargar la vista del estudiante.", Alert.AlertType.ERROR);
         }
-    }
-
-    private void cerrarVentanaActual() {
-        Stage stage = (Stage) txtCorreo.getScene().getWindow();
-        stage.close();
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {

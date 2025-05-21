@@ -3,6 +3,8 @@ package com.example.proyecto.controller;
 import com.example.proyecto.*;
 import com.example.proyecto.dao.PreguntaDAO;
 import com.example.proyecto.dao.TemaDAO;
+import com.example.proyecto.dao.DocenteDAO;
+import com.example.proyecto.sesion.SesionUsuario;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,8 +23,10 @@ public class PreguntaViewController {
     @FXML private TableColumn<Pregunta, Integer> colId, colTema;
     @FXML private TableColumn<Pregunta, String> colTexto, colTipo;
     @FXML private TableColumn<Pregunta, Double> colValorNota;
+    @FXML private TableColumn<Pregunta, Boolean> colEsPublica;
     @FXML private ComboBox<Tema> cbTema;
     @FXML private TextField txtValorNota;
+    @FXML private CheckBox chkEsPublica;
 
     private TextField txtOpcion1, txtOpcion2, txtOpcion3, txtOpcion4;
     private CheckBox chkCorrecta1, chkCorrecta2, chkCorrecta3, chkCorrecta4;
@@ -30,9 +34,20 @@ public class PreguntaViewController {
     private List<Tema> listaTemas;
 
     private Pregunta preguntaEnEdicion = null;
+    private Docente docenteActual;
 
     @FXML
     public void initialize() {
+
+        //CORREGIR
+        //Obtener el docente actual - Esto debería venir del login
+        docenteActual = SesionUsuario.getDocenteActual();
+        if (docenteActual == null) {
+            // Para pruebas, podemos cargar un docente fijo
+            docenteActual = DocenteDAO.obtenerDocentePorId(1); // Ajusta según tu caso
+            SesionUsuario.setDocenteActual(docenteActual);
+        }
+
         listaTemas = TemaDAO.obtenerTemas();
         cbTema.setItems(FXCollections.observableArrayList(listaTemas));
 
@@ -44,6 +59,20 @@ public class PreguntaViewController {
         colTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
         colTema.setCellValueFactory(new PropertyValueFactory<>("nombreTema"));
         colValorNota.setCellValueFactory(new PropertyValueFactory<>("valorNota"));
+        colEsPublica.setCellValueFactory(new PropertyValueFactory<>("esPublica"));
+
+        // Personalizar la columna de visibilidad
+        colEsPublica.setCellFactory(tc -> new TableCell<Pregunta, Boolean>() {
+            @Override
+            protected void updateItem(Boolean esPublica, boolean empty) {
+                super.updateItem(esPublica, empty);
+                if (empty || esPublica == null) {
+                    setText(null);
+                } else {
+                    setText(esPublica ? "Pública" : "Privada");
+                }
+            }
+        });
 
         cargarPreguntas();
     }
@@ -57,11 +86,19 @@ public class PreguntaViewController {
             return;
         }
 
+        // Verificar si la pregunta es del docente actual o es pública
+        if (!seleccionada.isEsPublica() && seleccionada.getIdDocente() != docenteActual.getIdDocente()) {
+            mostrarAlerta("Error", "No puede editar esta pregunta porque es privada y pertenece a otro docente.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+
         preguntaEnEdicion = seleccionada;
 
         txtTexto.setText(seleccionada.getTexto());
         cbTipoPregunta.setValue(seleccionada.getTipo());
         txtValorNota.setText(String.valueOf(seleccionada.getValorNota()));
+        chkEsPublica.setSelected(seleccionada.isEsPublica());
 
         for (Tema tema : listaTemas) {
             if (tema.getId() == seleccionada.getIdTema()) {
@@ -98,6 +135,11 @@ public class PreguntaViewController {
             mostrarAlerta("Error", "Debe seleccionar una pregunta para eliminar.", Alert.AlertType.WARNING);
             return;
         }
+        // Verificar si la pregunta pertenece al docente actual
+        if (seleccionada.getIdDocente() != docenteActual.getIdDocente()) {
+            mostrarAlerta("Error", "Solo puede eliminar preguntas creadas por usted.", Alert.AlertType.WARNING);
+            return;
+        }
 
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar eliminación");
@@ -129,6 +171,7 @@ public class PreguntaViewController {
         String nuevoTipo = cbTipoPregunta.getValue();
         Tema temaSeleccionado = cbTema.getValue();
         String valorNotaTexto = txtValorNota.getText().trim();
+        boolean nuevaEspublica = chkEsPublica.isSelected();
 
         if (nuevoTexto.isEmpty() || nuevoTipo == null || temaSeleccionado == null || valorNotaTexto.isEmpty()) {
             mostrarAlerta("Error", "Debe completar todos los campos, incluyendo el valor de la nota.", Alert.AlertType.WARNING);
@@ -164,9 +207,11 @@ public class PreguntaViewController {
         }
 
         preguntaEnEdicion.setValorNota(nuevoValorNota);
+        preguntaEnEdicion.setEsPublica(nuevaEspublica);
 
         boolean exito = PreguntaDAO.actualizarPregunta(
-                preguntaEnEdicion.getId(), nuevoTexto, nuevoTipo, temaSeleccionado.getId(), nuevoValorNota, nuevasOpciones);
+                preguntaEnEdicion.getId(), nuevoTexto, nuevoTipo, temaSeleccionado.getId(),
+                nuevoValorNota, nuevaEspublica, preguntaEnEdicion.getIdDocente(), nuevasOpciones);
 
         if (exito) {
             mostrarAlerta("Éxito", "Pregunta actualizada correctamente.", Alert.AlertType.INFORMATION);
@@ -184,6 +229,7 @@ public class PreguntaViewController {
         String tipoPregunta = cbTipoPregunta.getValue();
         Tema temaSeleccionado = cbTema.getValue();
         String valorTexto = txtValorNota.getText().trim();
+        boolean esPublica = chkEsPublica.isSelected();
 
         if (textoPregunta.isEmpty() || tipoPregunta == null || temaSeleccionado == null || valorTexto.isEmpty()) {
             mostrarAlerta("Error", "Debe completar todos los campos, incluyendo el valor de la nota.", Alert.AlertType.WARNING);
@@ -217,7 +263,8 @@ public class PreguntaViewController {
             }
         }
 
-        Pregunta nuevaPregunta = new Pregunta(0, textoPregunta, tipoPregunta, temaSeleccionado.getId(), opciones);
+        Pregunta nuevaPregunta = new Pregunta(0, textoPregunta, tipoPregunta, temaSeleccionado.getId(),
+                valorNota, esPublica, docenteActual.getIdDocente(), opciones);
         nuevaPregunta.setNombreTema(temaSeleccionado.getNombre());
         nuevaPregunta.setValorNota(valorNota);
 
@@ -284,6 +331,7 @@ public class PreguntaViewController {
         txtValorNota.clear();
         cbTipoPregunta.getSelectionModel().clearSelection();
         cbTema.getSelectionModel().clearSelection();
+        chkEsPublica.setSelected(false);
         vboxOpciones.getChildren().clear();
         preguntaEnEdicion = null;
     }
@@ -297,7 +345,11 @@ public class PreguntaViewController {
     }
 
     public void cargarPreguntas() {
-        ObservableList<Pregunta> listaPreguntas = FXCollections.observableArrayList(PreguntaDAO.obtenerTodasLasPreguntas());
+        // Cargar solo las preguntas visibles para el docente actual
+        // (Preguntas públicas + preguntas privadas propias)
+        ObservableList<Pregunta> listaPreguntas = FXCollections.observableArrayList(
+                PreguntaDAO.obtenerPreguntasVisiblesParaDocente(docenteActual.getIdDocente())
+        );
         tablaPreguntas.setItems(listaPreguntas);
     }
 }

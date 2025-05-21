@@ -11,8 +11,8 @@ import java.util.List;
 public class PreguntaDAO {
 
     public static boolean agregarPregunta(Pregunta pregunta) {
-        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_TEMA, VALOR_NOTA) " +
-                "VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PREGUNTA (ID_PREGUNTA, TEXTO, TIPO, ID_TEMA, VALOR_NOTA, ES_PUBLICA, ID_DOCENTE) " +
+                "VALUES (SEQ_PREGUNTA.NEXTVAL, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, new String[]{"ID_PREGUNTA"})) {
@@ -21,6 +21,8 @@ public class PreguntaDAO {
             stmt.setString(2, pregunta.getTipo());
             stmt.setInt(3, pregunta.getIdTema());
             stmt.setDouble(4, pregunta.getValorNota());  // Aquí se asigna el valor de la nota
+            stmt.setString(5, pregunta.isEsPublica() ? "S" : "N");
+            stmt.setInt(6, pregunta.getIdDocente());
 
             int filasInsertadas = stmt.executeUpdate();
 
@@ -110,7 +112,8 @@ public class PreguntaDAO {
 
     public static List<Pregunta> obtenerTodasLasPreguntas() {
         List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA, NVL(p.VALOR_NOTA, 0) AS VALOR_NOTA " +
+        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA, " +
+                "NVL(p.VALOR_NOTA, 0) AS VALOR_NOTA, p.ES_PUBLICA, p.ID_DOCENTE " +
                 "FROM PREGUNTA p " +
                 "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
                 "ORDER BY p.ID_PREGUNTA DESC";
@@ -126,12 +129,18 @@ public class PreguntaDAO {
                 int idTema = rs.getInt("ID_TEMA");
                 String nombreTema = rs.getString("NOMBRE_TEMA");
                 double valorNota = rs.getDouble("VALOR_NOTA");
+                String esPublicaStr = rs.getString("ES_PUBLICA");
+                int idDocente = rs.getInt("ID_DOCENTE");
+
+                boolean esPublica = "S".equalsIgnoreCase(esPublicaStr);
 
                 System.out.println("Pregunta ID: " + idPregunta + ", Texto: " + texto);
 
                 Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema);
                 pregunta.setNombreTema(nombreTema);
                 pregunta.setValorNota(valorNota);
+                pregunta.setEsPublica(esPublica);
+                pregunta.setIdDocente(idDocente);
                 listaPreguntas.add(pregunta);
             }
 
@@ -144,8 +153,53 @@ public class PreguntaDAO {
         return listaPreguntas;
     }
 
-    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema, double nuevoValorNota, List<OpcionRespuesta> nuevasOpciones)  {
-        String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_TEMA = ?, VALOR_NOTA = ? WHERE ID_PREGUNTA = ?";
+    public static List<Pregunta> obtenerPreguntasVisiblesParaDocente(int idDocenteActual) {
+        List<Pregunta> listaPreguntas = new ArrayList<>();
+        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA, " +
+                "NVL(p.VALOR_NOTA, 0) AS VALOR_NOTA, p.ES_PUBLICA, p.ID_DOCENTE " +
+                "FROM PREGUNTA p " +
+                "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
+                "WHERE p.ES_PUBLICA = 'S' OR p.ID_DOCENTE = ? " +
+                "ORDER BY p.ID_PREGUNTA DESC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idDocenteActual);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int idPregunta = rs.getInt("ID_PREGUNTA");
+                String texto = rs.getString("TEXTO");
+                String tipo = rs.getString("TIPO");
+                int idTema = rs.getInt("ID_TEMA");
+                String nombreTema = rs.getString("NOMBRE_TEMA");
+                double valorNota = rs.getDouble("VALOR_NOTA");
+                String esPublicaStr = rs.getString("ES_PUBLICA");
+                int idDocente = rs.getInt("ID_DOCENTE");
+
+                boolean esPublica = "S".equalsIgnoreCase(esPublicaStr);
+
+                Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema);
+                pregunta.setNombreTema(nombreTema);
+                pregunta.setValorNota(valorNota);
+                pregunta.setEsPublica(esPublica);
+                pregunta.setIdDocente(idDocente);
+                listaPreguntas.add(pregunta);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error al cargar preguntas: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return listaPreguntas;
+    }
+
+    public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema,
+                                             double nuevoValorNota, boolean nuevaEsPublica, int idDocente,
+                                             List<OpcionRespuesta> nuevasOpciones)  {
+        String sql = "UPDATE PREGUNTA SET TEXTO = ?, TIPO = ?, ID_TEMA = ?, VALOR_NOTA = ?, ES_PUBLICA = ? WHERE ID_PREGUNTA = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -154,7 +208,8 @@ public class PreguntaDAO {
             stmt.setString(2, nuevoTipo);
             stmt.setInt(3, nuevoIdTema);
             stmt.setDouble(4, nuevoValorNota);  // Actualiza la nota
-            stmt.setInt(5, idPregunta);
+            stmt.setString(5, nuevaEsPublica ? "S" : "N");
+            stmt.setInt(6, idPregunta);
 
             int filasActualizadas = stmt.executeUpdate();
             System.out.println("Filas actualizadas en tabla PREGUNTA: " + filasActualizadas);
@@ -181,8 +236,6 @@ public class PreguntaDAO {
             return false;
         }
     }
-
-
 
     public static boolean eliminarPregunta(int idPregunta) {
         eliminarOpcionesDePregunta(idPregunta);
@@ -224,7 +277,7 @@ public class PreguntaDAO {
 
         try (Connection conn = DBConnection.getConnection()) {
             PreparedStatement psPreguntas = conn.prepareStatement(
-                    "SELECT p.id_pregunta, p.texto, p.tipo, p.id_tema " +
+                    "SELECT p.id_pregunta, p.texto, p.tipo, p.id_tema, p.es_publica, p.id_docente " +
                             "FROM examen_pregunta ep " +
                             "JOIN pregunta p ON ep.id_pregunta = p.id_pregunta " +
                             "WHERE ep.id_examen = ?");
@@ -236,6 +289,10 @@ public class PreguntaDAO {
                 String texto = rsPreguntas.getString("texto");
                 String tipo = rsPreguntas.getString("tipo");
                 int idTema = rsPreguntas.getInt("id_tema");
+                String esPublicaStr = rsPreguntas.getString("es_publica");
+                int idDocente = rsPreguntas.getInt("id_docente");
+
+                boolean esPublica = "S".equalsIgnoreCase(esPublicaStr);
 
                 List<OpcionRespuesta> opciones = new ArrayList<>();
 
@@ -255,6 +312,8 @@ public class PreguntaDAO {
                 psRespuestas.close();
 
                 Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
+                pregunta.setEsPublica(esPublica);
+                pregunta.setIdDocente(idDocente);
                 preguntas.add(pregunta);
             }
 
@@ -268,17 +327,19 @@ public class PreguntaDAO {
     }
 
 
-    public static List<Pregunta> obtenerPreguntasPorTema(int idTema) {
+    public static List<Pregunta> obtenerPreguntasPorTema(int idTema, int idDocenteActual) {
         List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA " +
+        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE as NOMBRE_TEMA, " +
+                "p.ES_PUBLICA, p.ID_DOCENTE " +
                 "FROM PREGUNTA p " +
                 "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
-                "WHERE p.ID_TEMA = ?";
+                "WHERE p.ID_TEMA = ? AND (p.ES_PUBLICA = 'S' OR p.ID_DOCENTE = ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, idTema);
+            stmt.setInt(2, idDocenteActual);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -286,6 +347,10 @@ public class PreguntaDAO {
                 String texto = rs.getString("TEXTO");
                 String tipo = rs.getString("TIPO");
                 String nombreTema = rs.getString("NOMBRE_TEMA");
+                String esPublicaStr = rs.getString("ES_PUBLICA");
+                int idDocente = rs.getInt("ID_DOCENTE");
+
+                boolean esPublica = "S".equalsIgnoreCase(esPublicaStr);
 
                 // Obtener las opciones de respuesta para la pregunta
                 List<OpcionRespuesta> opciones = PreguntaDAO.obtenerOpcionesDePregunta(idPregunta);
@@ -293,6 +358,8 @@ public class PreguntaDAO {
 
                 Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
                 pregunta.setNombreTema(nombreTema);
+                pregunta.setEsPublica(esPublica);
+                pregunta.setIdDocente(idDocente);
 
                 listaPreguntas.add(pregunta);
             }

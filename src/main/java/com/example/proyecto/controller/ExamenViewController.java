@@ -383,7 +383,7 @@ public class ExamenViewController {
     }
 
     public void cargarPreguntasDisponiblesPorTema(int idTema) {
-        List<Pregunta> preguntasFiltradas = PreguntaDAO.obtenerPreguntasPorTema(idTema);
+        List<Pregunta> preguntasFiltradas = PreguntaDAO.obtenerPreguntasPorTema(idTema, docenteActual.getIdDocente()); //CORREGIR
         if (preguntasFiltradas.isEmpty()) {
             mostrarAlerta("Información", "No hay preguntas disponibles para este tema.", Alert.AlertType.INFORMATION);
         }

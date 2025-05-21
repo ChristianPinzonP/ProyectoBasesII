@@ -45,22 +45,28 @@
             <Label text="Valor Nota (0-5):" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
             <TextField fx:id="txtValorNota" GridPane.columnIndex="1" GridPane.rowIndex="5" promptText="Ej: 0.5"/>
 
-            <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="6" alignment="CENTER">
+            <!-- Agregar checkbox de visibilidad pública -->
+            <Label text="Visibilidad:" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+            <CheckBox fx:id="chkEsPublica" text="Pregunta Pública" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+
+            <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="7" alignment="CENTER">
                 <Button text="Guardar Pregunta" onAction="#agregarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
             </HBox>
 
-            <Label text="Lista de Preguntas" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
-            <TableView fx:id="tablaPreguntas" GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="2">
+            <Label text="Lista de Preguntas" GridPane.columnIndex="0" GridPane.rowIndex="8"/>
+            <TableView fx:id="tablaPreguntas" GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="2">
                 <columns>
                     <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
                     <TableColumn fx:id="colTexto" text="Texto" prefWidth="200"/>
                     <TableColumn fx:id="colTipo" text="Tipo" prefWidth="100"/>
                     <TableColumn fx:id="colTema" text="Tema Pregunta" prefWidth="150"/>
                     <TableColumn fx:id="colValorNota" text="Nota" prefWidth="60"/>
+                    <!-- Agregar columna para la visibilidad de la pregunta -->
+                    <TableColumn fx:id="colEsPublica" text="Visibilidad" prefWidth="100"/>
                 </columns>
             </TableView>
 
-            <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="9" alignment="CENTER">
+            <HBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="10" alignment="CENTER">
                 <Button text="Editar Pregunta" onAction="#editarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
                 <Button text="Guardar Cambios" onAction="#guardarEdicion" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
                 <Button text="Eliminar Pregunta" onAction="#eliminarPregunta" style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
