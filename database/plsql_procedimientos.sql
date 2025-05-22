@@ -213,6 +213,247 @@ END;
 /
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+-- Crear tipos si aún no existen
+CREATE OR REPLACE TYPE TEMA_OBJ AS OBJECT (
+    ID_TEMA  NUMBER,
+    NOMBRE   VARCHAR2(255)
+);
+/
+
+CREATE OR REPLACE TYPE TEMA_TABLA AS TABLE OF TEMA_OBJ;
+/
+
+-- Crear procedimiento que devuelve los temas
+CREATE OR REPLACE PROCEDURE OBTENER_TEMAS(p_temas OUT TEMA_TABLA) IS
+BEGIN
+    SELECT TEMA_OBJ(ID_TEMA, NOMBRE)
+    BULK COLLECT INTO p_temas
+    FROM TEMA
+    ORDER BY NOMBRE ASC;
+END;
+/
+/////////////////////////PLSQL PREGUNTAS////////////////////////////////////
+-- =============================
+-- TIPOS DE OBJETO
+-- =============================
+CREATE OR REPLACE TYPE OPCION_RESPUESTA_OBJ AS OBJECT (
+    id_respuesta NUMBER,
+    texto       VARCHAR2(500),
+    es_correcta VARCHAR2(1) -- 'S' o 'N'
+);
+/
+
+CREATE OR REPLACE TYPE OPCION_RESPUESTA_TABLE AS TABLE OF OPCION_RESPUESTA_OBJ;
+/
+
+-- =============================
+-- ESPECIFICACIÓN DEL PAQUETE
+-- =============================
+CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
+  -- TIPOS
+  TYPE T_CURSOR IS REF CURSOR;
+
+  -- Procedimientos
+  PROCEDURE agregar_pregunta(
+    p_texto       IN VARCHAR2,
+    p_tipo        IN VARCHAR2,
+    p_id_tema     IN NUMBER,
+    p_valor_nota  IN NUMBER,
+    p_es_publica  IN VARCHAR2,
+    p_id_docente  IN NUMBER,
+    p_id_generado OUT NUMBER
+  );
+
+  PROCEDURE agregar_opcion_respuesta(
+    p_id_pregunta IN NUMBER,
+    p_texto       IN VARCHAR2,
+    p_es_correcta IN VARCHAR2
+  );
+
+  PROCEDURE actualizar_pregunta(
+    p_id_pregunta IN NUMBER,
+    p_texto       IN VARCHAR2,
+    p_tipo        IN VARCHAR2,
+    p_id_tema     IN NUMBER,
+    p_valor_nota  IN NUMBER,
+    p_es_publica  IN VARCHAR2
+  );
+
+  PROCEDURE eliminar_pregunta(p_id_pregunta IN NUMBER);
+
+  PROCEDURE obtener_opciones_pregunta(
+    p_id_pregunta IN NUMBER,
+    p_cursor OUT SYS_REFCURSOR
+  );
+  
+  PROCEDURE obtener_preguntas_visibles (
+    p_resultado OUT SYS_REFCURSOR
+  );
+
+  PROCEDURE obtener_preguntas_por_tema(
+    p_id_tema IN NUMBER,
+    p_cursor OUT SYS_REFCURSOR
+  );
+
+  -- NUEVO: Procedimiento con filtro por docente
+  PROCEDURE obtener_preguntas_por_tema_docente(
+    p_id_tema IN NUMBER,
+    p_id_docente IN NUMBER,
+    p_cursor OUT SYS_REFCURSOR
+  );
+
+  -- NUEVO: Procedimiento para obtener preguntas visibles para un docente específico
+  PROCEDURE obtener_preguntas_visibles_docente(
+    p_id_docente IN NUMBER,
+    p_cursor OUT SYS_REFCURSOR
+  );
+
+END PKG_PREGUNTA;
+/
+
+-- =============================
+-- CUERPO DEL PAQUETE
+-- =============================
+CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
+
+    PROCEDURE agregar_pregunta (
+        p_texto       IN VARCHAR2,
+        p_tipo        IN VARCHAR2,
+        p_id_tema     IN NUMBER,
+        p_valor_nota  IN NUMBER,
+        p_es_publica  IN VARCHAR2,
+        p_id_docente  IN NUMBER,
+        p_id_generado OUT NUMBER
+    ) IS
+    BEGIN
+        INSERT INTO pregunta (id_pregunta, texto, tipo, id_tema, valor_nota, es_publica, id_docente)
+        VALUES (SEQ_PREGUNTA.NEXTVAL, p_texto, p_tipo, p_id_tema, p_valor_nota, p_es_publica, p_id_docente)
+        RETURNING id_pregunta INTO p_id_generado;
+    END agregar_pregunta;
+
+    PROCEDURE agregar_opcion_respuesta (
+        p_id_pregunta IN NUMBER,
+        p_texto       IN VARCHAR2,
+        p_es_correcta IN VARCHAR2
+    ) IS
+    BEGIN
+        INSERT INTO respuesta (id_respuesta, id_pregunta, texto, es_correcta)
+        VALUES (SEQ_RESPUESTA.NEXTVAL, p_id_pregunta, p_texto, p_es_correcta);
+    END agregar_opcion_respuesta;
+
+    PROCEDURE actualizar_pregunta (
+        p_id_pregunta IN NUMBER,
+        p_texto       IN VARCHAR2,
+        p_tipo        IN VARCHAR2,
+        p_id_tema     IN NUMBER,
+        p_valor_nota  IN NUMBER,
+        p_es_publica  IN VARCHAR2
+    ) IS
+    BEGIN
+        UPDATE pregunta
+        SET texto = p_texto,
+            tipo = p_tipo,
+            id_tema = p_id_tema,
+            valor_nota = p_valor_nota,
+            es_publica = p_es_publica
+        WHERE id_pregunta = p_id_pregunta;
+    END actualizar_pregunta;
+
+    PROCEDURE eliminar_pregunta (p_id_pregunta IN NUMBER) IS
+    BEGIN
+        DELETE FROM respuesta WHERE id_pregunta = p_id_pregunta;
+        DELETE FROM examen_pregunta WHERE id_pregunta = p_id_pregunta;
+        DELETE FROM pregunta WHERE id_pregunta = p_id_pregunta;
+    END eliminar_pregunta;
+
+    PROCEDURE obtener_opciones_pregunta (
+        p_id_pregunta IN NUMBER,
+        p_cursor      OUT SYS_REFCURSOR
+    ) IS
+    BEGIN
+        OPEN p_cursor FOR
+        SELECT * FROM respuesta WHERE id_pregunta = p_id_pregunta;
+    END obtener_opciones_pregunta;
+
+    PROCEDURE obtener_preguntas_visibles (
+        p_resultado OUT SYS_REFCURSOR
+    ) IS
+    BEGIN
+        OPEN p_resultado FOR
+        SELECT * FROM pregunta WHERE es_publica = 'S';
+    END obtener_preguntas_visibles;
+
+    PROCEDURE obtener_preguntas_por_tema (
+        p_id_tema IN NUMBER,
+        p_cursor  OUT SYS_REFCURSOR
+    ) IS
+    BEGIN
+        OPEN p_cursor FOR
+        SELECT * FROM pregunta WHERE id_tema = p_id_tema;
+    END obtener_preguntas_por_tema;
+
+    -- NUEVO: Procedimiento con filtro por docente y JOIN con TEMA
+    PROCEDURE obtener_preguntas_por_tema_docente (
+        p_id_tema    IN NUMBER,
+        p_id_docente IN NUMBER,
+        p_cursor     OUT SYS_REFCURSOR
+    ) IS
+    BEGIN
+        OPEN p_cursor FOR
+        SELECT p.ID_PREGUNTA, 
+               p.TEXTO, 
+               p.TIPO, 
+               p.ID_TEMA, 
+               t.NOMBRE as NOMBRE_TEMA, 
+               NVL(p.VALOR_NOTA, 0) AS VALOR_NOTA, 
+               p.ES_PUBLICA, 
+               p.ID_DOCENTE
+        FROM PREGUNTA p 
+        LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA 
+        WHERE p.ID_TEMA = p_id_tema 
+          AND (p.ES_PUBLICA = 'S' OR p.ID_DOCENTE = p_id_docente)
+        ORDER BY p.ID_PREGUNTA DESC;
+    END obtener_preguntas_por_tema_docente;
+
+    -- NUEVO: Procedimiento para obtener preguntas visibles para un docente específico
+    PROCEDURE obtener_preguntas_visibles_docente (
+        p_id_docente IN NUMBER,
+        p_cursor     OUT SYS_REFCURSOR
+    ) IS
+    BEGIN
+        OPEN p_cursor FOR
+        SELECT p.ID_PREGUNTA, 
+               p.TEXTO, 
+               p.TIPO, 
+               p.ID_TEMA, 
+               t.NOMBRE as NOMBRE_TEMA, 
+               NVL(p.VALOR_NOTA, 0) AS VALOR_NOTA, 
+               p.ES_PUBLICA, 
+               p.ID_DOCENTE
+        FROM PREGUNTA p 
+        LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA 
+        WHERE p.ES_PUBLICA = 'S' OR p.ID_DOCENTE = p_id_docente
+        ORDER BY p.ID_PREGUNTA DESC;
+    END obtener_preguntas_visibles_docente;
+
+    PROCEDURE obtener_preguntas_con_opciones_por_examen (
+        p_id_examen IN NUMBER,
+        p_resultado OUT SYS_REFCURSOR
+    ) IS
+    BEGIN
+        OPEN p_resultado FOR
+        SELECT p.*, r.*
+        FROM examen_pregunta ep
+        JOIN pregunta p ON ep.id_pregunta = p.id_pregunta
+        LEFT JOIN respuesta r ON p.id_pregunta = r.id_pregunta
+        WHERE ep.id_examen = p_id_examen;
+    END obtener_preguntas_con_opciones_por_examen;
+
+END PKG_PREGUNTA;
+/
+
+//////////////////////////////////////////////////////////////
 --------------------------------------------------------
 --  DDL for Procedure GENERAR_ESTADISTICAS_EXAMEN
 --------------------------------------------------------
