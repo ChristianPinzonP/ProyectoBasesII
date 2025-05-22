@@ -265,13 +265,13 @@ CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
     p_id_generado OUT NUMBER
   );
 
-  PROCEDURE agregar_opcion_respuesta(
+  PROCEDURE agregar_opcion_respuesta(------
     p_id_pregunta IN NUMBER,
     p_texto       IN VARCHAR2,
     p_es_correcta IN VARCHAR2
   );
 
-  PROCEDURE actualizar_pregunta(
+  PROCEDURE actualizar_pregunta(-----
     p_id_pregunta IN NUMBER,
     p_texto       IN VARCHAR2,
     p_tipo        IN VARCHAR2,
@@ -280,31 +280,22 @@ CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
     p_es_publica  IN VARCHAR2
   );
 
-  PROCEDURE eliminar_pregunta(p_id_pregunta IN NUMBER);
+  PROCEDURE eliminar_pregunta(p_id_pregunta IN NUMBER);------
 
-  PROCEDURE obtener_opciones_pregunta(
+  PROCEDURE obtener_opciones_pregunta(------------
     p_id_pregunta IN NUMBER,
-    p_cursor OUT SYS_REFCURSOR
-  );
-  
-  PROCEDURE obtener_preguntas_visibles (
-    p_resultado OUT SYS_REFCURSOR
-  );
-
-  PROCEDURE obtener_preguntas_por_tema(
-    p_id_tema IN NUMBER,
     p_cursor OUT SYS_REFCURSOR
   );
 
   -- NUEVO: Procedimiento con filtro por docente
-  PROCEDURE obtener_preguntas_por_tema_docente(
+  PROCEDURE obtener_preguntas_por_tema_docente(--------
     p_id_tema IN NUMBER,
     p_id_docente IN NUMBER,
     p_cursor OUT SYS_REFCURSOR
   );
 
   -- NUEVO: Procedimiento para obtener preguntas visibles para un docente específico
-  PROCEDURE obtener_preguntas_visibles_docente(
+  PROCEDURE obtener_preguntas_visibles_docente(-----------
     p_id_docente IN NUMBER,
     p_cursor OUT SYS_REFCURSOR
   );
@@ -375,23 +366,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
         OPEN p_cursor FOR
         SELECT * FROM respuesta WHERE id_pregunta = p_id_pregunta;
     END obtener_opciones_pregunta;
-
-    PROCEDURE obtener_preguntas_visibles (
-        p_resultado OUT SYS_REFCURSOR
-    ) IS
-    BEGIN
-        OPEN p_resultado FOR
-        SELECT * FROM pregunta WHERE es_publica = 'S';
-    END obtener_preguntas_visibles;
-
-    PROCEDURE obtener_preguntas_por_tema (
-        p_id_tema IN NUMBER,
-        p_cursor  OUT SYS_REFCURSOR
-    ) IS
-    BEGIN
-        OPEN p_cursor FOR
-        SELECT * FROM pregunta WHERE id_tema = p_id_tema;
-    END obtener_preguntas_por_tema;
 
     -- NUEVO: Procedimiento con filtro por docente y JOIN con TEMA
     PROCEDURE obtener_preguntas_por_tema_docente (

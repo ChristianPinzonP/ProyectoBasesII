@@ -12,7 +12,7 @@ import java.util.List;
 public class PreguntaDAO {
 
     /**
-     * Agregar pregunta usando el paquete PL/SQL PKG_PREGUNTA (sin arrays)
+     * Agregar pregunta usando el paquete PL/SQL PKG_PREGUNTA
      */
     public static boolean agregarPregunta(Pregunta pregunta) {
         Connection conn = null;
@@ -99,7 +99,7 @@ public class PreguntaDAO {
             // Actualizar opciones por separado (el procedimiento solo actualiza la pregunta)
             if (nuevasOpciones != null && !nuevasOpciones.isEmpty()) {
                 eliminarOpcionesDePregunta(idPregunta);
-                return agregarOpcionesRespuesta(idPregunta, nuevoTipo, nuevasOpciones);
+                return agregarOpcionesRespuesta(idPregunta, nuevasOpciones);
             }
 
             System.out.println("✅ Pregunta actualizada correctamente");
@@ -168,36 +168,6 @@ public class PreguntaDAO {
         }
 
         return opciones;
-    }
-
-    /**
-     * Obtener preguntas visibles usando el paquete PL/SQL PKG_PREGUNTA
-     */
-    public static List<Pregunta> obtenerPreguntasVisibles() {
-        List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "{call PKG_PREGUNTA.OBTENER_PREGUNTAS_VISIBLES(?)}";
-
-        try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
-
-            stmt.registerOutParameter(1, OracleTypes.CURSOR);
-            stmt.execute();
-
-            try (ResultSet rs = (ResultSet) stmt.getObject(1)) {
-                while (rs.next()) {
-                    Pregunta pregunta = mapearPreguntaDesdeResultSet(rs);
-                    listaPreguntas.add(pregunta);
-                }
-            }
-
-            System.out.println("Total preguntas visibles cargadas: " + listaPreguntas.size());
-
-        } catch (SQLException e) {
-            System.out.println("❌ Error al obtener preguntas visibles: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return listaPreguntas;
     }
 
     /**
@@ -335,7 +305,7 @@ public class PreguntaDAO {
         return pregunta;
     }
 
-    public static boolean agregarOpcionesRespuesta(int idPregunta, String tipoPregunta, List<OpcionRespuesta> opciones) {
+    public static boolean agregarOpcionesRespuesta(int idPregunta, List<OpcionRespuesta> opciones) {
         String sql = "INSERT INTO RESPUESTA (ID_RESPUESTA, ID_PREGUNTA, TEXTO, ES_CORRECTA) VALUES (SEQ_RESPUESTA.NEXTVAL, ?, ?, ?)";
 
         if (opciones.isEmpty()) {
