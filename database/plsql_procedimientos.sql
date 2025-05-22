@@ -68,19 +68,15 @@ create or replace NONEDITIONABLE PROCEDURE OBTENER_ESTUDIANTE_COMPLETO (
     p_estado          OUT VARCHAR2
 ) AS
 BEGIN
-SELECT u.nombre, u.correo, g.id_grupo, g.nombre
-INTO p_nombre, p_correo, p_id_grupo, p_nombre_grupo
-FROM USUARIO u
-         JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante
-         LEFT JOIN (
-    SELECT eg.id_estudiante, g.id_grupo, g.nombre
-    FROM ESTUDIANTE_GRUPO eg
-             JOIN GRUPO g ON eg.id_grupo = g.id_grupo
-    WHERE eg.estado = 'ACTIVO'
-) g ON e.id_estudiante = g.id_estudiante
-WHERE u.id_usuario = p_id_usuario;
+    SELECT u.nombre, u.correo, g.id_grupo, g.nombre
+    INTO p_nombre, p_correo, p_id_grupo, p_nombre_grupo
+    FROM USUARIO u
+    JOIN ESTUDIANTE e ON u.id_usuario = e.id_estudiante
+    LEFT JOIN ESTUDIANTE_GRUPO eg ON e.id_estudiante = eg.id_estudiante
+    LEFT JOIN GRUPO g ON eg.id_grupo = g.id_grupo
+    WHERE u.id_usuario = p_id_usuario;
 
-p_estado := 'OK';
+    p_estado := 'OK';
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -89,7 +85,7 @@ EXCEPTION
         p_correo := NULL;
         p_id_grupo := NULL;
         p_nombre_grupo := NULL;
-WHEN OTHERS THEN
+    WHEN OTHERS THEN
         p_estado := 'ERROR';
         p_nombre := NULL;
         p_correo := NULL;
@@ -97,7 +93,7 @@ WHEN OTHERS THEN
         p_nombre_grupo := NULL;
 END;
 
-
+/
 ///////////////////7Secuencias//////////////////////////////////////////
 
 CREATE SEQUENCE SEQ_RESPUESTA_ESTUDIANTE
@@ -282,6 +278,15 @@ CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
 
   PROCEDURE eliminar_pregunta(p_id_pregunta IN NUMBER);------
 
+  PROCEDURE agregar_opciones_respuesta(
+    p_id_pregunta IN NUMBER,
+    p_opciones IN OPCION_RESPUESTA_TABLE
+  );
+
+  PROCEDURE eliminar_opciones_respuesta(
+    p_id_pregunta IN NUMBER
+  );
+
   PROCEDURE obtener_opciones_pregunta(------------
     p_id_pregunta IN NUMBER,
     p_cursor OUT SYS_REFCURSOR
@@ -366,6 +371,24 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
         OPEN p_cursor FOR
         SELECT * FROM respuesta WHERE id_pregunta = p_id_pregunta;
     END obtener_opciones_pregunta;
+    
+      PROCEDURE agregar_opciones_respuesta(
+    p_id_pregunta IN NUMBER,
+    p_opciones IN OPCION_RESPUESTA_TABLE
+  ) IS
+  BEGIN
+    FOR i IN 1 .. p_opciones.COUNT LOOP
+      INSERT INTO respuesta (id_respuesta, id_pregunta, texto, es_correcta)
+      VALUES (SEQ_RESPUESTA.NEXTVAL, p_id_pregunta, p_opciones(i).texto, p_opciones(i).es_correcta);
+    END LOOP;
+  END agregar_opciones_respuesta;
+
+  PROCEDURE eliminar_opciones_respuesta(
+    p_id_pregunta IN NUMBER
+  ) IS
+  BEGIN
+    DELETE FROM respuesta WHERE id_pregunta = p_id_pregunta;
+  END eliminar_opciones_respuesta;
 
     -- NUEVO: Procedimiento con filtro por docente y JOIN con TEMA
     PROCEDURE obtener_preguntas_por_tema_docente (

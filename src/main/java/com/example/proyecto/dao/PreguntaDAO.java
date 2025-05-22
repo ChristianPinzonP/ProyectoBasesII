@@ -3,6 +3,7 @@ package com.example.proyecto.dao;
 import com.example.proyecto.DBConnection;
 import com.example.proyecto.OpcionRespuesta;
 import com.example.proyecto.Pregunta;
+import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OracleTypes;
 
 import java.sql.*;
@@ -306,47 +307,57 @@ public class PreguntaDAO {
     }
 
     public static boolean agregarOpcionesRespuesta(int idPregunta, List<OpcionRespuesta> opciones) {
-        String sql = "INSERT INTO RESPUESTA (ID_RESPUESTA, ID_PREGUNTA, TEXTO, ES_CORRECTA) VALUES (SEQ_RESPUESTA.NEXTVAL, ?, ?, ?)";
-
         if (opciones.isEmpty()) {
             System.out.println("⚠ No hay opciones para guardar en la pregunta ID: " + idPregunta);
             return false;
         }
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             OracleConnection oracleConn = conn.unwrap(OracleConnection.class)) {
 
-            for (OpcionRespuesta opcion : opciones) {
-                stmt.setInt(1, idPregunta);
-                stmt.setString(2, opcion.getTexto());
-                stmt.setString(3, opcion.isCorrecta() ? "S" : "N");
-                stmt.addBatch();
+            // Crear los STRUCTs de OPCION_RESPUESTA_OBJ
+            Struct[] structOpciones = new Struct[opciones.size()];
+            for (int i = 0; i < opciones.size(); i++) {
+                OpcionRespuesta op = opciones.get(i);
+                Object[] atributos = new Object[]{
+                        null, // id_respuesta lo genera la secuencia
+                        op.getTexto(),
+                        op.isCorrecta() ? "S" : "N"
+                };
+                structOpciones[i] = oracleConn.createStruct("OPCION_RESPUESTA_OBJ", atributos);
             }
 
-            int[] filasInsertadas = stmt.executeBatch();
-            System.out.println("✅ Respuestas insertadas correctamente. Total: " + filasInsertadas.length);
-            return filasInsertadas.length > 0;
+            // Crear el ARRAY tipo OPCION_RESPUESTA_TABLE
+            Array arrayOpciones = oracleConn.createOracleArray("OPCION_RESPUESTA_TABLE", structOpciones);
+
+            // Llamar al procedimiento almacenado
+            CallableStatement cs = conn.prepareCall("{call PKG_PREGUNTA.agregar_opciones_respuesta(?, ?)}");
+            cs.setInt(1, idPregunta);
+            cs.setArray(2, arrayOpciones);
+            cs.execute();
+
+            System.out.println("✅ Opciones insertadas correctamente desde PL/SQL.");
+            return true;
 
         } catch (SQLException e) {
-            System.out.println("❌ Error al insertar respuestas: " + e.getMessage());
+            System.out.println("❌ Error al llamar al procedimiento PL/SQL: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
     public static boolean eliminarOpcionesDePregunta(int idPregunta) {
-        String sql = "DELETE FROM RESPUESTA WHERE ID_PREGUNTA = ?";
-
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall("{call PKG_PREGUNTA.eliminar_opciones_respuesta(?)}")) {
 
-            stmt.setInt(1, idPregunta);
-            int filasEliminadas = stmt.executeUpdate();
-            System.out.println("✅ Opciones eliminadas para la pregunta ID: " + idPregunta + ". Total: " + filasEliminadas);
-            return filasEliminadas > 0;
+            cs.setInt(1, idPregunta);
+            cs.execute();
+
+            System.out.println("✅ Opciones eliminadas correctamente para la pregunta ID: " + idPregunta);
+            return true;
 
         } catch (SQLException e) {
-            System.out.println("❌ Error al eliminar opciones de respuesta: " + e.getMessage());
+            System.out.println("❌ Error al eliminar opciones desde PL/SQL: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
