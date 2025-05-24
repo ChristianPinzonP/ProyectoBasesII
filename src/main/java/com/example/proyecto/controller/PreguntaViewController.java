@@ -114,23 +114,38 @@ public class PreguntaViewController {
     @FXML
     public void editarPregunta() {
         Pregunta seleccionada = tablaPreguntas.getSelectionModel().getSelectedItem();
-
         if (seleccionada == null) {
             mostrarAlerta("Error", "Seleccione una pregunta para editar.", Alert.AlertType.WARNING);
             return;
         }
 
-        // Verificar si la pregunta es del docente actual o es pública
         if (!seleccionada.isEsPublica() && seleccionada.getIdDocente() != docenteActual.getIdDocente()) {
-            mostrarAlerta("Error", "No puede editar esta pregunta porque es privada y pertenece a otro docente.",
-                    Alert.AlertType.WARNING);
+            mostrarAlerta("Error", "No puede editar esta pregunta porque es privada y pertenece a otro docente.", Alert.AlertType.WARNING);
             return;
         }
 
         preguntaEnEdicion = seleccionada;
 
+        boolean esTipoCompuesta = "Compuesta".equalsIgnoreCase(seleccionada.getTipo());
+        boolean tieneHijas = !PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId()).isEmpty();
+        boolean esPreguntaPadre = esTipoCompuesta || tieneHijas;
+        boolean esPreguntaHija = seleccionada.getIdPreguntaPadre() != null;
+
+        //IMPEDIR que una pregunta hija se vuelva padre
+        if (esPreguntaHija) {
+            chkEsPreguntaPadre.setSelected(false);
+            chkEsPreguntaPadre.setDisable(true);
+        } else {
+            chkEsPreguntaPadre.setSelected(esPreguntaPadre);
+            chkEsPreguntaPadre.setDisable(tieneHijas); //si ya tiene hijas, no puede cambiar
+        }
+
+        chkEsPreguntaPadre.setSelected(esPreguntaPadre);
+        chkEsPreguntaPadre.setDisable(true);
+
         txtTexto.setText(seleccionada.getTexto());
         cbTipoPregunta.setValue(seleccionada.getTipo());
+        cbTipoPregunta.setDisable(esPreguntaPadre);
         txtValorNota.setText(String.valueOf(seleccionada.getValorNota()));
         chkEsPublica.setSelected(seleccionada.isEsPublica());
 
@@ -141,22 +156,38 @@ public class PreguntaViewController {
             }
         }
 
-        actualizarOpcionesRespuesta();
-        List<OpcionRespuesta> opciones = PreguntaDAO.obtenerOpcionesDePregunta(seleccionada.getId());
+        if (esPreguntaPadre) {
+            vboxOpciones.getChildren().clear();
+            cbPreguntaPadre.getSelectionModel().clearSelection();
+            cbPreguntaPadre.setDisable(true);
+        } else {
+            cbPreguntaPadre.setDisable(false);
+            cbPreguntaPadre.getSelectionModel().select(
+                    PreguntaDAO.obtenerPreguntasVisiblesParaDocente(docenteActual.getIdDocente())
+                            .stream()
+                            .filter(p -> seleccionada.getIdPreguntaPadre() != null && p.getId() == seleccionada.getIdPreguntaPadre())
+                            .findFirst()
+                            .orElse(null)
+            );
+            actualizarOpcionesRespuesta();
+            List<OpcionRespuesta> opciones = PreguntaDAO.obtenerOpcionesDePregunta(seleccionada.getId());
 
-        if (seleccionada.getTipo().equals("Opción Múltiple")) {
-            if (opciones.size() >= 4) {
-                txtOpcion1.setText(opciones.get(0).getTexto()); chkCorrecta1.setSelected(opciones.get(0).isCorrecta());
-                txtOpcion2.setText(opciones.get(1).getTexto()); chkCorrecta2.setSelected(opciones.get(1).isCorrecta());
-                txtOpcion3.setText(opciones.get(2).getTexto()); chkCorrecta3.setSelected(opciones.get(2).isCorrecta());
-                txtOpcion4.setText(opciones.get(3).getTexto()); chkCorrecta4.setSelected(opciones.get(3).isCorrecta());
-            }
-        } else if (seleccionada.getTipo().equals("Verdadero/Falso")) {
-            chkCorrecta1.setSelected(opciones.get(0).isCorrecta());
-            chkCorrecta2.setSelected(opciones.get(1).isCorrecta());
-        } else if (seleccionada.getTipo().equals("Respuesta Corta")) {
-            if (!opciones.isEmpty()) {
-                txtRespuestaCorta.setText(opciones.get(0).getTexto());
+            switch (seleccionada.getTipo()) {
+                case "Opción Múltiple":
+                    if (opciones.size() >= 4) {
+                        txtOpcion1.setText(opciones.get(0).getTexto()); chkCorrecta1.setSelected(opciones.get(0).isCorrecta());
+                        txtOpcion2.setText(opciones.get(1).getTexto()); chkCorrecta2.setSelected(opciones.get(1).isCorrecta());
+                        txtOpcion3.setText(opciones.get(2).getTexto()); chkCorrecta3.setSelected(opciones.get(2).isCorrecta());
+                        txtOpcion4.setText(opciones.get(3).getTexto()); chkCorrecta4.setSelected(opciones.get(3).isCorrecta());
+                    }
+                    break;
+                case "Verdadero/Falso":
+                    chkCorrecta1.setSelected(opciones.get(0).isCorrecta());
+                    chkCorrecta2.setSelected(opciones.get(1).isCorrecta());
+                    break;
+                case "Respuesta Corta":
+                    if (!opciones.isEmpty()) txtRespuestaCorta.setText(opciones.get(0).getTexto());
+                    break;
             }
         }
     }
@@ -201,13 +232,17 @@ public class PreguntaViewController {
             return;
         }
 
+        boolean esPreguntaPadre = chkEsPreguntaPadre.isSelected();
+
         String nuevoTexto = txtTexto.getText().trim();
-        String nuevoTipo = cbTipoPregunta.getValue();
         Tema temaSeleccionado = cbTema.getValue();
         String valorNotaTexto = txtValorNota.getText().trim();
         boolean nuevaEspublica = chkEsPublica.isSelected();
+        Integer idPadre = (!esPreguntaPadre && cbPreguntaPadre.getValue() != null)
+                ? cbPreguntaPadre.getValue().getId()
+                : null;
 
-        if (nuevoTexto.isEmpty() || nuevoTipo == null || temaSeleccionado == null || valorNotaTexto.isEmpty()) {
+        if (nuevoTexto.isEmpty() || temaSeleccionado == null || valorNotaTexto.isEmpty()) {
             mostrarAlerta("Error", "Debe completar todos los campos, incluyendo el valor de la nota.", Alert.AlertType.WARNING);
             return;
         }
@@ -224,28 +259,49 @@ public class PreguntaViewController {
             return;
         }
 
-        List<OpcionRespuesta> nuevasOpciones = new ArrayList<>();
+        String nuevoTipo;
+        if (esPreguntaPadre) {
+            nuevoTipo = "Compuesta"; // tipo fijo para pregunta padre
+        } else {
+            nuevoTipo = cbTipoPregunta.getValue();
+            if (nuevoTipo == null || nuevoTipo.isEmpty()) {
+                mostrarAlerta("Error", "Debe seleccionar un tipo de pregunta.", Alert.AlertType.WARNING);
+                return;
+            }
+        }
 
-        if (nuevoTipo.equals("Opción Múltiple")) {
-            agregarOpcionSiExiste(txtOpcion1, chkCorrecta1, nuevasOpciones);
-            agregarOpcionSiExiste(txtOpcion2, chkCorrecta2, nuevasOpciones);
-            agregarOpcionSiExiste(txtOpcion3, chkCorrecta3, nuevasOpciones);
-            agregarOpcionSiExiste(txtOpcion4, chkCorrecta4, nuevasOpciones);
-        } else if (nuevoTipo.equals("Verdadero/Falso")) {
-            nuevasOpciones.add(new OpcionRespuesta("Verdadero", chkCorrecta1.isSelected()));
-            nuevasOpciones.add(new OpcionRespuesta("Falso", chkCorrecta2.isSelected()));
-        } else if (nuevoTipo.equals("Respuesta Corta")) {
-            if (!txtRespuestaCorta.getText().trim().isEmpty()) {
-                nuevasOpciones.add(new OpcionRespuesta(txtRespuestaCorta.getText().trim(), true));
+        List<OpcionRespuesta> nuevasOpciones = new ArrayList<>();
+        if (!esPreguntaPadre) {
+            switch (nuevoTipo) {
+                case "Opción Múltiple":
+                    agregarOpcionSiExiste(txtOpcion1, chkCorrecta1, nuevasOpciones);
+                    agregarOpcionSiExiste(txtOpcion2, chkCorrecta2, nuevasOpciones);
+                    agregarOpcionSiExiste(txtOpcion3, chkCorrecta3, nuevasOpciones);
+                    agregarOpcionSiExiste(txtOpcion4, chkCorrecta4, nuevasOpciones);
+                    break;
+                case "Verdadero/Falso":
+                    nuevasOpciones.add(new OpcionRespuesta("Verdadero", chkCorrecta1.isSelected()));
+                    nuevasOpciones.add(new OpcionRespuesta("Falso", chkCorrecta2.isSelected()));
+                    break;
+                case "Respuesta Corta":
+                    if (!txtRespuestaCorta.getText().trim().isEmpty()) {
+                        nuevasOpciones.add(new OpcionRespuesta(txtRespuestaCorta.getText().trim(), true));
+                    }
+                    break;
             }
         }
 
         preguntaEnEdicion.setValorNota(nuevoValorNota);
         preguntaEnEdicion.setEsPublica(nuevaEspublica);
+        preguntaEnEdicion.setTexto(nuevoTexto);
+        preguntaEnEdicion.setTipo(nuevoTipo);
+        preguntaEnEdicion.setIdTema(temaSeleccionado.getId());
+        preguntaEnEdicion.setIdPreguntaPadre(idPadre);
 
         boolean exito = PreguntaDAO.actualizarPregunta(
                 preguntaEnEdicion.getId(), nuevoTexto, nuevoTipo, temaSeleccionado.getId(),
-                nuevoValorNota, nuevaEspublica, preguntaEnEdicion.getIdDocente(), nuevasOpciones);
+                nuevoValorNota, nuevaEspublica, preguntaEnEdicion.getIdDocente(), nuevasOpciones
+        );
 
         if (exito) {
             mostrarAlerta("Éxito", "Pregunta actualizada correctamente.", Alert.AlertType.INFORMATION);
@@ -260,11 +316,11 @@ public class PreguntaViewController {
     @FXML
     public void agregarPregunta() {
         String textoPregunta = txtTexto.getText().trim();
-        String tipoPregunta = cbTipoPregunta.getValue();
+        boolean esPreguntaPadre = chkEsPreguntaPadre.isSelected();
+        String tipoPregunta = esPreguntaPadre ? "Compuesta" : cbTipoPregunta.getValue();
         Tema temaSeleccionado = cbTema.getValue();
         String valorTexto = txtValorNota.getText().trim();
         boolean esPublica = chkEsPublica.isSelected();
-        boolean esPreguntaPadre = chkEsPreguntaPadre.isSelected();
         Pregunta padreSeleccionado = cbPreguntaPadre.getValue();
         Integer idPadre = (!esPreguntaPadre && padreSeleccionado != null) ? padreSeleccionado.getId() : null;
 
@@ -291,7 +347,7 @@ public class PreguntaViewController {
                 return;
             }
         } else {
-            if (textoPregunta.isEmpty() || valorTexto.isEmpty()) {
+            if (textoPregunta.isEmpty() || temaSeleccionado == null || valorTexto.isEmpty()) {
                 mostrarAlerta("Error", "Pregunta padre debe completar el texto de la pregunta, " +
                         "el tema y el valor de la nota.", Alert.AlertType.WARNING);
                 return;
@@ -334,8 +390,11 @@ public class PreguntaViewController {
     }
 
     private void actualizarOpcionesRespuesta() {
+        if (chkEsPreguntaPadre.isSelected()) return;
+
         vboxOpciones.getChildren().clear();
         String tipoSeleccionado = cbTipoPregunta.getValue();
+
         if (tipoSeleccionado == null) return;
 
         switch (tipoSeleccionado) {
