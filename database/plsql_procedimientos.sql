@@ -266,6 +266,10 @@ CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
     p_id_padre IN NUMBER,
     p_cursor   OUT SYS_REFCURSOR
   );
+  
+  PROCEDURE quitar_vinculo_padre(
+  p_id_pregunta IN NUMBER
+  );
 
   PROCEDURE agregar_opcion_respuesta(------
     p_id_pregunta IN NUMBER,
@@ -279,7 +283,8 @@ CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
     p_tipo        IN VARCHAR2,
     p_id_tema     IN NUMBER,
     p_valor_nota  IN NUMBER,
-    p_es_publica  IN VARCHAR2
+    p_es_publica  IN VARCHAR2,
+    p_id_pregunta_padre IN NUMBER DEFAULT NULL
   );
 
   PROCEDURE eliminar_pregunta(p_id_pregunta IN NUMBER);------
@@ -351,7 +356,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
         p_tipo        IN VARCHAR2,
         p_id_tema     IN NUMBER,
         p_valor_nota  IN NUMBER,
-        p_es_publica  IN VARCHAR2
+        p_es_publica  IN VARCHAR2,
+        p_id_pregunta_padre IN NUMBER DEFAULT NULL
     ) IS
     BEGIN
         UPDATE pregunta
@@ -359,8 +365,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
             tipo = p_tipo,
             id_tema = p_id_tema,
             valor_nota = p_valor_nota,
-            es_publica = p_es_publica
+            es_publica = p_es_publica,
+            id_pregunta_padre = p_id_pregunta_padre
         WHERE id_pregunta = p_id_pregunta;
+        
+        IF SQL%ROWCOUNT = 0 THEN
+            RAISE_APPLICATION_ERROR(-20001, 'No se encontró la pregunta con ID: ' || p_id_pregunta);
+        END IF;
+        
+        COMMIT;
     END actualizar_pregunta;
 
     PROCEDURE eliminar_pregunta (p_id_pregunta IN NUMBER) IS
@@ -463,6 +476,17 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
     SELECT * FROM pregunta
     WHERE id_pregunta_padre = p_id_padre;
   END obtener_preguntas_hijas;
+  
+    PROCEDURE quitar_vinculo_padre (
+      p_id_pregunta IN NUMBER
+    ) IS
+    BEGIN
+      UPDATE pregunta
+      SET id_pregunta_padre = NULL
+      WHERE id_pregunta = p_id_pregunta;
+    END quitar_vinculo_padre;
+
+
 
 
 END PKG_PREGUNTA;

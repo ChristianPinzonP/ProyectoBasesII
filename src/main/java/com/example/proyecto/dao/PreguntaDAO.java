@@ -70,13 +70,25 @@ public class PreguntaDAO {
         return lista;
     }
 
+    public static boolean quitarVinculoPadre(int idPregunta) {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("UPDATE pregunta SET id_pregunta_padre = NULL WHERE id_pregunta = ?");
+            ps.setInt(1, idPregunta);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
     /**
      * Actualizar pregunta usando el paquete PL/SQL PKG_PREGUNTA
      */
     public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema,
-                                             double nuevoValorNota, boolean nuevaEsPublica, int idDocente,
+                                             double nuevoValorNota, boolean nuevaEsPublica, Integer idPreguntaPadre,
                                              List<OpcionRespuesta> nuevasOpciones) {
-        String sql = "{call PKG_PREGUNTA.ACTUALIZAR_PREGUNTA(?, ?, ?, ?, ?, ?)}";
+        String sql = "{call PKG_PREGUNTA.ACTUALIZAR_PREGUNTA(?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
              CallableStatement stmt = conn.prepareCall(sql)) {
@@ -87,6 +99,13 @@ public class PreguntaDAO {
             stmt.setInt(4, nuevoIdTema);
             stmt.setDouble(5, nuevoValorNota);
             stmt.setString(6, nuevaEsPublica ? "S" : "N");
+
+            // pasar el id_pregunta_padre
+            if (idPreguntaPadre != null) {
+                stmt.setInt(7, idPreguntaPadre);
+            } else {
+                stmt.setNull(7, java.sql.Types.INTEGER);
+            }
 
             stmt.execute();
 

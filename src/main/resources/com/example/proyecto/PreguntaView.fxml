@@ -108,8 +108,27 @@
                         </VBox>
                     </HBox>
 
+                    <!-- Preguntas Hijas Asociadas - Reorganizado -->
+                    <VBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.valignment="TOP">
+                        <Label text="Preguntas Hijas Asociadas:"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                        <Button fx:id="btnQuitarHija" text="Quitar Pregunta Hija" onAction="#quitarPreguntaHija"
+                                style="-fx-font-size: 12px; -fx-padding: 5px 10px;"/>
+                    </VBox>
+
+                    <ScrollPane GridPane.columnIndex="1" GridPane.rowIndex="6"
+                                fitToWidth="true" fitToHeight="true" minHeight="300" maxHeight="400"
+                                style="-fx-background-color: transparent;">
+                        <TableView fx:id="tablaHijas" prefHeight="120" VBox.vgrow="NEVER">
+                            <columns>
+                                <TableColumn fx:id="colHijaId" text="ID" prefWidth="60" />
+                                <TableColumn fx:id="colHijaTexto" text="Texto de la Hija" prefWidth="300" />
+                            </columns>
+                        </TableView>
+                    </ScrollPane>
+
                     <!-- Botón Guardar -->
-                    <HBox GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2"
+                    <HBox GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="2"
                           alignment="CENTER" style="-fx-padding: 10 0 0 0;">
                         <Button text="Guardar Pregunta" onAction="#agregarPregunta"
                                 style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>

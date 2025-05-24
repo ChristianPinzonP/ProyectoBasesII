@@ -39,6 +39,10 @@ public class PreguntaViewController {
     private Pregunta preguntaEnEdicion = null;
     private Docente docenteActual;
 
+    @FXML private TableView<Pregunta> tablaHijas;
+    @FXML private TableColumn<Pregunta, Integer> colHijaId;
+    @FXML private TableColumn<Pregunta, String> colHijaTexto;
+
     @FXML
     public void initialize() {
 
@@ -74,6 +78,8 @@ public class PreguntaViewController {
         colTema.setCellValueFactory(new PropertyValueFactory<>("nombreTema"));
         colValorNota.setCellValueFactory(new PropertyValueFactory<>("valorNota"));
         colEsPublica.setCellValueFactory(new PropertyValueFactory<>("esPublica"));
+        colHijaId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colHijaTexto.setCellValueFactory(new PropertyValueFactory<>("texto"));
 
         // Personalizar la columna de visibilidad
         colEsPublica.setCellFactory(tc -> new TableCell<Pregunta, Boolean>() {
@@ -140,9 +146,6 @@ public class PreguntaViewController {
             chkEsPreguntaPadre.setDisable(tieneHijas); //si ya tiene hijas, no puede cambiar
         }
 
-        chkEsPreguntaPadre.setSelected(esPreguntaPadre);
-        chkEsPreguntaPadre.setDisable(true);
-
         txtTexto.setText(seleccionada.getTexto());
         cbTipoPregunta.setValue(seleccionada.getTipo());
         cbTipoPregunta.setDisable(esPreguntaPadre);
@@ -160,6 +163,10 @@ public class PreguntaViewController {
             vboxOpciones.getChildren().clear();
             cbPreguntaPadre.getSelectionModel().clearSelection();
             cbPreguntaPadre.setDisable(true);
+
+            //Cargar preguntas hijas en la tabla
+            List<Pregunta> hijas = PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId());
+            tablaHijas.setItems(FXCollections.observableArrayList(hijas));
         } else {
             cbPreguntaPadre.setDisable(false);
             cbPreguntaPadre.getSelectionModel().select(
@@ -189,6 +196,24 @@ public class PreguntaViewController {
                     if (!opciones.isEmpty()) txtRespuestaCorta.setText(opciones.get(0).getTexto());
                     break;
             }
+            tablaHijas.getItems().clear();
+        }
+    }
+
+    @FXML
+    private void quitarPreguntaHija() {
+        Pregunta hijaSeleccionada = tablaHijas.getSelectionModel().getSelectedItem();
+        if (hijaSeleccionada == null) {
+            mostrarAlerta("Advertencia", "Seleccione una pregunta hija para quitar.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        boolean exito = PreguntaDAO.quitarVinculoPadre(hijaSeleccionada.getId());
+        if (exito) {
+            tablaHijas.getItems().remove(hijaSeleccionada);
+            mostrarAlerta("Éxito", "La pregunta hija fue desvinculada del padre.", Alert.AlertType.INFORMATION);
+        } else {
+            mostrarAlerta("Error", "No se pudo desvincular la pregunta hija.", Alert.AlertType.ERROR);
         }
     }
 
@@ -300,7 +325,7 @@ public class PreguntaViewController {
 
         boolean exito = PreguntaDAO.actualizarPregunta(
                 preguntaEnEdicion.getId(), nuevoTexto, nuevoTipo, temaSeleccionado.getId(),
-                nuevoValorNota, nuevaEspublica, preguntaEnEdicion.getIdDocente(), nuevasOpciones
+                nuevoValorNota, nuevaEspublica, idPadre, nuevasOpciones
         );
 
         if (exito) {
