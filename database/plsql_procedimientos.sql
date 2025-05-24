@@ -252,13 +252,19 @@ CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
 
   -- Procedimientos
   PROCEDURE agregar_pregunta(
-    p_texto       IN VARCHAR2,
-    p_tipo        IN VARCHAR2,
-    p_id_tema     IN NUMBER,
-    p_valor_nota  IN NUMBER,
-    p_es_publica  IN VARCHAR2,
-    p_id_docente  IN NUMBER,
-    p_id_generado OUT NUMBER
+    p_texto            IN VARCHAR2,
+    p_tipo             IN VARCHAR2,
+    p_id_tema          IN NUMBER,
+    p_valor_nota       IN NUMBER,
+    p_es_publica       IN VARCHAR2,
+    p_id_docente       IN NUMBER,
+    p_id_pregunta_padre IN NUMBER DEFAULT NULL,
+    p_id_generado      OUT NUMBER
+  );
+  
+  PROCEDURE obtener_preguntas_hijas (
+    p_id_padre IN NUMBER,
+    p_cursor   OUT SYS_REFCURSOR
   );
 
   PROCEDURE agregar_opcion_respuesta(------
@@ -320,11 +326,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
         p_valor_nota  IN NUMBER,
         p_es_publica  IN VARCHAR2,
         p_id_docente  IN NUMBER,
+        p_id_pregunta_padre IN NUMBER DEFAULT NULL,
         p_id_generado OUT NUMBER
     ) IS
     BEGIN
-        INSERT INTO pregunta (id_pregunta, texto, tipo, id_tema, valor_nota, es_publica, id_docente)
-        VALUES (SEQ_PREGUNTA.NEXTVAL, p_texto, p_tipo, p_id_tema, p_valor_nota, p_es_publica, p_id_docente)
+        INSERT INTO pregunta (id_pregunta, texto, tipo, id_tema, valor_nota, es_publica, id_docente, id_pregunta_padre)
+        VALUES (SEQ_PREGUNTA.NEXTVAL, p_texto, p_tipo, p_id_tema, p_valor_nota, p_es_publica, p_id_docente, p_id_pregunta_padre)
         RETURNING id_pregunta INTO p_id_generado;
     END agregar_pregunta;
 
@@ -446,11 +453,62 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
         LEFT JOIN respuesta r ON p.id_pregunta = r.id_pregunta
         WHERE ep.id_examen = p_id_examen;
     END obtener_preguntas_con_opciones_por_examen;
+    
+  PROCEDURE obtener_preguntas_hijas (
+    p_id_padre IN NUMBER,
+    p_cursor   OUT SYS_REFCURSOR
+  ) IS
+  BEGIN
+    OPEN p_cursor FOR
+    SELECT * FROM pregunta
+    WHERE id_pregunta_padre = p_id_padre;
+  END obtener_preguntas_hijas;
+
 
 END PKG_PREGUNTA;
 /
 
-//////////////////////////////////////////////////////////////
+//////////////////////////////////CREAR_EXAMEN////////////////////////////
+
+create or replace NONEDITIONABLE PROCEDURE CREAR_EXAMEN (
+    p_nombre                IN VARCHAR2,
+    p_descripcion           IN VARCHAR2,
+    p_fecha_inicio          IN DATE,
+    p_fecha_fin             IN DATE,
+    p_tiempo_limite         IN NUMBER,
+    p_id_docente            IN NUMBER,
+    p_numero_preguntas      IN NUMBER,
+    p_modo_seleccion        IN VARCHAR2,
+    p_tiempo_por_pregunta   IN NUMBER,
+    p_id_tema               IN NUMBER,
+    p_nota_minima_aprob     IN NUMBER DEFAULT 3.0,
+    p_id_grupo              IN NUMBER,
+    p_estado                OUT VARCHAR2,
+    p_id_generado           OUT NUMBER
+)
+AS
+BEGIN
+    INSERT INTO EXAMEN (
+        ID_EXAMEN, NOMBRE, DESCRIPCION, FECHA_INICIO, FECHA_FIN,
+        TIEMPO_LIMITE, ID_DOCENTE, NUMERO_PREGUNTAS, MODO_SELECCION,
+        TIEMPO_POR_PREGUNTA, ID_TEMA, NOTA_MINIMA_APROBACION, ID_GRUPO
+    )
+    VALUES (
+        SEQ_EXAMEN.NEXTVAL, p_nombre, p_descripcion, p_fecha_inicio, p_fecha_fin,
+        p_tiempo_limite, p_id_docente, p_numero_preguntas, p_modo_seleccion,
+        p_tiempo_por_pregunta, p_id_tema, p_nota_minima_aprob, p_id_grupo
+    )
+    RETURNING ID_EXAMEN INTO p_id_generado;
+
+    p_estado := 'OK';
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_estado := SQLERRM; -- Devuelve el mensaje de error exacto
+        p_id_generado := NULL;
+END;
+/
+//////////////////////////////////////////////////////////////////////////
 --------------------------------------------------------
 --  DDL for Procedure GENERAR_ESTADISTICAS_EXAMEN
 --------------------------------------------------------

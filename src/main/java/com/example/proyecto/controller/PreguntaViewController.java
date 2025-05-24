@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +26,10 @@ public class PreguntaViewController {
     @FXML private TableColumn<Pregunta, Double> colValorNota;
     @FXML private TableColumn<Pregunta, Boolean> colEsPublica;
     @FXML private ComboBox<Tema> cbTema;
+    @FXML private ComboBox<Pregunta> cbPreguntaPadre;
     @FXML private TextField txtValorNota;
     @FXML private CheckBox chkEsPublica;
+    @FXML private CheckBox chkEsPreguntaPadre;
 
     private TextField txtOpcion1, txtOpcion2, txtOpcion3, txtOpcion4;
     private CheckBox chkCorrecta1, chkCorrecta2, chkCorrecta3, chkCorrecta4;
@@ -39,7 +42,6 @@ public class PreguntaViewController {
     @FXML
     public void initialize() {
 
-        //CORREGIR
         //Obtener el docente actual - Esto debería venir del login
         docenteActual = SesionUsuario.getDocenteActual();
         if (docenteActual == null) {
@@ -53,6 +55,18 @@ public class PreguntaViewController {
 
         cbTipoPregunta.setItems(FXCollections.observableArrayList("Opción Múltiple", "Verdadero/Falso", "Respuesta Corta"));
         cbTipoPregunta.setOnAction(event -> actualizarOpcionesRespuesta());
+        cbPreguntaPadre.setItems(FXCollections.observableArrayList(PreguntaDAO.obtenerPreguntasVisiblesParaDocente(docenteActual.getIdDocente())));
+        cbPreguntaPadre.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Pregunta pregunta) {
+                return pregunta == null ? "" : "[" + pregunta.getId() + "] " + pregunta.getTexto();
+            }
+
+            @Override
+            public Pregunta fromString(String string) {
+                return null;
+            }
+        });
 
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colTexto.setCellValueFactory(new PropertyValueFactory<>("texto"));
@@ -73,9 +87,29 @@ public class PreguntaViewController {
                 }
             }
         });
+        chkEsPreguntaPadre.setOnAction(e -> manejarCambioTipoPreguntaCompuesta());
 
         cargarPreguntas();
     }
+
+    @FXML
+    private void manejarCambioTipoPreguntaCompuesta() {
+        boolean esPadre = chkEsPreguntaPadre.isSelected();
+
+        // Ocultar o mostrar las opciones
+        vboxOpciones.setDisable(esPadre);
+        cbPreguntaPadre.setDisable(esPadre);
+        cbTipoPregunta.setDisable(esPadre);
+        if (esPadre) {
+            vboxOpciones.getChildren().clear(); // Limpia cualquier opción de respuesta cargada
+            cbPreguntaPadre.getSelectionModel().clearSelection(); // Limpia selección de padre
+            cbTipoPregunta.getSelectionModel().clearSelection(); // limpiar tipo de pregunta
+        } else {
+            cbTipoPregunta.setDisable(false);
+            actualizarOpcionesRespuesta(); // Vuelve a mostrar según tipo
+        }
+    }
+
 
     @FXML
     public void editarPregunta() {
@@ -230,10 +264,38 @@ public class PreguntaViewController {
         Tema temaSeleccionado = cbTema.getValue();
         String valorTexto = txtValorNota.getText().trim();
         boolean esPublica = chkEsPublica.isSelected();
+        boolean esPreguntaPadre = chkEsPreguntaPadre.isSelected();
+        Pregunta padreSeleccionado = cbPreguntaPadre.getValue();
+        Integer idPadre = (!esPreguntaPadre && padreSeleccionado != null) ? padreSeleccionado.getId() : null;
 
-        if (textoPregunta.isEmpty() || tipoPregunta == null || temaSeleccionado == null || valorTexto.isEmpty()) {
-            mostrarAlerta("Error", "Debe completar todos los campos, incluyendo el valor de la nota.", Alert.AlertType.WARNING);
-            return;
+        List<OpcionRespuesta> opciones = new ArrayList<>();
+        if (!esPreguntaPadre) {
+            // Agregar opciones solo si no es padre
+            if (tipoPregunta.equals("Opción Múltiple")) {
+                agregarOpcionSiExiste(txtOpcion1, chkCorrecta1, opciones);
+                agregarOpcionSiExiste(txtOpcion2, chkCorrecta2, opciones);
+                agregarOpcionSiExiste(txtOpcion3, chkCorrecta3, opciones);
+                agregarOpcionSiExiste(txtOpcion4, chkCorrecta4, opciones);
+            } else if (tipoPregunta.equals("Verdadero/Falso")) {
+                opciones.add(new OpcionRespuesta("Verdadero", chkCorrecta1.isSelected()));
+                opciones.add(new OpcionRespuesta("Falso", chkCorrecta2.isSelected()));
+            } else if (tipoPregunta.equals("Respuesta Corta")) {
+                if (!txtRespuestaCorta.getText().trim().isEmpty()) {
+                    opciones.add(new OpcionRespuesta(txtRespuestaCorta.getText().trim(), true));
+                }
+            }
+        }
+        if(!esPreguntaPadre) {
+            if (textoPregunta.isEmpty() || tipoPregunta == null || temaSeleccionado == null || valorTexto.isEmpty()) {
+                mostrarAlerta("Error", "Debe completar todos los campos, incluyendo el valor de la nota.", Alert.AlertType.WARNING);
+                return;
+            }
+        } else {
+            if (textoPregunta.isEmpty() || valorTexto.isEmpty()) {
+                mostrarAlerta("Error", "Pregunta padre debe completar el texto de la pregunta, " +
+                        "el tema y el valor de la nota.", Alert.AlertType.WARNING);
+                return;
+            }
         }
 
         double valorNota;
@@ -248,25 +310,11 @@ public class PreguntaViewController {
             return;
         }
 
-        List<OpcionRespuesta> opciones = new ArrayList<>();
-        if (tipoPregunta.equals("Opción Múltiple")) {
-            agregarOpcionSiExiste(txtOpcion1, chkCorrecta1, opciones);
-            agregarOpcionSiExiste(txtOpcion2, chkCorrecta2, opciones);
-            agregarOpcionSiExiste(txtOpcion3, chkCorrecta3, opciones);
-            agregarOpcionSiExiste(txtOpcion4, chkCorrecta4, opciones);
-        } else if (tipoPregunta.equals("Verdadero/Falso")) {
-            opciones.add(new OpcionRespuesta("Verdadero", chkCorrecta1.isSelected()));
-            opciones.add(new OpcionRespuesta("Falso", chkCorrecta2.isSelected()));
-        } else if (tipoPregunta.equals("Respuesta Corta")) {
-            if (!txtRespuestaCorta.getText().trim().isEmpty()) {
-                opciones.add(new OpcionRespuesta(txtRespuestaCorta.getText().trim(), true));
-            }
-        }
-
         Pregunta nuevaPregunta = new Pregunta(0, textoPregunta, tipoPregunta, temaSeleccionado.getId(),
                 valorNota, esPublica, docenteActual.getIdDocente(), opciones);
         nuevaPregunta.setNombreTema(temaSeleccionado.getNombre());
         nuevaPregunta.setValorNota(valorNota);
+        nuevaPregunta.setIdPreguntaPadre(idPadre); // ASIGNAR PADRE
 
         boolean insertada = PreguntaDAO.agregarPregunta(nuevaPregunta);
 
