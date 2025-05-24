@@ -16,7 +16,6 @@ public class Pregunta {
 
     private List<OpcionRespuesta> opciones;
 
-    // Constructor completo
     public Pregunta(int id, String texto, String tipo, int idTema, double valorNota,
                     boolean esPublica, int idDocente, List<OpcionRespuesta> opciones) {
         this.id = id;
@@ -29,17 +28,14 @@ public class Pregunta {
         this.opciones = opciones;
     }
 
-    // Constructor para Respuesta Corta (sin opciones)
     public Pregunta(int id, String texto, String tipo, int idTema) {
         this(id, texto, tipo, idTema, 0.0, false, 0, null);
     }
 
-    // Constructor para Opción Múltiple y Verdadero/Falso (con opciones)
     public Pregunta(int id, String texto, String tipo, int idTema, List<OpcionRespuesta> opciones) {
         this(id, texto, tipo, idTema, 0.0, false, 0, opciones);
     }
 
-    // Getters y Setters
     public Integer getIdPreguntaPadre() {
         return idPreguntaPadre;
     }
@@ -78,10 +74,13 @@ public class Pregunta {
         }
         return opciones;
     }
-    public void setOpciones(List<OpcionRespuesta> opciones) { this.opciones = opciones; }
+
+    public void setOpciones(List<OpcionRespuesta> opciones) {
+        this.opciones = opciones;
+    }
 
     @Override
     public String toString() {
-        return "[" + id + "] " + texto + " - Tema: " + nombreTema + (esPublica ? " (Pública)" : " (Privada)");
+        return "[" + id + "] " + texto + " - Tema: " + nombreTema;
     }
 }

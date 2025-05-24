@@ -30,9 +30,24 @@
         </VBox>
     </top>
 
-    <!-- Centro dinámico -->
+    <!-- Contenido central: Tabla de estadísticas -->
     <center>
-        <BorderPane fx:id="rootPane"/>
+        <VBox spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Label text="Estadísticas de Exámenes"
+                   style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+
+            <TableView fx:id="tablaEstadisticas" prefHeight="300">
+                <columns>
+                    <TableColumn fx:id="colNombreExamen" text="Nombre del Examen" prefWidth="250"/>
+                    <TableColumn fx:id="colNota" text="Nota" prefWidth="100"/>
+                    <TableColumn fx:id="colFecha" text="Fecha" prefWidth="150"/>
+                </columns>
+            </TableView>
+        </VBox>
     </center>
 
 </BorderPane>

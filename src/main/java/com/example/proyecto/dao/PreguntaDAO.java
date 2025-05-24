@@ -18,29 +18,27 @@ public class PreguntaDAO {
     public static boolean agregarPregunta(Pregunta pregunta) {
         try (Connection conn = DBConnection.getConnection()) {
             CallableStatement cs = conn.prepareCall("{call PKG_PREGUNTA.agregar_pregunta(?, ?, ?, ?, ?, ?, ?, ?)}");
-                cs.setString(1, pregunta.getTexto());
-                cs.setString(2, pregunta.getTipo());
-                cs.setInt(3, pregunta.getIdTema());
-                cs.setDouble(4, pregunta.getValorNota());
-                cs.setString(5, pregunta.isEsPublica() ? "S" : "N");
-                cs.setInt(6, pregunta.getIdDocente());
-                if (pregunta.getIdPreguntaPadre() != null)
-                    cs.setInt(7, pregunta.getIdPreguntaPadre());
-                else
-                    cs.setNull(7, java.sql.Types.INTEGER);
-                cs.registerOutParameter(8, java.sql.Types.INTEGER);
+            cs.setString(1, pregunta.getTexto());
+            cs.setString(2, pregunta.getTipo());
+            cs.setInt(3, pregunta.getIdTema());
+            cs.setDouble(4, pregunta.getValorNota());
+            cs.setString(5, pregunta.isEsPublica() ? "S" : "N");
+            cs.setInt(6, pregunta.getIdDocente());
+            if (pregunta.getIdPreguntaPadre() != null)
+                cs.setInt(7, pregunta.getIdPreguntaPadre());
+            else
+                cs.setNull(7, java.sql.Types.INTEGER);
+            cs.registerOutParameter(8, java.sql.Types.INTEGER);
 
-                cs.execute();
-                int idGenerado = cs.getInt(8);
-                pregunta.setId(idGenerado);
-                agregarOpcionesRespuesta(pregunta.getId(), pregunta.getOpciones(), conn);
+            cs.execute();
+            pregunta.setId(cs.getInt(8));
+            agregarOpcionesRespuesta(pregunta.getId(), pregunta.getOpciones(), conn);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
-
     public static List<Pregunta> obtenerPreguntasHijas(int idPadre) {
         List<Pregunta> lista = new ArrayList<>();
         try (Connection conexion = DBConnection.getConnection()) {
@@ -152,83 +150,58 @@ public class PreguntaDAO {
      */
     public static List<OpcionRespuesta> obtenerOpcionesDePregunta(int idPregunta) {
         List<OpcionRespuesta> opciones = new ArrayList<>();
-        String sql = "{call PKG_PREGUNTA.OBTENER_OPCIONES_PREGUNTA(?, ?)}";
-
-        try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
-
+        try (Connection conn = DBConnection.getConnection()) {
+            CallableStatement stmt = conn.prepareCall("{call PKG_PREGUNTA.OBTENER_OPCIONES_PREGUNTA(?, ?)}");
             stmt.setInt(1, idPregunta);
             stmt.registerOutParameter(2, OracleTypes.CURSOR);
 
             stmt.execute();
-
             try (ResultSet rs = (ResultSet) stmt.getObject(2)) {
                 while (rs.next()) {
-                    int idRespuesta = rs.getInt("ID_RESPUESTA");
-                    String texto = rs.getString("TEXTO");
-                    String esCorrectaStr = rs.getString("ES_CORRECTA");
-
-                    boolean esCorrecta = "S".equalsIgnoreCase(esCorrectaStr);
-
-                    opciones.add(new OpcionRespuesta(idRespuesta, texto, esCorrecta));
-                    System.out.println("✅ Respuesta obtenida: " + texto + " - Correcta: " + esCorrecta);
+                    OpcionRespuesta o = new OpcionRespuesta(
+                            rs.getInt("ID_RESPUESTA"),
+                            rs.getString("TEXTO"),
+                            "S".equalsIgnoreCase(rs.getString("ES_CORRECTA"))
+                    );
+                    opciones.add(o);
                 }
             }
-
         } catch (SQLException e) {
-            System.out.println("❌ Error al obtener opciones: " + e.getMessage());
             e.printStackTrace();
         }
-
         return opciones;
     }
-
     /**
      * Obtener preguntas por tema con filtro de docente actual usando PL/SQL
      * Mantiene la lógica de seguridad para mostrar solo preguntas públicas o del docente actual
      */
     public static List<Pregunta> obtenerPreguntasPorTema(int idTema, int idDocenteActual) {
         List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "{call PKG_PREGUNTA.OBTENER_PREGUNTAS_POR_TEMA_DOCENTE(?, ?, ?)}";
-
-        try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
-
+        try (Connection conn = DBConnection.getConnection()) {
+            CallableStatement stmt = conn.prepareCall("{call PKG_PREGUNTA.OBTENER_PREGUNTAS_POR_TEMA_DOCENTE(?, ?, ?)}");
             stmt.setInt(1, idTema);
             stmt.setInt(2, idDocenteActual);
             stmt.registerOutParameter(3, OracleTypes.CURSOR);
 
             stmt.execute();
-
             try (ResultSet rs = (ResultSet) stmt.getObject(3)) {
                 while (rs.next()) {
-                    int idPregunta = rs.getInt("ID_PREGUNTA");
-                    String texto = rs.getString("TEXTO");
-                    String tipo = rs.getString("TIPO");
-                    String nombreTema = rs.getString("NOMBRE_TEMA");
-                    double valorNota = rs.getDouble("VALOR_NOTA");
-                    String esPublicaStr = rs.getString("ES_PUBLICA");
-                    int idDocente = rs.getInt("ID_DOCENTE");
-
-                    boolean esPublica = "S".equalsIgnoreCase(esPublicaStr);
-
-                    // Obtener las opciones de respuesta para la pregunta usando el paquete PL/SQL
-                    List<OpcionRespuesta> opciones = obtenerOpcionesDePregunta(idPregunta);
-
-                    Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
-                    pregunta.setNombreTema(nombreTema);
-                    pregunta.setValorNota(valorNota);
-                    pregunta.setEsPublica(esPublica);
-                    pregunta.setIdDocente(idDocente);
-
+                    Pregunta pregunta = new Pregunta(
+                            rs.getInt("ID_PREGUNTA"),
+                            rs.getString("TEXTO"),
+                            rs.getString("TIPO"),
+                            rs.getInt("ID_TEMA"),
+                            rs.getDouble("VALOR_NOTA"),
+                            "S".equalsIgnoreCase(rs.getString("ES_PUBLICA")),
+                            rs.getInt("ID_DOCENTE"),
+                            obtenerOpcionesDePregunta(rs.getInt("ID_PREGUNTA"))
+                    );
+                    pregunta.setNombreTema(rs.getString("NOMBRE_TEMA"));
                     listaPreguntas.add(pregunta);
                 }
             }
 
-            System.out.println("✅ Preguntas cargadas por tema con filtro docente: " + listaPreguntas.size());
-
         } catch (SQLException e) {
-            System.out.println("❌ Error al obtener preguntas por tema: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -237,51 +210,39 @@ public class PreguntaDAO {
 
     public static List<Pregunta> obtenerPreguntasConOpcionesPorExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
-        String sql = "{call PKG_PREGUNTA.OBTENER_PREGUNTAS_CON_OPCIONES_POR_EXAMEN(?, ?)}";
-
-        try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
-
+        try (Connection conn = DBConnection.getConnection()) {
+            CallableStatement stmt = conn.prepareCall("{call PKG_PREGUNTA.OBTENER_PREGUNTAS_CON_OPCIONES_POR_EXAMEN(?, ?)}");
             stmt.setInt(1, idExamen);
             stmt.registerOutParameter(2, OracleTypes.CURSOR);
 
             stmt.execute();
 
-            try (ResultSet rs = (ResultSet) stmt.getObject(2)) {
-                Pregunta preguntaActual = null;
-                int idPreguntaAnterior = -1;
+            ResultSet rs = (ResultSet) stmt.getObject(2);
+            Pregunta actual = null;
+            int anterior = -1;
 
-                while (rs.next()) {
-                    int idPregunta = rs.getInt("P_ID_PREGUNTA");
-
-                    if (idPregunta != idPreguntaAnterior) {
-                        if (preguntaActual != null) {
-                            preguntas.add(preguntaActual);
-                        }
-
-                        preguntaActual = mapearPreguntaDesdeResultSet(rs);
-                        preguntaActual.setOpciones(new ArrayList<>());
-                        idPreguntaAnterior = idPregunta;
-                    }
-
-                    Integer idRespuesta = rs.getObject("R_ID_RESPUESTA", Integer.class);
-                    if (idRespuesta != null) {
-                        String textoRespuesta = rs.getString("R_TEXTO");
-                        String esCorrectaStr = rs.getString("R_ES_CORRECTA");
-
-                        boolean esCorrecta = "S".equalsIgnoreCase(esCorrectaStr);
-                        OpcionRespuesta opcion = new OpcionRespuesta(idRespuesta, textoRespuesta, esCorrecta);
-                        preguntaActual.getOpciones().add(opcion);
-                    }
+            while (rs.next()) {
+                int id = rs.getInt("P_ID_PREGUNTA");
+                if (id != anterior) {
+                    if (actual != null) preguntas.add(actual);
+                    actual = new Pregunta(id, rs.getString("P_TEXTO"), rs.getString("P_TIPO"), rs.getInt("P_ID_TEMA"));
+                    actual.setValorNota(rs.getDouble("P_VALOR_NOTA"));
+                    actual.setOpciones(new ArrayList<>());
+                    anterior = id;
                 }
 
-                if (preguntaActual != null) {
-                    preguntas.add(preguntaActual);
+                Integer idResp = rs.getObject("R_ID_RESPUESTA", Integer.class);
+                if (idResp != null && actual != null) {
+                    actual.getOpciones().add(new OpcionRespuesta(
+                            idResp,
+                            rs.getString("R_TEXTO"),
+                            "S".equalsIgnoreCase(rs.getString("R_ES_CORRECTA"))
+                    ));
                 }
             }
 
-        } catch (SQLException e) {
-            System.out.println("❌ Error al obtener preguntas por examen: " + e.getMessage());
+            if (actual != null) preguntas.add(actual);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
