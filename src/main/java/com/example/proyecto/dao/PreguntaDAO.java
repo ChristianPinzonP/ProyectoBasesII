@@ -16,74 +16,79 @@ public class PreguntaDAO {
      * Agregar pregunta usando el paquete PL/SQL PKG_PREGUNTA
      */
     public static boolean agregarPregunta(Pregunta pregunta) {
-        Connection conn = null;
-        try {
-            conn = DBConnection.getConnection();
-            conn.setAutoCommit(false); // Iniciar transacción manual
+        try (Connection conn = DBConnection.getConnection()) {
+            CallableStatement cs = conn.prepareCall("{call PKG_PREGUNTA.agregar_pregunta(?, ?, ?, ?, ?, ?, ?, ?)}");
+                cs.setString(1, pregunta.getTexto());
+                cs.setString(2, pregunta.getTipo());
+                cs.setInt(3, pregunta.getIdTema());
+                cs.setDouble(4, pregunta.getValorNota());
+                cs.setString(5, pregunta.isEsPublica() ? "S" : "N");
+                cs.setInt(6, pregunta.getIdDocente());
+                if (pregunta.getIdPreguntaPadre() != null)
+                    cs.setInt(7, pregunta.getIdPreguntaPadre());
+                else
+                    cs.setNull(7, java.sql.Types.INTEGER);
+                cs.registerOutParameter(8, java.sql.Types.INTEGER);
 
-            // 1. Agregar la pregunta
-            String sqlPregunta = "{call PKG_PREGUNTA.AGREGAR_PREGUNTA(?, ?, ?, ?, ?, ?, ?)}";
-
-            int idGenerado;
-            try (CallableStatement stmtPregunta = conn.prepareCall(sqlPregunta)) {
-                stmtPregunta.setString(1, pregunta.getTexto());
-                stmtPregunta.setString(2, pregunta.getTipo());
-                stmtPregunta.setInt(3, pregunta.getIdTema());
-                stmtPregunta.setDouble(4, pregunta.getValorNota());
-                stmtPregunta.setString(5, pregunta.isEsPublica() ? "S" : "N");
-                stmtPregunta.setInt(6, pregunta.getIdDocente());
-                stmtPregunta.registerOutParameter(7, Types.NUMERIC);
-
-                stmtPregunta.execute();
-                idGenerado = stmtPregunta.getInt(7);
-            }
-
-            // 2. Agregar las opciones de respuesta
-            if (pregunta.getOpciones() != null && !pregunta.getOpciones().isEmpty()) {
-                String sqlOpcion = "{call PKG_PREGUNTA.AGREGAR_OPCION_RESPUESTA(?, ?, ?)}";
-
-                try (CallableStatement stmtOpcion = conn.prepareCall(sqlOpcion)) {
-                    for (OpcionRespuesta opcion : pregunta.getOpciones()) {
-                        stmtOpcion.setInt(1, idGenerado);
-                        stmtOpcion.setString(2, opcion.getTexto());
-                        stmtOpcion.setString(3, opcion.isCorrecta() ? "S" : "N");
-                        stmtOpcion.execute();
-                    }
-                }
-            }
-
-            conn.commit(); // Confirmar transacción
-            System.out.println("✅ Pregunta insertada con ID: " + idGenerado);
+                cs.execute();
+                int idGenerado = cs.getInt(8);
+                pregunta.setId(idGenerado);
+                agregarOpcionesRespuesta(pregunta.getId(), pregunta.getOpciones(), conn);
             return true;
-
-        } catch (SQLException e) {
-            try {
-                if (conn != null) conn.rollback(); // Rollback en caso de error
-            } catch (SQLException rollbackEx) {
-                System.out.println("❌ Error en rollback: " + rollbackEx.getMessage());
-            }
-            System.out.println("❌ Error al insertar la pregunta: " + e.getMessage());
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.setAutoCommit(true); // Restaurar auto-commit
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                System.out.println("❌ Error al cerrar conexión: " + e.getMessage());
-            }
         }
     }
+
+    public static List<Pregunta> obtenerPreguntasHijas(int idPadre) {
+        List<Pregunta> lista = new ArrayList<>();
+        try (Connection conexion = DBConnection.getConnection()) {
+            CallableStatement cs = conexion.prepareCall("{call PKG_PREGUNTA.obtener_preguntas_hijas(?, ?)}");
+            cs.setInt(1, idPadre);
+            cs.registerOutParameter(2, OracleTypes.CURSOR);
+            cs.execute();
+
+            ResultSet rs = (ResultSet) cs.getObject(2);
+            while (rs.next()) {
+                Pregunta p = new Pregunta(
+                        rs.getInt("ID_PREGUNTA"),
+                        rs.getString("TEXTO"),
+                        rs.getString("TIPO"),
+                        rs.getInt("ID_TEMA"),
+                        rs.getDouble("VALOR_NOTA"),
+                        "S".equals(rs.getString("ES_PUBLICA")),
+                        rs.getInt("ID_DOCENTE"),
+                        new ArrayList<>()
+                );
+                p.setIdPreguntaPadre(rs.getInt("ID_PREGUNTA_PADRE"));
+                lista.add(p);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public static boolean quitarVinculoPadre(int idPregunta) {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("UPDATE pregunta SET id_pregunta_padre = NULL WHERE id_pregunta = ?");
+            ps.setInt(1, idPregunta);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     /**
      * Actualizar pregunta usando el paquete PL/SQL PKG_PREGUNTA
      */
     public static boolean actualizarPregunta(int idPregunta, String nuevoTexto, String nuevoTipo, int nuevoIdTema,
-                                             double nuevoValorNota, boolean nuevaEsPublica, int idDocente,
+                                             double nuevoValorNota, boolean nuevaEsPublica, Integer idPreguntaPadre,
                                              List<OpcionRespuesta> nuevasOpciones) {
-        String sql = "{call PKG_PREGUNTA.ACTUALIZAR_PREGUNTA(?, ?, ?, ?, ?, ?)}";
+        String sql = "{call PKG_PREGUNTA.ACTUALIZAR_PREGUNTA(?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
              CallableStatement stmt = conn.prepareCall(sql)) {
@@ -95,12 +100,19 @@ public class PreguntaDAO {
             stmt.setDouble(5, nuevoValorNota);
             stmt.setString(6, nuevaEsPublica ? "S" : "N");
 
+            // pasar el id_pregunta_padre
+            if (idPreguntaPadre != null) {
+                stmt.setInt(7, idPreguntaPadre);
+            } else {
+                stmt.setNull(7, java.sql.Types.INTEGER);
+            }
+
             stmt.execute();
 
             // Actualizar opciones por separado (el procedimiento solo actualiza la pregunta)
             if (nuevasOpciones != null && !nuevasOpciones.isEmpty()) {
                 eliminarOpcionesDePregunta(idPregunta);
-                return agregarOpcionesRespuesta(idPregunta, nuevasOpciones);
+                agregarOpcionesRespuesta(idPregunta, nuevasOpciones, conn);
             }
 
             System.out.println("✅ Pregunta actualizada correctamente");
@@ -306,43 +318,13 @@ public class PreguntaDAO {
         return pregunta;
     }
 
-    public static boolean agregarOpcionesRespuesta(int idPregunta, List<OpcionRespuesta> opciones) {
-        if (opciones.isEmpty()) {
-            System.out.println("⚠ No hay opciones para guardar en la pregunta ID: " + idPregunta);
-            return false;
-        }
-
-        try (Connection conn = DBConnection.getConnection();
-             OracleConnection oracleConn = conn.unwrap(OracleConnection.class)) {
-
-            // Crear los STRUCTs de OPCION_RESPUESTA_OBJ
-            Struct[] structOpciones = new Struct[opciones.size()];
-            for (int i = 0; i < opciones.size(); i++) {
-                OpcionRespuesta op = opciones.get(i);
-                Object[] atributos = new Object[]{
-                        null, // id_respuesta lo genera la secuencia
-                        op.getTexto(),
-                        op.isCorrecta() ? "S" : "N"
-                };
-                structOpciones[i] = oracleConn.createStruct("OPCION_RESPUESTA_OBJ", atributos);
-            }
-
-            // Crear el ARRAY tipo OPCION_RESPUESTA_TABLE
-            Array arrayOpciones = oracleConn.createOracleArray("OPCION_RESPUESTA_TABLE", structOpciones);
-
-            // Llamar al procedimiento almacenado
-            CallableStatement cs = conn.prepareCall("{call PKG_PREGUNTA.agregar_opciones_respuesta(?, ?)}");
-            cs.setInt(1, idPregunta);
-            cs.setArray(2, arrayOpciones);
-            cs.execute();
-
-            System.out.println("✅ Opciones insertadas correctamente desde PL/SQL.");
-            return true;
-
-        } catch (SQLException e) {
-            System.out.println("❌ Error al llamar al procedimiento PL/SQL: " + e.getMessage());
-            e.printStackTrace();
-            return false;
+    public static void agregarOpcionesRespuesta(int idPregunta, List<OpcionRespuesta> opciones, Connection conn) throws SQLException {
+        for (OpcionRespuesta o : opciones) {
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO RESPUESTA (ID_RESPUESTA, ID_PREGUNTA, TEXTO, ES_CORRECTA) VALUES (SEQ_RESPUESTA.NEXTVAL, ?, ?, ?)");
+            ps.setInt(1, idPregunta);
+            ps.setString(2, o.getTexto());
+            ps.setString(3, o.isCorrecta() ? "S" : "N");
+            ps.executeUpdate();
         }
     }
 

@@ -12,31 +12,13 @@ public class Pregunta {
     private double valorNota;
     private boolean esPublica;
     private int idDocente;
+    private Integer idPreguntaPadre;
 
     private List<OpcionRespuesta> opciones;
 
-    // Constructor para Respuesta Corta (sin opciones)
-    public Pregunta(int id, String texto, String tipo, int idTema) {
-        this.id = id;
-        this.texto = texto;
-        this.tipo = tipo;
-        this.idTema = idTema;
-        this.opciones = new ArrayList<>();
-        this.esPublica = false; // Por defecto privada
-    }
-
-    // Constructor para Opción Múltiple y Verdadero/Falso (con opciones)
-    public Pregunta(int id, String texto, String tipo, int idTema, List<OpcionRespuesta> opciones) {
-        this.id = id;
-        this.texto = texto;
-        this.tipo = tipo;
-        this.idTema = idTema;
-        this.opciones = opciones;
-        this.esPublica = false; // Por defecto privada
-    }
-
     // Constructor completo
-    public Pregunta(int id, String texto, String tipo, int idTema, double valorNota, boolean esPublica, int idDocente, List<OpcionRespuesta> opciones) {
+    public Pregunta(int id, String texto, String tipo, int idTema, double valorNota,
+                    boolean esPublica, int idDocente, List<OpcionRespuesta> opciones) {
         this.id = id;
         this.texto = texto;
         this.tipo = tipo;
@@ -47,7 +29,25 @@ public class Pregunta {
         this.opciones = opciones;
     }
 
+    // Constructor para Respuesta Corta (sin opciones)
+    public Pregunta(int id, String texto, String tipo, int idTema) {
+        this(id, texto, tipo, idTema, 0.0, false, 0, null);
+    }
+
+    // Constructor para Opción Múltiple y Verdadero/Falso (con opciones)
+    public Pregunta(int id, String texto, String tipo, int idTema, List<OpcionRespuesta> opciones) {
+        this(id, texto, tipo, idTema, 0.0, false, 0, opciones);
+    }
+
     // Getters y Setters
+    public Integer getIdPreguntaPadre() {
+        return idPreguntaPadre;
+    }
+
+    public void setIdPreguntaPadre(Integer idPreguntaPadre) {
+        this.idPreguntaPadre = idPreguntaPadre;
+    }
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

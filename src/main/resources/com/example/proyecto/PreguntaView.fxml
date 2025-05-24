@@ -36,18 +36,29 @@
                         <ColumnConstraints minWidth="250" prefWidth="400" hgrow="ALWAYS"/>
                     </columnConstraints>
 
+                    <!--Pregunta Padre-->
+                    <HBox spacing="30" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"
+                          alignment="CENTER_LEFT">
+                        <CheckBox fx:id="chkEsPreguntaPadre" text="¿Es Pregunta Padre?"
+                                  onAction="#manejarCambioTipoPreguntaCompuesta"
+                                  style="-fx-font-size: 14px; -fx-text-fill: #2c3e50;"/>
+                        <Label text="Pregunta Padre" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                        <ComboBox fx:id="cbPreguntaPadre" promptText="Seleccione pregunta padre"
+                                  maxWidth="Infinity" minWidth="200"
+                                  style="-fx-font-size: 14px;"/>
+                    </HBox>
+
                     <!-- Texto de la Pregunta -->
-                    <Label text="Texto de la Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"
-                           GridPane.valignment="TOP"/>
-                    <TextArea fx:id="txtTexto" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                    <Label text="Texto de la Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                    <TextArea fx:id="txtTexto" GridPane.columnIndex="1" GridPane.rowIndex="1"
                               prefRowCount="3" wrapText="true" minHeight="80"
                               style="-fx-font-size: 14px; -fx-border-color: #bdc3c7; -fx-border-radius: 5px; -fx-background-radius: 5px;"/>
 
                     <!-- Tipo de Pregunta -->
-                    <Label text="Tipo de Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                    <Label text="Tipo de Pregunta:" GridPane.columnIndex="0" GridPane.rowIndex="2"
                            style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                    <ComboBox fx:id="cbTipoPregunta" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                    <ComboBox fx:id="cbTipoPregunta" GridPane.columnIndex="1" GridPane.rowIndex="2"
                               maxWidth="Infinity" minWidth="200"
                               style="-fx-font-size: 14px;">
                         <items>
@@ -60,17 +71,17 @@
                     </ComboBox>
 
                     <!-- Tema -->
-                    <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                    <Label text="Tema:" GridPane.columnIndex="0" GridPane.rowIndex="3"
                            style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                    <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="2"
+                    <ComboBox fx:id="cbTema" GridPane.columnIndex="1" GridPane.rowIndex="3"
                               maxWidth="Infinity" minWidth="200"
                               style="-fx-font-size: 14px;"/>
 
                     <!-- Opciones de Respuesta -->
-                    <Label text="Opciones de Respuesta:" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                    <Label text="Opciones de Respuesta:" GridPane.columnIndex="0" GridPane.rowIndex="4"
                            style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"
                            GridPane.valignment="TOP"/>
-                    <ScrollPane GridPane.columnIndex="1" GridPane.rowIndex="3"
+                    <ScrollPane GridPane.columnIndex="1" GridPane.rowIndex="4"
                                 fitToWidth="true" maxHeight="200" minHeight="100"
                                 style="-fx-background-color: transparent; -fx-border-color: #bdc3c7; -fx-border-radius: 5px;">
                         <VBox fx:id="vboxOpciones" spacing="10"
@@ -78,7 +89,7 @@
                     </ScrollPane>
 
                     <!-- Valor Nota y Visibilidad en una fila -->
-                    <HBox spacing="30" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2"
+                    <HBox spacing="30" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"
                           alignment="CENTER_LEFT">
 
                         <VBox spacing="5">
@@ -97,8 +108,27 @@
                         </VBox>
                     </HBox>
 
+                    <!-- Preguntas Hijas Asociadas - Reorganizado -->
+                    <VBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.valignment="TOP">
+                        <Label text="Preguntas Hijas Asociadas:"
+                               style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                        <Button fx:id="btnQuitarHija" text="Quitar Pregunta Hija" onAction="#quitarPreguntaHija"
+                                style="-fx-font-size: 12px; -fx-padding: 5px 10px;"/>
+                    </VBox>
+
+                    <ScrollPane GridPane.columnIndex="1" GridPane.rowIndex="6"
+                                fitToWidth="true" fitToHeight="true" minHeight="300" maxHeight="400"
+                                style="-fx-background-color: transparent;">
+                        <TableView fx:id="tablaHijas" prefHeight="120" VBox.vgrow="NEVER">
+                            <columns>
+                                <TableColumn fx:id="colHijaId" text="ID" prefWidth="60" />
+                                <TableColumn fx:id="colHijaTexto" text="Texto de la Hija" prefWidth="300" />
+                            </columns>
+                        </TableView>
+                    </ScrollPane>
+
                     <!-- Botón Guardar -->
-                    <HBox GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2"
+                    <HBox GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="2"
                           alignment="CENTER" style="-fx-padding: 10 0 0 0;">
                         <Button text="Guardar Pregunta" onAction="#agregarPregunta"
                                 style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
