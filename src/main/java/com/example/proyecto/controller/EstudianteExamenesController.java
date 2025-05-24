@@ -82,7 +82,11 @@ public class EstudianteExamenesController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyecto/PresentarExamenView.fxml"));
             Parent root = loader.load();
             PresentarExamenController controller = loader.getController();
-            controller.inicializar(examen, estudiante);
+            controller.inicializar(
+                    examen.getId(),
+                    estudiante.getIdEstudiante(),
+                    examen.getTiempoLimite()
+            );
 
             Stage stage = new Stage();
             stage.setTitle("Presentar Examen");

@@ -13,8 +13,13 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label fx:id="lblTituloExamen" text="Título del Examen"
+    <Label fx:id="lblTituloExamen"
+           text="Título del Examen"
            style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <Label fx:id="lblTiempo"
+           text="Tiempo restante: 00:00"
+           style="-fx-font-size: 16px; -fx-text-fill: red;"/>
 
     <ScrollPane fitToWidth="true" prefHeight="450">
         <content>
@@ -26,6 +31,8 @@
         </content>
     </ScrollPane>
 
-    <Button text="Finalizar Examen" onAction="#finalizarExamen"
+    <Button fx:id="btnFinalizar"
+            text="Finalizar Examen"
+            onAction="#finalizarExamen"
             style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
 </VBox>

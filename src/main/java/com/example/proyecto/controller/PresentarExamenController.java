@@ -1,150 +1,137 @@
 package com.example.proyecto.controller;
 
-import com.example.proyecto.*;
-import com.example.proyecto.dao.*;
+import com.example.proyecto.dao.PresentacionExamenDAO;
+import com.example.proyecto.dao.PreguntaDAO;
+import com.example.proyecto.OpcionRespuesta;
+import com.example.proyecto.Pregunta;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import java.sql.Connection;
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Types;
+import javafx.util.Duration;
 
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PresentarExamenController {
 
     @FXML private Label lblTituloExamen;
+    @FXML private Label lblTiempo;
     @FXML private VBox contenedorPreguntas;
+    @FXML private Button btnFinalizar;
 
-    private Examen examen;
-    private Estudiante estudiante;
+    private int idExamen;
+    private int idEstudiante;
+    private int tiempoLimiteSegundos;
+    private Timeline temporizador;
+    private Map<Integer, ToggleGroup> respuestasSeleccionadas = new HashMap<>();
     private int idPresentacion;
-    private final Map<Integer, Object> respuestasEstudiante = new HashMap<>();
 
-    public void inicializar(Examen examen, Estudiante estudiante) {
-        this.examen = examen;
-        this.estudiante = estudiante;
-        lblTituloExamen.setText("Examen: " + examen.getNombre());
+    public void inicializar(int idExamen, int idEstudiante, int tiempoLimiteSegundos) {
+        this.idExamen = idExamen;
+        this.idEstudiante = idEstudiante;
+        this.tiempoLimiteSegundos = tiempoLimiteSegundos;
 
-        // Generar la presentación del examen
-        idPresentacion = PresentacionExamenDAO.registrarPresentacion(examen.getId(), estudiante.getIdEstudiante());
+        // Verificar si ya existe una presentación y está finalizada
+        idPresentacion = PresentacionExamenDAO.obtenerIdPresentacion(idEstudiante, idExamen);
+        if (idPresentacion != -1 && PresentacionExamenDAO.examenFinalizado(idPresentacion)) {
+            mostrarAlertaFX("Intento inválido", "Ya ha finalizado este examen. No puede volver a presentarlo.");
+            bloquearInterfaz();
+            return;
+        }
 
-        List<Pregunta> preguntas = PreguntaDAO.obtenerPreguntasConOpcionesPorExamen(examen.getId());
+        if (idPresentacion == -1) {
+            idPresentacion = PresentacionExamenDAO.registrarPresentacion(idExamen, idEstudiante);
+        }
+
+        cargarPreguntas();
+        iniciarTemporizador();
+    }
+
+    private void cargarPreguntas() {
+        List<Pregunta> preguntas = PreguntaDAO.obtenerPreguntasConOpcionesPorExamen(idExamen);
 
         for (Pregunta pregunta : preguntas) {
-            VBox preguntaBox = new VBox(5);
-            preguntaBox.setStyle("-fx-border-color: #ccc; -fx-padding: 10;");
+            Label lblPregunta = new Label(pregunta.getTexto());
+            lblPregunta.setStyle("-fx-font-weight: bold;");
+            VBox contenedorPregunta = new VBox(lblPregunta);
+            contenedorPregunta.setSpacing(5);
 
-            Label lbl = new Label(pregunta.getTexto());
-            preguntaBox.getChildren().add(lbl);
+            ToggleGroup grupoOpciones = new ToggleGroup();
+            respuestasSeleccionadas.put(pregunta.getId(), grupoOpciones);
 
-            String tipoNormalizado = normalizarTipo(pregunta.getTipo());
-
-            switch (tipoNormalizado) {
-                case "opcion multiple", "verdadero/falso" -> {
-                    ToggleGroup grupo = new ToggleGroup();
-                    for (OpcionRespuesta op : pregunta.getOpciones()) {
-                        RadioButton rb = new RadioButton(op.getTexto());
-                        rb.setUserData(op.getId()); // ✅ Usa el ID_RESPUESTA real
-                        rb.setToggleGroup(grupo);
-                        preguntaBox.getChildren().add(rb);
-                    }
-                    respuestasEstudiante.put(pregunta.getId(), grupo);
-                }
-                case "respuesta corta" -> {
-                    TextArea area = new TextArea();
-                    area.setPromptText("Tu respuesta...");
-                    area.setPrefRowCount(2);
-                    respuestasEstudiante.put(pregunta.getId(), area);
-                    preguntaBox.getChildren().add(area);
-                }
-                default -> {
-                    Label error = new Label("❌ Tipo de pregunta no reconocido: " + pregunta.getTipo());
-                    preguntaBox.getChildren().add(error);
-                }
+            for (OpcionRespuesta opcion : pregunta.getOpciones()) {
+                RadioButton radioButton = new RadioButton(opcion.getTexto());
+                radioButton.setUserData(opcion.getId());
+                radioButton.setToggleGroup(grupoOpciones);
+                contenedorPregunta.getChildren().add(radioButton);
             }
-            contenedorPreguntas.getChildren().add(preguntaBox);
+
+            contenedorPreguntas.getChildren().add(contenedorPregunta);
         }
     }
 
-    private String normalizarTipo(String tipo) {
-        return tipo.toLowerCase().trim()
-                .replace("á", "a")
-                .replace("é", "e")
-                .replace("í", "i")
-                .replace("ó", "o")
-                .replace("ú", "u");
+    private void iniciarTemporizador() {
+        temporizador = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            tiempoLimiteSegundos--;
+            int minutos = tiempoLimiteSegundos / 60;
+            int segundos = tiempoLimiteSegundos % 60;
+            lblTiempo.setText(String.format("Tiempo restante: %02d:%02d", minutos, segundos));
+
+            if (tiempoLimiteSegundos <= 0) {
+                temporizador.stop();
+                finalizarExamenDesdeTemporizador();
+            }
+        }));
+        temporizador.setCycleCount(Timeline.INDEFINITE);
+        temporizador.play();
     }
 
     @FXML
     private void finalizarExamen() {
-        try (Connection conn = DBConnection.getConnection()) {
-            for (Map.Entry<Integer, Object> entry : respuestasEstudiante.entrySet()) {
-                int idPregunta = entry.getKey();
-                Object control = entry.getValue();
-                Integer idRespuestaSeleccionada = null;
+        if (temporizador != null) temporizador.stop();
 
-                if (control instanceof ToggleGroup grupo) {
-                    Toggle seleccion = grupo.getSelectedToggle();
-                    if (seleccion != null) {
-                        idRespuestaSeleccionada = (Integer) seleccion.getUserData();
-                    }
-                } else if (control instanceof TextArea area) {
-                    String respuestaTexto = area.getText().trim();
-                    if (!respuestaTexto.isEmpty()) {
-                        idRespuestaSeleccionada = RespuestaEstudianteDAO.insertarRespuestaTexto(idPresentacion, idPregunta, respuestaTexto, conn);
-                    }
-                }
+        for (Map.Entry<Integer, ToggleGroup> entry : respuestasSeleccionadas.entrySet()) {
+            int idPregunta = entry.getKey();
+            Toggle seleccion = entry.getValue().getSelectedToggle();
 
-                if (idRespuestaSeleccionada != null) {
-                    RespuestaEstudianteDAO.insertarRespuestaSeleccion(idPresentacion, idPregunta, idRespuestaSeleccionada, conn);
-                }
+            if (seleccion != null) {
+                int idRespuestaSeleccionada = (int) seleccion.getUserData();
+                PresentacionExamenDAO.registrarRespuesta(idPresentacion, idPregunta, idRespuestaSeleccionada);
             }
-
-            // Ejecutar procedimiento para calificar
-            CallableStatement stmt = conn.prepareCall("{ call CALIFICAR_EXAMEN_AUTOMATICO(?, ?) }");
-            stmt.setInt(1, idPresentacion);
-            stmt.registerOutParameter(2, Types.VARCHAR);
-            stmt.execute();
-
-            String estado = stmt.getString(2);
-            stmt.close();
-
-            if ("OK".equals(estado)) {
-                PreparedStatement ps = conn.prepareStatement(
-                        "SELECT CALIFICACION FROM PRESENTACION_EXAMEN WHERE ID_PRESENTACION = ?");
-                ps.setInt(1, idPresentacion);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    double nota = rs.getDouble("CALIFICACION");
-
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Examen finalizado");
-                    alert.setHeaderText("Tu examen ha sido calificado.");
-                    alert.setContentText("Tu nota es: " + nota);
-                    alert.showAndWait();
-                }
-                rs.close();
-                ps.close();
-            } else {
-                mostrarError("No se pudo calificar el examen. Estado: " + estado);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            mostrarError("Error al finalizar el examen: " + e.getMessage());
         }
+
+        PresentacionExamenDAO.calificarAutomaticamente(idPresentacion);
+        double nota = PresentacionExamenDAO.obtenerCalificacion(idPresentacion);
+
+        bloquearInterfaz();
+        mostrarAlertaFX("Examen finalizado", "Su calificación fue: " + nota);
     }
 
-    private void mostrarError(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText("Error");
-        alert.setContentText(mensaje);
-        alert.showAndWait();
+    private void finalizarExamenDesdeTemporizador() {
+        Platform.runLater(() -> {
+            finalizarExamen();
+            mostrarAlertaFX("Tiempo finalizado", "Se ha agotado el tiempo para responder el examen.");
+        });
     }
 
+    private void bloquearInterfaz() {
+        for (Node nodo : contenedorPreguntas.getChildren()) {
+            nodo.setDisable(true);
+        }
+        btnFinalizar.setDisable(true);
+        lblTiempo.setText("Examen finalizado");
+    }
+
+    private void mostrarAlertaFX(String titulo, String mensaje) {
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
+    }
 }
