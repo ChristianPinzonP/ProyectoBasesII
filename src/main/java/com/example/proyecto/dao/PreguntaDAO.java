@@ -3,7 +3,6 @@ package com.example.proyecto.dao;
 import com.example.proyecto.DBConnection;
 import com.example.proyecto.OpcionRespuesta;
 import com.example.proyecto.Pregunta;
-import oracle.jdbc.OracleConnection;
 import oracle.jdbc.OracleTypes;
 
 import java.sql.*;
@@ -66,6 +65,17 @@ public class PreguntaDAO {
             e.printStackTrace();
         }
         return lista;
+    }
+    public static boolean quitarRelacionPadreHija(int idPreguntaHija) {
+        String sql = "UPDATE PREGUNTA SET ID_PREGUNTA_PADRE = NULL WHERE ID_PREGUNTA = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idPreguntaHija);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("❌ Error al quitar relación padre-hija: " + e.getMessage());
+            return false;
+        }
     }
 
     public static boolean quitarVinculoPadre(int idPregunta) {
@@ -341,4 +351,62 @@ public class PreguntaDAO {
 
         return listaPreguntas;
     }
+
+    public static boolean desvincularPreguntaHija(int idPregunta) {
+        String sql = "UPDATE PREGUNTA SET ID_PREGUNTA_PADRE = NULL WHERE ID_PREGUNTA = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idPregunta);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("❌ Error al desvincular pregunta hija: " + e.getMessage());
+            return false;
+        }
+    }
+    public static boolean agregarPreguntaConOpciones(Pregunta pregunta, List<OpcionRespuesta> opciones) {
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            // Llamar al procedimiento PL/SQL para agregar la pregunta y obtener el ID generado
+            CallableStatement cs = conn.prepareCall("{call PKG_PREGUNTA.agregar_pregunta(?, ?, ?, ?, ?, ?, ?, ?)}");
+            cs.setString(1, pregunta.getTexto());
+            cs.setString(2, pregunta.getTipo());
+            cs.setInt(3, pregunta.getIdTema());
+            cs.setDouble(4, pregunta.getValorNota());
+            cs.setString(5, pregunta.isEsPublica() ? "S" : "N");
+            cs.setInt(6, pregunta.getIdDocente());
+
+            if (pregunta.getIdPreguntaPadre() != null) {
+                cs.setInt(7, pregunta.getIdPreguntaPadre());
+            } else {
+                cs.setNull(7, Types.INTEGER);
+            }
+
+            cs.registerOutParameter(8, Types.INTEGER); // OUT ID generado
+            cs.execute();
+
+            int idGenerado = cs.getInt(8);
+            pregunta.setId(idGenerado); // Guardar el ID en el objeto por si se necesita después
+
+            // Insertar las opciones si existen
+            if (opciones != null && !opciones.isEmpty()) {
+                for (OpcionRespuesta opcion : opciones) {
+                    CallableStatement csOpcion = conn.prepareCall("{call PKG_PREGUNTA.agregar_opcion_respuesta(?, ?, ?)}");
+                    csOpcion.setInt(1, idGenerado);
+                    csOpcion.setString(2, opcion.getTexto());
+                    csOpcion.setString(3, opcion.isCorrecta() ? "S" : "N");
+                    csOpcion.execute();
+                }
+            }
+
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            System.out.println("❌ Error al agregar pregunta con opciones: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 }

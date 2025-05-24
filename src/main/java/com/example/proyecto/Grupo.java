@@ -12,6 +12,11 @@ public class Grupo {
         this.idGrupo = idGrupo;
     }
 
+    // 👇 Método adicional para compatibilidad
+    public int getId() {
+        return idGrupo;
+    }
+
     public String getNombre() {
         return nombre;
     }

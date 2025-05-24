@@ -60,6 +60,33 @@ public class ExamenDAO {
         return listaExamenes;
     }
 
+    public static boolean agregarExamen(Examen examen) {
+        String sql = "INSERT INTO EXAMEN (NOMBRE, DESCRIPCION, FECHA_INICIO, FECHA_FIN, TIEMPO_LIMITE, ID_DOCENTE, ID_TEMA, ID_GRUPO, MODO_SELECCION, TIEMPO_POR_PREGUNTA, NUMERO_PREGUNTAS) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, examen.getNombre());
+            stmt.setString(2, examen.getDescripcion());
+            stmt.setDate(3, examen.getFechaInicio());
+            stmt.setDate(4, examen.getFechaFin());
+            stmt.setInt(5, examen.getTiempoLimite());
+            stmt.setInt(6, examen.getIdDocente());
+            stmt.setInt(7, examen.getIdTema());
+            stmt.setInt(8, examen.getIdGrupo());
+            stmt.setString(9, examen.getModoSeleccion());
+            stmt.setInt(10, examen.getTiempoPorPregunta());
+            stmt.setInt(11, examen.getNumeroPreguntas());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     public static int agregarExamenYRetornarId(Examen examen) {
         String sql = "{ call CREAR_EXAMEN(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
