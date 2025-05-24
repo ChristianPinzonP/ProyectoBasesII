@@ -235,9 +235,6 @@ public class PreguntaDAO {
         return listaPreguntas;
     }
 
-    /**
-     * Obtener preguntas con opciones por examen usando el paquete PL/SQL PKG_PREGUNTA
-     */
     public static List<Pregunta> obtenerPreguntasConOpcionesPorExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
         String sql = "{call PKG_PREGUNTA.OBTENER_PREGUNTAS_CON_OPCIONES_POR_EXAMEN(?, ?)}";
@@ -255,26 +252,22 @@ public class PreguntaDAO {
                 int idPreguntaAnterior = -1;
 
                 while (rs.next()) {
-                    int idPregunta = rs.getInt("ID_PREGUNTA");
+                    int idPregunta = rs.getInt("P_ID_PREGUNTA");
 
-                    // Si es una nueva pregunta
                     if (idPregunta != idPreguntaAnterior) {
-                        // Agregar la pregunta anterior a la lista si existe
                         if (preguntaActual != null) {
                             preguntas.add(preguntaActual);
                         }
 
-                        // Crear nueva pregunta
                         preguntaActual = mapearPreguntaDesdeResultSet(rs);
                         preguntaActual.setOpciones(new ArrayList<>());
                         idPreguntaAnterior = idPregunta;
                     }
 
-                    // Agregar opción de respuesta si existe
-                    if (rs.getString("TEXTO_RESPUESTA") != null) {
-                        int idRespuesta = rs.getInt("ID_RESPUESTA");
-                        String textoRespuesta = rs.getString("TEXTO_RESPUESTA");
-                        String esCorrectaStr = rs.getString("ES_CORRECTA_RESPUESTA");
+                    Integer idRespuesta = rs.getObject("R_ID_RESPUESTA", Integer.class);
+                    if (idRespuesta != null) {
+                        String textoRespuesta = rs.getString("R_TEXTO");
+                        String esCorrectaStr = rs.getString("R_ES_CORRECTA");
 
                         boolean esCorrecta = "S".equalsIgnoreCase(esCorrectaStr);
                         OpcionRespuesta opcion = new OpcionRespuesta(idRespuesta, textoRespuesta, esCorrecta);
@@ -282,7 +275,6 @@ public class PreguntaDAO {
                     }
                 }
 
-                // Agregar la última pregunta
                 if (preguntaActual != null) {
                     preguntas.add(preguntaActual);
                 }
@@ -296,27 +288,23 @@ public class PreguntaDAO {
         return preguntas;
     }
 
+
     /**
      * Mapear pregunta desde ResultSet
      */
     private static Pregunta mapearPreguntaDesdeResultSet(ResultSet rs) throws SQLException {
-        int idPregunta = rs.getInt("ID_PREGUNTA");
-        String texto = rs.getString("TEXTO");
-        String tipo = rs.getString("TIPO");
-        int idTema = rs.getInt("ID_TEMA");
-        double valorNota = rs.getDouble("VALOR_NOTA");
-        String esPublicaStr = rs.getString("ES_PUBLICA");
-        int idDocente = rs.getInt("ID_DOCENTE");
-
-        boolean esPublica = "S".equalsIgnoreCase(esPublicaStr);
+        int idPregunta = rs.getInt("P_ID_PREGUNTA");
+        String texto = rs.getString("P_TEXTO");
+        String tipo = rs.getString("P_TIPO");
+        int idTema = rs.getInt("P_ID_TEMA");
+        double valorNota = rs.getDouble("P_VALOR_NOTA");
 
         Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema);
         pregunta.setValorNota(valorNota);
-        pregunta.setEsPublica(esPublica);
-        pregunta.setIdDocente(idDocente);
 
         return pregunta;
     }
+
 
     public static void agregarOpcionesRespuesta(int idPregunta, List<OpcionRespuesta> opciones, Connection conn) throws SQLException {
         for (OpcionRespuesta o : opciones) {
