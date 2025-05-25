@@ -11,9 +11,6 @@ import java.util.List;
 
 public class PreguntaDAO {
 
-    /**
-     * Agregar pregunta usando el paquete PL/SQL PKG_PREGUNTA
-     */
     public static boolean agregarPregunta(Pregunta pregunta) {
         try (Connection conn = DBConnection.getConnection()) {
             CallableStatement cs = conn.prepareCall("{call PKG_PREGUNTA.agregar_pregunta(?, ?, ?, ?, ?, ?, ?, ?)}");
@@ -38,6 +35,8 @@ public class PreguntaDAO {
             return false;
         }
     }
+
+
     public static List<Pregunta> obtenerPreguntasHijas(int idPadre) {
         List<Pregunta> lista = new ArrayList<>();
         try (Connection conexion = DBConnection.getConnection()) {
@@ -66,6 +65,7 @@ public class PreguntaDAO {
         }
         return lista;
     }
+
     public static boolean quitarRelacionPadreHija(int idPreguntaHija) {
         String sql = "UPDATE PREGUNTA SET ID_PREGUNTA_PADRE = NULL WHERE ID_PREGUNTA = ?";
         try (Connection conn = DBConnection.getConnection();
@@ -181,10 +181,8 @@ public class PreguntaDAO {
         }
         return opciones;
     }
-    /**
-     * Obtener preguntas por tema con filtro de docente actual usando PL/SQL
-     * Mantiene la lógica de seguridad para mostrar solo preguntas públicas o del docente actual
-     */
+
+
     public static List<Pregunta> obtenerPreguntasPorTema(int idTema, int idDocenteActual) {
         List<Pregunta> listaPreguntas = new ArrayList<>();
         try (Connection conn = DBConnection.getConnection()) {
@@ -235,10 +233,20 @@ public class PreguntaDAO {
                 int id = rs.getInt("P_ID_PREGUNTA");
                 if (id != anterior) {
                     if (actual != null) preguntas.add(actual);
+
                     actual = new Pregunta(id, rs.getString("P_TEXTO"), rs.getString("P_TIPO"), rs.getInt("P_ID_TEMA"));
                     actual.setValorNota(rs.getDouble("P_VALOR_NOTA"));
                     actual.setOpciones(new ArrayList<>());
                     anterior = id;
+
+                    // 🚀 Agregar preguntas hijas si es compuesta
+                    if ("Compuesta".equalsIgnoreCase(actual.getTipo())) {
+                        List<Pregunta> hijas = obtenerPreguntasHijas(actual.getId());
+                        for (Pregunta hija : hijas) {
+                            hija.setOpciones(obtenerOpcionesDePregunta(hija.getId()));
+                        }
+                        actual.setPreguntasHijas(hijas);
+                    }
                 }
 
                 Integer idResp = rs.getObject("R_ID_RESPUESTA", Integer.class);
@@ -258,7 +266,6 @@ public class PreguntaDAO {
 
         return preguntas;
     }
-
 
     /**
      * Mapear pregunta desde ResultSet

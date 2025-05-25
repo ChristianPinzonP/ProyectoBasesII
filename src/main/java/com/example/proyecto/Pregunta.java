@@ -15,6 +15,7 @@ public class Pregunta {
     private Integer idPreguntaPadre;
 
     private List<OpcionRespuesta> opciones;
+    private List<Pregunta> preguntasHijas; // NUEVO
 
     // Constructor completo
     public Pregunta(int id, String texto, String tipo, int idTema, double valorNota,
@@ -27,6 +28,7 @@ public class Pregunta {
         this.esPublica = esPublica;
         this.idDocente = idDocente;
         this.opciones = opciones != null ? opciones : new ArrayList<>();
+        this.preguntasHijas = new ArrayList<>(); // Inicializar
     }
 
     // Constructor básico sin opciones
@@ -37,6 +39,11 @@ public class Pregunta {
     // Constructor con opciones pero sin metadata
     public Pregunta(int id, String texto, String tipo, int idTema, List<OpcionRespuesta> opciones) {
         this(id, texto, tipo, idTema, 0.0, false, 0, opciones);
+    }
+
+    // Constructor vacío
+    public Pregunta() {
+        this.preguntasHijas = new ArrayList<>();
     }
 
     // Getters y Setters
@@ -78,8 +85,15 @@ public class Pregunta {
         this.opciones = opciones != null ? opciones : new ArrayList<>();
     }
 
-    public Pregunta() {
-        // Constructor vacío requerido por JavaFX y DAOs
+    public List<Pregunta> getPreguntasHijas() {
+        if (preguntasHijas == null) {
+            preguntasHijas = new ArrayList<>();
+        }
+        return preguntasHijas;
+    }
+
+    public void setPreguntasHijas(List<Pregunta> preguntasHijas) {
+        this.preguntasHijas = preguntasHijas != null ? preguntasHijas : new ArrayList<>();
     }
 
     @Override

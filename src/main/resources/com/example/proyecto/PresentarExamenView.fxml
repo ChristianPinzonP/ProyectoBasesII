@@ -13,14 +13,17 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
+    <!-- Título del examen -->
     <Label fx:id="lblTituloExamen"
            text="Título del Examen"
            style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
+    <!-- Temporizador -->
     <Label fx:id="lblTiempo"
            text="Tiempo restante: 00:00"
            style="-fx-font-size: 16px; -fx-text-fill: red;"/>
 
+    <!-- Contenedor de preguntas (con ScrollPane para navegación) -->
     <ScrollPane fitToWidth="true" prefHeight="450">
         <content>
             <VBox fx:id="contenedorPreguntas" spacing="20">
@@ -31,6 +34,7 @@
         </content>
     </ScrollPane>
 
+    <!-- Botón de finalizar -->
     <Button fx:id="btnFinalizar"
             text="Finalizar Examen"
             onAction="#finalizarExamen"

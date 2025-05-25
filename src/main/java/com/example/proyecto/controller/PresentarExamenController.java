@@ -34,7 +34,8 @@ public class PresentarExamenController {
     public void inicializar(int idExamen, int idEstudiante, int tiempoLimiteSegundos) {
         this.idExamen = idExamen;
         this.idEstudiante = idEstudiante;
-        this.tiempoLimiteSegundos = tiempoLimiteSegundos;
+        this.tiempoLimiteSegundos = tiempoLimiteSegundos * 60;  // Convertir minutos a segundos
+
 
         // Verificar si ya existe una presentación y está finalizada
         idPresentacion = PresentacionExamenDAO.obtenerIdPresentacion(idEstudiante, idExamen);
@@ -56,23 +57,37 @@ public class PresentarExamenController {
         List<Pregunta> preguntas = PreguntaDAO.obtenerPreguntasConOpcionesPorExamen(idExamen);
 
         for (Pregunta pregunta : preguntas) {
-            Label lblPregunta = new Label(pregunta.getTexto());
-            lblPregunta.setStyle("-fx-font-weight: bold;");
-            VBox contenedorPregunta = new VBox(lblPregunta);
-            contenedorPregunta.setSpacing(5);
-
-            ToggleGroup grupoOpciones = new ToggleGroup();
-            respuestasSeleccionadas.put(pregunta.getId(), grupoOpciones);
-
-            for (OpcionRespuesta opcion : pregunta.getOpciones()) {
-                RadioButton radioButton = new RadioButton(opcion.getTexto());
-                radioButton.setUserData(opcion.getId());
-                radioButton.setToggleGroup(grupoOpciones);
-                contenedorPregunta.getChildren().add(radioButton);
-            }
-
+            VBox contenedorPregunta = crearBloquePregunta(pregunta);
             contenedorPreguntas.getChildren().add(contenedorPregunta);
+
+            // Mostrar preguntas hijas si existen
+            if (pregunta.getPreguntasHijas() != null && !pregunta.getPreguntasHijas().isEmpty()) {
+                for (Pregunta hija : pregunta.getPreguntasHijas()) {
+                    VBox contenedorHija = crearBloquePregunta(hija);
+                    contenedorHija.setStyle("-fx-padding: 0 0 0 20;"); // Sangría para distinguir visualmente
+                    contenedorPreguntas.getChildren().add(contenedorHija);
+                }
+            }
         }
+    }
+
+    private VBox crearBloquePregunta(Pregunta pregunta) {
+        Label lblPregunta = new Label(pregunta.getTexto());
+        lblPregunta.setStyle("-fx-font-weight: bold;");
+        VBox contenedor = new VBox(lblPregunta);
+        contenedor.setSpacing(5);
+
+        ToggleGroup grupoOpciones = new ToggleGroup();
+        respuestasSeleccionadas.put(pregunta.getId(), grupoOpciones);
+
+        for (OpcionRespuesta opcion : pregunta.getOpciones()) {
+            RadioButton rb = new RadioButton(opcion.getTexto());
+            rb.setUserData(opcion.getId());
+            rb.setToggleGroup(grupoOpciones);
+            contenedor.getChildren().add(rb);
+        }
+
+        return contenedor;
     }
 
     private void iniciarTemporizador() {
