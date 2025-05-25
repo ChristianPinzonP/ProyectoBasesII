@@ -111,6 +111,45 @@ CREATE SEQUENCE SEQ_PRESENTACION_EXAMEN
     INCREMENT BY 1
     NOCACHE;
 
+///////////////////////////////////////////////////////////////////////
+create or replace NONEDITIONABLE PROCEDURE CREAR_EXAMEN (
+    p_nombre                IN VARCHAR2,
+    p_descripcion           IN VARCHAR2,
+    p_fecha_inicio          IN DATE,
+    p_fecha_fin             IN DATE,
+    p_tiempo_limite         IN NUMBER,
+    p_id_docente            IN NUMBER,
+    p_numero_preguntas      IN NUMBER,
+    p_modo_seleccion        IN VARCHAR2,
+    p_tiempo_por_pregunta   IN NUMBER,
+    p_id_tema               IN NUMBER,
+    p_nota_minima_aprob     IN NUMBER DEFAULT 3.0,
+    p_id_grupo              IN NUMBER,
+    p_estado                OUT VARCHAR2,
+    p_id_generado           OUT NUMBER
+)
+AS
+BEGIN
+INSERT INTO EXAMEN (
+    ID_EXAMEN, NOMBRE, DESCRIPCION, FECHA_INICIO, FECHA_FIN,
+    TIEMPO_LIMITE, ID_DOCENTE, NUMERO_PREGUNTAS, MODO_SELECCION,
+    TIEMPO_POR_PREGUNTA, ID_TEMA, NOTA_MINIMA_APROBACION, ID_GRUPO
+)
+VALUES (
+           SEQ_EXAMEN.NEXTVAL, p_nombre, p_descripcion, p_fecha_inicio, p_fecha_fin,
+           p_tiempo_limite, p_id_docente, p_numero_preguntas, p_modo_seleccion,
+           p_tiempo_por_pregunta, p_id_tema, p_nota_minima_aprob, p_id_grupo
+       )
+    RETURNING ID_EXAMEN INTO p_id_generado;
+
+p_estado := 'OK';
+
+EXCEPTION
+    WHEN OTHERS THEN
+        p_estado := SQLERRM; -- Devuelve el mensaje de error exacto
+        p_id_generado := NULL;
+END;
+
 
 ////////////////////////////////////Disparadores//////////////////////////////
 
@@ -168,7 +207,7 @@ CREATE OR REPLACE PROCEDURE GENERAR_ESTADISTICAS_ESTUDIANTE (
     v_maxima NUMBER;
     v_minima NUMBER;
 BEGIN
-    -- Obtener estadísticas desde la vista
+    -- Obtener estadï¿½sticas desde la vista
     SELECT 
         COUNT(DISTINCT pres.id_presentacion),
         SUM(CASE WHEN r.es_correcta = 'S' THEN 1 ELSE 0 END),
@@ -183,12 +222,12 @@ BEGIN
     WHERE pres.id_estudiante = p_id_estudiante;
 
     -- Mostrar en consola
-    DBMS_OUTPUT.PUT_LINE('Total exámenes: ' || v_total_examenes);
+    DBMS_OUTPUT.PUT_LINE('Total exï¿½menes: ' || v_total_examenes);
     DBMS_OUTPUT.PUT_LINE('Correctas: ' || v_correctas);
     DBMS_OUTPUT.PUT_LINE('Incorrectas: ' || v_incorrectas);
     DBMS_OUTPUT.PUT_LINE('Promedio: ' || ROUND(v_promedio, 2));
-    DBMS_OUTPUT.PUT_LINE('Máxima: ' || v_maxima);
-    DBMS_OUTPUT.PUT_LINE('Mínima: ' || v_minima);
+    DBMS_OUTPUT.PUT_LINE('Mï¿½xima: ' || v_maxima);
+    DBMS_OUTPUT.PUT_LINE('Mï¿½nima: ' || v_minima);
 
     -- Guardar en tabla
     MERGE INTO ESTADISTICAS_ESTUDIANTE e
@@ -210,7 +249,7 @@ END;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
--- Crear tipos si aún no existen
+-- Crear tipos si aï¿½n no existen
 CREATE OR REPLACE TYPE TEMA_OBJ AS OBJECT (
     ID_TEMA  NUMBER,
     NOMBRE   VARCHAR2(255)
@@ -244,7 +283,7 @@ CREATE OR REPLACE TYPE OPCION_RESPUESTA_TABLE AS TABLE OF OPCION_RESPUESTA_OBJ;
 /
 
 -- =============================
--- ESPECIFICACIÓN DEL PAQUETE
+-- ESPECIFICACIï¿½N DEL PAQUETE
 -- =============================
 CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
   -- TIPOS
@@ -310,7 +349,7 @@ CREATE OR REPLACE PACKAGE PKG_PREGUNTA AS
     p_cursor OUT SYS_REFCURSOR
   );
 
-  -- NUEVO: Procedimiento para obtener preguntas visibles para un docente específico
+  -- NUEVO: Procedimiento para obtener preguntas visibles para un docente especï¿½fico
   PROCEDURE obtener_preguntas_visibles_docente(-----------
     p_id_docente IN NUMBER,
     p_cursor OUT SYS_REFCURSOR
@@ -370,7 +409,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
         WHERE id_pregunta = p_id_pregunta;
         
         IF SQL%ROWCOUNT = 0 THEN
-            RAISE_APPLICATION_ERROR(-20001, 'No se encontró la pregunta con ID: ' || p_id_pregunta);
+            RAISE_APPLICATION_ERROR(-20001, 'No se encontrï¿½ la pregunta con ID: ' || p_id_pregunta);
         END IF;
         
         COMMIT;
@@ -433,7 +472,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_PREGUNTA AS
         ORDER BY p.ID_PREGUNTA DESC;
     END obtener_preguntas_por_tema_docente;
 
-    -- NUEVO: Procedimiento para obtener preguntas visibles para un docente específico
+    -- NUEVO: Procedimiento para obtener preguntas visibles para un docente especï¿½fico
     PROCEDURE obtener_preguntas_visibles_docente (
         p_id_docente IN NUMBER,
         p_cursor     OUT SYS_REFCURSOR
@@ -551,8 +590,8 @@ BEGIN
 
     DBMS_OUTPUT.PUT_LINE('Total presentaciones: ' || v_total_presentaciones);
     DBMS_OUTPUT.PUT_LINE('Promedio: ' || ROUND(v_promedio, 2));
-    DBMS_OUTPUT.PUT_LINE('Máxima: ' || v_maxima);
-    DBMS_OUTPUT.PUT_LINE('Mínima: ' || v_minima);
+    DBMS_OUTPUT.PUT_LINE('Mï¿½xima: ' || v_maxima);
+    DBMS_OUTPUT.PUT_LINE('Mï¿½nima: ' || v_minima);
 
     -- Guardar en tabla
     MERGE INTO ESTADISTICAS_EXAMEN e
@@ -639,10 +678,10 @@ BEGIN
     WHERE g.id_grupo = p_id_grupo;
 
     DBMS_OUTPUT.PUT_LINE('Grupo ID: ' || p_id_grupo);
-    DBMS_OUTPUT.PUT_LINE('Total exámenes: ' || v_total_examenes);
+    DBMS_OUTPUT.PUT_LINE('Total exï¿½menes: ' || v_total_examenes);
     DBMS_OUTPUT.PUT_LINE('Promedio: ' || ROUND(v_promedio, 2));
-    DBMS_OUTPUT.PUT_LINE('Máxima: ' || v_maxima);
-    DBMS_OUTPUT.PUT_LINE('Mínima: ' || v_minima);
+    DBMS_OUTPUT.PUT_LINE('Mï¿½xima: ' || v_maxima);
+    DBMS_OUTPUT.PUT_LINE('Mï¿½nima: ' || v_minima);
 
     MERGE INTO ESTADISTICAS_GRUPO e
     USING (SELECT p_id_grupo AS id_grupo FROM dual) src
@@ -692,8 +731,8 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Correctas: ' || v_correctas);
     DBMS_OUTPUT.PUT_LINE('Incorrectas: ' || v_incorrectas);
     DBMS_OUTPUT.PUT_LINE('Promedio: ' || ROUND(v_promedio_nota, 2));
-    DBMS_OUTPUT.PUT_LINE('Máxima: ' || v_max_nota);
-    DBMS_OUTPUT.PUT_LINE('Mínima: ' || v_min_nota);
+    DBMS_OUTPUT.PUT_LINE('Mï¿½xima: ' || v_max_nota);
+    DBMS_OUTPUT.PUT_LINE('Mï¿½nima: ' || v_min_nota);
 
     MERGE INTO ESTADISTICAS_TEMA e
     USING (SELECT p_id_tema AS id_tema FROM dual) src
