@@ -74,7 +74,7 @@ public class PresentacionExamenDAO {
     }
 
     public static void calificarAutomaticamente(int idPresentacion) {
-        String sql = "{ call CALIFICAR_EXAMEN_AUTOMATICO(?, ?) }";
+        String sql = "{ call PKG_PRESENTACION_EXAMEN.CALIFICAR_EXAMEN_AUTOMATICO(?, ?) }";
 
         try (Connection conn = DBConnection.getConnection();
              CallableStatement stmt = conn.prepareCall(sql)) {

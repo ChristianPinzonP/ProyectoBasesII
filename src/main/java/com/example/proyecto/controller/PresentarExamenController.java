@@ -121,11 +121,15 @@ public class PresentarExamenController {
         }
 
         PresentacionExamenDAO.calificarAutomaticamente(idPresentacion);
+
+        imprimirNotasHijasAjustadas();  // <- AQUÍ
+
         double nota = PresentacionExamenDAO.obtenerCalificacion(idPresentacion);
 
         bloquearInterfaz();
         mostrarAlertaFX("Examen finalizado", "Su calificación fue: " + nota);
     }
+
 
     private void finalizarExamenDesdeTemporizador() {
         Platform.runLater(() -> {
@@ -149,4 +153,27 @@ public class PresentarExamenController {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+    private void imprimirNotasHijasAjustadas() {
+        List<Pregunta> preguntas = PreguntaDAO.obtenerPreguntasConOpcionesPorExamen(idExamen);
+
+        for (Pregunta padre : preguntas) {
+            if (padre.getTipo().equalsIgnoreCase("Compuesta") && padre.getPreguntasHijas() != null) {
+                double notaPadre = padre.getValorNota();
+                double sumaHijas = padre.getPreguntasHijas().stream().mapToDouble(Pregunta::getValorNota).sum();
+
+                for (Pregunta hija : padre.getPreguntasHijas()) {
+                    double notaOriginal = hija.getValorNota();
+                    double notaAjustada = notaOriginal;
+
+                    if (sumaHijas > notaPadre) {
+                        notaAjustada = (notaOriginal / sumaHijas) * notaPadre;
+                    }
+
+                    System.out.printf("Pregunta hija ID: %d | Nota original: %.2f | Nota ajustada: %.2f%n",
+                            hija.getId(), notaOriginal, notaAjustada);
+                }
+            }
+        }
+    }
+
 }
