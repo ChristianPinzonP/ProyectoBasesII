@@ -110,7 +110,7 @@ public class PresentacionExamenDAO {
     }
 
     public static int obtenerIdPresentacion(int idEstudiante, int idExamen) {
-        String sql = "SELECT ID_PRESENTACION FROM PRESENTACION_EXAMEN WHERE ID_ESTUDIANTE = ? AND ID_EXAMEN = ?";
+        String sql = "SELECT ID_PRESENTACION FROM PRESENTACION_EXAMEN WHERE ID_ESTUDIANTE = ? AND ID_EXAMEN = ? ORDER BY ID_PRESENTACION DESC FETCH FIRST 1 ROWS ONLY";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -148,5 +148,43 @@ public class PresentacionExamenDAO {
 
         return false;
     }
+
+    public static int contarIntentosRealizados(int idEstudiante, int idExamen) {
+        String sql = "SELECT COUNT(*) AS TOTAL FROM PRESENTACION_EXAMEN WHERE ID_ESTUDIANTE = ? AND ID_EXAMEN = ? AND UPPER(ESTADO) = 'FINALIZADO'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idEstudiante);
+            stmt.setInt(2, idExamen);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int total = rs.getInt("TOTAL");
+                System.out.println(">> Total finalizados: " + total);
+                return total;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    public static int obtenerIntentosPermitidos(int idExamen) {
+        String sql = "SELECT INTENTOS_PERMITIDOS FROM EXAMEN WHERE ID_EXAMEN = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idExamen);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("INTENTOS_PERMITIDOS");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 1; // valor por defecto si algo falla
+    }
+
 
 }

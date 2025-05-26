@@ -43,6 +43,7 @@ public class ExamenViewController {
     @FXML private ComboBox<Tema> cbTema;
     @FXML private ComboBox<Grupo> cbGrupo;
     @FXML private TextField txtNotaAsignacion;
+    @FXML private TextField txtIntentosPermitidos;
 
     private List<Tema> listaTemas;
     private ObservableList<Examen> listaExamenes;
@@ -99,6 +100,16 @@ public class ExamenViewController {
         List<Grupo> grupos = GrupoDAO.obtenerGruposPorDocente(docente.getIdDocente());
         cbGrupo.setItems(FXCollections.observableArrayList(grupos));
     }
+
+    @FXML
+    public void cargarExamenes() {
+        listaExamenes = FXCollections.observableArrayList(ExamenDAO.obtenerTodosLosExamenes());
+        filtroExamenes = new FilteredList<>(listaExamenes, p -> true);
+        SortedList<Examen> sorted = new SortedList<>(filtroExamenes);
+        sorted.comparatorProperty().bind(tablaExamenes.comparatorProperty());
+        tablaExamenes.setItems(sorted);
+    }
+
     @FXML
     public void agregarExamen() {
         if (!validarFormulario()) return;
@@ -115,6 +126,7 @@ public class ExamenViewController {
         nuevoExamen.setIdTema(cbTema.getValue().getId());
         nuevoExamen.setIdGrupo(cbGrupo.getValue().getIdGrupo());
         nuevoExamen.setIdDocente(docenteActual.getIdDocente());
+        nuevoExamen.setIntentosPermitidos(Integer.parseInt(txtIntentosPermitidos.getText().trim()));
 
         boolean exito = ExamenDAO.agregarExamen(nuevoExamen);
 
@@ -127,64 +139,10 @@ public class ExamenViewController {
         }
     }
 
-    @FXML
-    public void cargarExamenes() {
-        listaExamenes = FXCollections.observableArrayList(ExamenDAO.obtenerTodosLosExamenes());
-        filtroExamenes = new FilteredList<>(listaExamenes, p -> true);
-        SortedList<Examen> sorted = new SortedList<>(filtroExamenes);
-        sorted.comparatorProperty().bind(tablaExamenes.comparatorProperty());
-        tablaExamenes.setItems(sorted);
-    }
 
     private void cargarPreguntasDisponibles(int idTema) {
         List<Pregunta> preguntas = PreguntaDAO.obtenerPreguntasPorTema(idTema, docenteActual.getIdDocente());
         listPreguntasDisponibles.setItems(FXCollections.observableArrayList(preguntas));
-    }
-
-    @FXML
-    public void asignarPregunta() {
-        Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
-        Pregunta pr = listPreguntasDisponibles.getSelectionModel().getSelectedItem();
-        if (ex == null || pr == null) {
-            mostrarAlerta("Error", "Selecciona un examen y una pregunta.", Alert.AlertType.ERROR);
-            return;
-        }
-        try {
-            double nota = Double.parseDouble(txtNotaAsignacion.getText().trim());
-            if (nota <= 0 || nota > 5) throw new NumberFormatException();
-            if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pr.getId(), nota)) {
-                mostrarAlerta("Éxito", "Pregunta asignada con nota.", Alert.AlertType.INFORMATION);
-                cargarPreguntasDeExamen();
-            } else mostrarAlerta("Error", "No se pudo asignar.", Alert.AlertType.ERROR);
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "Nota inválida (0.1 - 5).", Alert.AlertType.WARNING);
-        }
-    }
-
-    @FXML
-    public void eliminarPreguntaAsignada() {
-        Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
-        Pregunta pr = listPreguntasAsignadas.getSelectionModel().getSelectedItem();
-        if (ex == null || pr == null) {
-            mostrarAlerta("Error", "Selecciona examen y pregunta.", Alert.AlertType.ERROR);
-            return;
-        }
-        Alert conf = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar esta pregunta?", ButtonType.OK, ButtonType.CANCEL);
-        Optional<ButtonType> res = conf.showAndWait();
-        if (res.isPresent() && res.get() == ButtonType.OK) {
-            if (ExamenPreguntaDAO.eliminarPreguntaDeExamen(ex.getId(), pr.getId())) {
-                mostrarAlerta("Éxito", "Pregunta eliminada.", Alert.AlertType.INFORMATION);
-                cargarPreguntasDeExamen();
-            } else mostrarAlerta("Error", "No se pudo eliminar.", Alert.AlertType.ERROR);
-        }
-    }
-
-    private void cargarPreguntasDeExamen() {
-        Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
-        if (ex != null) {
-            List<Pregunta> preguntas = ExamenPreguntaDAO.obtenerPreguntasDeExamen(ex.getId());
-            listPreguntasAsignadas.setItems(FXCollections.observableArrayList(preguntas));
-        }
     }
 
     private void seleccionarExamen() {
@@ -199,10 +157,15 @@ public class ExamenViewController {
             txtNumPreguntas.setText(String.valueOf(ex.getNumeroPreguntas()));
             cbModoSeleccion.setValue(ex.getModoSeleccion());
             txtTiempoPorPregunta.setText(String.valueOf(ex.getTiempoPorPregunta()));
+            txtIntentosPermitidos.setText(String.valueOf(ex.getIntentosPermitidos()));
             cbTema.getItems().stream().filter(t -> t.getId() == ex.getIdTema()).findFirst().ifPresent(t -> cbTema.getSelectionModel().select(t));
             cbGrupo.getItems().stream().filter(g -> g.getIdGrupo() == ex.getIdGrupo()).findFirst().ifPresent(g -> cbGrupo.getSelectionModel().select(g));
             cargarPreguntasDisponibles(ex.getIdTema());
-            cargarPreguntasDeExamen();
+
+            // ✅ CARGAR preguntas asignadas al examen
+            listPreguntasAsignadas.setItems(FXCollections.observableArrayList(
+                    ExamenPreguntaDAO.obtenerPreguntasDeExamen(ex.getId())
+            ));
         }
     }
 
@@ -226,6 +189,7 @@ public class ExamenViewController {
         txtNotaAsignacion.clear();
         cbTema.getSelectionModel().clearSelection();
         cbGrupo.getSelectionModel().clearSelection();
+        txtIntentosPermitidos.clear();
     }
 
     private boolean validarFormulario() {
@@ -239,18 +203,15 @@ public class ExamenViewController {
         if (txtTiempoPorPregunta.getText().isEmpty()) error.append("Tiempo por pregunta requerido.\n");
         if (cbTema.getValue() == null) error.append("Tema requerido.\n");
         if (cbGrupo.getValue() == null) error.append("Grupo requerido.\n");
+        if (txtIntentosPermitidos.getText().isEmpty()) error.append("Intentos permitidos requerido.\n");
 
         try {
             if (Integer.parseInt(txtTiempoLimite.getText()) <= 0) error.append("Tiempo debe ser positivo.\n");
             if (Integer.parseInt(txtNumPreguntas.getText()) <= 0) error.append("Mínimo 1 pregunta.\n");
             if (Integer.parseInt(txtTiempoPorPregunta.getText()) <= 0) error.append("Tiempo por pregunta inválido.\n");
+            if (Integer.parseInt(txtIntentosPermitidos.getText()) <= 0) error.append("Los intentos deben ser mayor que 0.\n");
         } catch (NumberFormatException e) {
             error.append("Valores numéricos inválidos.\n");
-        }
-
-        if (dpFechaInicio.getValue() != null && dpFechaFin.getValue() != null &&
-                dpFechaInicio.getValue().isAfter(dpFechaFin.getValue())) {
-            error.append("Fecha de inicio posterior a fecha fin.\n");
         }
 
         if (!error.toString().isEmpty()) {
@@ -259,6 +220,7 @@ public class ExamenViewController {
         }
         return true;
     }
+
     @FXML
     public void editarExamen() {
         Examen examenSeleccionado = tablaExamenes.getSelectionModel().getSelectedItem();
@@ -278,7 +240,8 @@ public class ExamenViewController {
         examenSeleccionado.setModoSeleccion(cbModoSeleccion.getValue());
         examenSeleccionado.setTiempoPorPregunta(Integer.parseInt(txtTiempoPorPregunta.getText().trim()));
         examenSeleccionado.setIdTema(cbTema.getValue().getId());
-        examenSeleccionado.setIdGrupo(cbGrupo.getValue().getId());
+        examenSeleccionado.setIdGrupo(cbGrupo.getValue().getIdGrupo());
+        examenSeleccionado.setIntentosPermitidos(Integer.parseInt(txtIntentosPermitidos.getText().trim()));
 
         boolean actualizado = ExamenDAO.editarExamen(examenSeleccionado);
 
@@ -290,6 +253,7 @@ public class ExamenViewController {
             mostrarAlerta("Error", "No se pudo actualizar el examen.", Alert.AlertType.ERROR);
         }
     }
+
     @FXML
     public void eliminarExamen() {
         Examen examenSeleccionado = tablaExamenes.getSelectionModel().getSelectedItem();
@@ -317,4 +281,39 @@ public class ExamenViewController {
         }
     }
 
+    @FXML
+    public void asignarPregunta() {
+        Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
+        Pregunta pr = listPreguntasDisponibles.getSelectionModel().getSelectedItem();
+        if (ex == null || pr == null) {
+            mostrarAlerta("Error", "Selecciona un examen y una pregunta.", Alert.AlertType.ERROR);
+            return;
+        }
+        try {
+            double nota = Double.parseDouble(txtNotaAsignacion.getText().trim());
+            if (nota <= 0 || nota > 5) throw new NumberFormatException();
+            if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pr.getId(), nota)) {
+                mostrarAlerta("Éxito", "Pregunta asignada con nota.", Alert.AlertType.INFORMATION);
+            } else mostrarAlerta("Error", "No se pudo asignar.", Alert.AlertType.ERROR);
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Error", "Nota inválida (0.1 - 5).", Alert.AlertType.WARNING);
+        }
+    }
+
+    @FXML
+    public void eliminarPreguntaAsignada() {
+        Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
+        Pregunta pr = listPreguntasAsignadas.getSelectionModel().getSelectedItem();
+        if (ex == null || pr == null) {
+            mostrarAlerta("Error", "Selecciona examen y pregunta.", Alert.AlertType.ERROR);
+            return;
+        }
+        Alert conf = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar esta pregunta?", ButtonType.OK, ButtonType.CANCEL);
+        Optional<ButtonType> res = conf.showAndWait();
+        if (res.isPresent() && res.get() == ButtonType.OK) {
+            if (ExamenPreguntaDAO.eliminarPreguntaDeExamen(ex.getId(), pr.getId())) {
+                mostrarAlerta("Éxito", "Pregunta eliminada.", Alert.AlertType.INFORMATION);
+            } else mostrarAlerta("Error", "No se pudo eliminar.", Alert.AlertType.ERROR);
+        }
+    }
 }

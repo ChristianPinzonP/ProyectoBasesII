@@ -65,14 +65,17 @@
     <Label text="Tiempo por Pregunta (min):" GridPane.columnIndex="4" GridPane.rowIndex="4" />
     <TextField fx:id="txtTiempoPorPregunta" GridPane.columnIndex="5" GridPane.rowIndex="4" />
 
-    <!-- Formulario: Cuarto bloque -->
-    <Label text="Grupo:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-    <ComboBox fx:id="cbGrupo" GridPane.columnIndex="1" GridPane.rowIndex="5" prefWidth="220"/>
+    <!-- 🆕 Cuarto bloque: Intentos permitidos -->
+    <Label text="Intentos Permitidos:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+    <TextField fx:id="txtIntentosPermitidos" GridPane.columnIndex="1" GridPane.rowIndex="5" prefWidth="220"/>
 
-    <Label text="Tema:" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-    <ComboBox fx:id="cbTema" GridPane.columnIndex="3" GridPane.rowIndex="5" prefWidth="220"/>
+    <Label text="Grupo:" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+    <ComboBox fx:id="cbGrupo" GridPane.columnIndex="3" GridPane.rowIndex="5" prefWidth="220"/>
 
-    <!-- Botones para CRUD de exámenes en fila separada -->
+    <Label text="Tema:" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+    <ComboBox fx:id="cbTema" GridPane.columnIndex="5" GridPane.rowIndex="5" prefWidth="220"/>
+
+    <!-- Botones para CRUD de exámenes -->
     <HBox spacing="15" GridPane.columnIndex="3" GridPane.rowIndex="6" alignment="CENTER_RIGHT">
         <Button text="Agregar" onAction="#agregarExamen" prefWidth="90" />
         <Button text="Editar Examen" onAction="#editarExamen" prefWidth="110" />

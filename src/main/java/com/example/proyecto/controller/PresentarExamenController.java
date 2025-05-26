@@ -34,24 +34,25 @@ public class PresentarExamenController {
     public void inicializar(int idExamen, int idEstudiante, int tiempoLimiteSegundos) {
         this.idExamen = idExamen;
         this.idEstudiante = idEstudiante;
-        this.tiempoLimiteSegundos = tiempoLimiteSegundos * 60;  // Convertir minutos a segundos
+        this.tiempoLimiteSegundos = tiempoLimiteSegundos * 60; // minutos a segundos
 
+        // VALIDACIÓN CORRECTA DE INTENTOS
+        int intentosHechos = PresentacionExamenDAO.contarIntentosRealizados(idEstudiante, idExamen);
+        int intentosPermitidos = PresentacionExamenDAO.obtenerIntentosPermitidos(idExamen);
 
-        // Verificar si ya existe una presentación y está finalizada
-        idPresentacion = PresentacionExamenDAO.obtenerIdPresentacion(idEstudiante, idExamen);
-        if (idPresentacion != -1 && PresentacionExamenDAO.examenFinalizado(idPresentacion)) {
-            mostrarAlertaFX("Intento inválido", "Ya ha finalizado este examen. No puede volver a presentarlo.");
+        if (intentosHechos >= intentosPermitidos) {
+            mostrarAlertaFX("Límite de intentos", "Ya has alcanzado el número máximo de intentos permitidos para este examen.");
             bloquearInterfaz();
             return;
         }
 
-        if (idPresentacion == -1) {
-            idPresentacion = PresentacionExamenDAO.registrarPresentacion(idExamen, idEstudiante);
-        }
+        // Registrar el nuevo intento
+        this.idPresentacion = PresentacionExamenDAO.registrarPresentacion(idExamen, idEstudiante);
 
         cargarPreguntas();
         iniciarTemporizador();
     }
+
 
     private void cargarPreguntas() {
         List<Pregunta> preguntas = PreguntaDAO.obtenerPreguntasConOpcionesPorExamen(idExamen);

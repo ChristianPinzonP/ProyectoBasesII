@@ -25,7 +25,6 @@ public class EstudianteExamenesController {
     @FXML private TableColumn<Examen, LocalDate> colFechaFin;
     @FXML private Button btnPresentar;
 
-    // NUEVO: Etiquetas para mostrar nombre y grupo
     @FXML private Label lblNombreEstudiante;
     @FXML private Label lblGrupo;
 
@@ -35,17 +34,14 @@ public class EstudianteExamenesController {
     public void inicializar(Estudiante estudiante) {
         this.estudiante = estudiante;
 
-        // Mostrar nombre del estudiante
         lblNombreEstudiante.setText("Bienvenido, " + estudiante.getNombre());
 
-        // Mostrar grupo (si tiene)
         if (estudiante.getGrupo() != null) {
             lblGrupo.setText(estudiante.getGrupo().getNombre());
         } else {
             lblGrupo.setText("Sin grupo");
         }
 
-        // Configurar columnas de la tabla
         colNombre.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNombre()));
         colDescripcion.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDescripcion()));
         colFechaInicio.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getFechaInicio().toLocalDate()));
@@ -101,6 +97,7 @@ public class EstudianteExamenesController {
             mostrarAlerta("Error", "No se pudo abrir el examen.", Alert.AlertType.ERROR);
         }
     }
+
 
     private void mostrarAlerta(String titulo, String msg, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
