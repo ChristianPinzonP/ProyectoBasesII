@@ -44,9 +44,10 @@ public class PreguntaViewController {
 
     @FXML
     public void initialize() {
+        //Obtener el docente actual - Esto viene del login
         docenteActual = SesionUsuario.getDocenteActual();
         if (docenteActual == null) {
-            docenteActual = DocenteDAO.obtenerDocentePorId(1);
+            docenteActual = DocenteDAO.obtenerDocentePorId(1); // Ajusta según tu caso
             SesionUsuario.setDocenteActual(docenteActual);
         }
 
@@ -55,6 +56,7 @@ public class PreguntaViewController {
 
         cbTipoPregunta.setItems(FXCollections.observableArrayList("Opción Múltiple", "Verdadero/Falso", "Respuesta Corta"));
         cbTipoPregunta.setOnAction(event -> actualizarOpcionesRespuesta());
+        cbPreguntaPadre.setItems(FXCollections.observableArrayList(PreguntaDAO.obtenerPreguntasCandidatasAPadre(docenteActual.getIdDocente())));
 
         cbPreguntaPadre.setConverter(new StringConverter<>() {
             @Override
@@ -77,33 +79,48 @@ public class PreguntaViewController {
         colHijaId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colHijaTexto.setCellValueFactory(new PropertyValueFactory<>("texto"));
 
-        colEsPublica.setCellFactory(tc -> new TableCell<>() {
+        // Personalizar la columna de visibilidad
+        colEsPublica.setCellFactory(tc -> new TableCell<Pregunta, Boolean>() {
             @Override
             protected void updateItem(Boolean esPublica, boolean empty) {
                 super.updateItem(esPublica, empty);
-                setText(empty || esPublica == null ? null : (esPublica ? "Pública" : "Privada"));
+                if (empty || esPublica == null) {
+                    setText(null);
+                } else {
+                    setText(esPublica ? "Pública" : "Privada");
+                }
             }
         });
-
         chkEsPreguntaPadre.setOnAction(e -> manejarCambioTipoPreguntaCompuesta());
+
         cargarPreguntas();
-        actualizarComboPadres();
     }
+
     @FXML
     private void manejarCambioTipoPreguntaCompuesta() {
         boolean esPadre = chkEsPreguntaPadre.isSelected();
+
+        // Ocultar o mostrar las opciones
         vboxOpciones.setDisable(esPadre);
         cbPreguntaPadre.setDisable(esPadre);
         cbTipoPregunta.setDisable(esPadre);
+
         if (esPadre) {
-            vboxOpciones.getChildren().clear();
-            cbPreguntaPadre.getSelectionModel().clearSelection();
-            cbTipoPregunta.getSelectionModel().clearSelection();
+            vboxOpciones.getChildren().clear(); // Limpia cualquier opción de respuesta cargada
+            cbPreguntaPadre.getSelectionModel().clearSelection(); // Limpia selección de padre
+            cbTipoPregunta.getSelectionModel().clearSelection(); // limpiar tipo de pregunta
         } else {
             cbTipoPregunta.setDisable(false);
-            actualizarOpcionesRespuesta();
+            actualizarOpcionesRespuesta(); // Vuelve a mostrar según tipo
         }
     }
+
+    // Método para refrescar el ComboBox cuando sea necesario:
+    private void actualizarComboBoxPreguntaPadre() {
+        List<Pregunta> preguntasCandidatas = PreguntaDAO.obtenerPreguntasCandidatasAPadre(docenteActual.getIdDocente());
+        cbPreguntaPadre.setItems(FXCollections.observableArrayList(preguntasCandidatas));
+    }
+
     @FXML
     public void editarPregunta() {
         Pregunta seleccionada = tablaPreguntas.getSelectionModel().getSelectedItem();
@@ -111,57 +128,464 @@ public class PreguntaViewController {
             mostrarAlerta("Error", "Seleccione una pregunta para editar.", Alert.AlertType.WARNING);
             return;
         }
+
         if (seleccionada.isEsPublica() && seleccionada.getIdDocente() != docenteActual.getIdDocente()) {
-            mostrarAlerta("Error", "No puede editar esta pregunta.", Alert.AlertType.WARNING);
+            mostrarAlerta("Error", "No puede editar esta pregunta porque pertenece a otro docente.", Alert.AlertType.WARNING);
             return;
         }
 
         preguntaEnEdicion = seleccionada;
-        boolean esPadre = "Compuesta".equalsIgnoreCase(seleccionada.getTipo()) || !PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId()).isEmpty();
 
-        chkEsPreguntaPadre.setSelected(esPadre);
-        chkEsPreguntaPadre.setDisable(true);
+        // Verificar si es pregunta hija (tiene padre asignado)
+        boolean esPreguntaHija = seleccionada.getIdPreguntaPadre() != null && seleccionada.getIdPreguntaPadre() > 0;
+
+        // Verificar si es pregunta padre (tipo compuesta O tiene hijas)
+        boolean esTipoCompuesta = "Compuesta".equalsIgnoreCase(seleccionada.getTipo());
+        boolean tieneHijas = !PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId()).isEmpty();
+        boolean esPreguntaPadre = esTipoCompuesta || tieneHijas;
+
+        // Debug mejorado
+        System.out.println("=== EDITANDO PREGUNTA ===");
+        System.out.println("ID: " + seleccionada.getId());
+        System.out.println("Tipo: " + seleccionada.getTipo());
+        System.out.println("ID Padre: " + seleccionada.getIdPreguntaPadre());
+        System.out.println("Es pregunta hija: " + esPreguntaHija);
+        System.out.println("Es pregunta padre: " + esPreguntaPadre);
+        System.out.println("========================");
+
+        // Configurar checkbox de pregunta padre
+        chkEsPreguntaPadre.setSelected(esPreguntaPadre);
+        chkEsPreguntaPadre.setDisable(true); // Siempre desactivado al editar
+
+        // Llenar campos básicos
         txtTexto.setText(seleccionada.getTexto());
         cbTipoPregunta.setValue(seleccionada.getTipo());
-        cbTipoPregunta.setDisable(esPadre);
         txtValorNota.setText(String.valueOf(seleccionada.getValorNota()));
         chkEsPublica.setSelected(seleccionada.isEsPublica());
-        cbTema.getSelectionModel().select(listaTemas.stream().filter(t -> t.getId() == seleccionada.getIdTema()).findFirst().orElse(null));
-        actualizarComboPadres();
-        cbPreguntaPadre.getSelectionModel().select(seleccionada.getIdPreguntaPadre() == null ? null :
-                cbPreguntaPadre.getItems().stream().filter(p -> p.getId() == seleccionada.getIdPreguntaPadre()).findFirst().orElse(null));
 
-        if (esPadre) {
+        // Seleccionar tema
+        for (Tema tema : listaTemas) {
+            if (tema.getId() == seleccionada.getIdTema()) {
+                cbTema.getSelectionModel().select(tema);
+                break;
+            }
+        }
+
+        if (esPreguntaPadre) {
+            // Configuración para pregunta padre
             vboxOpciones.getChildren().clear();
-            tablaHijas.setItems(FXCollections.observableArrayList(PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId())));
-        } else {
-            actualizarOpcionesRespuesta();
-            List<OpcionRespuesta> opciones = PreguntaDAO.obtenerOpcionesDePregunta(seleccionada.getId());
-            switch (seleccionada.getTipo()) {
-                case "Opción Múltiple" -> {
-                    if (opciones.size() >= 4) {
-                        txtOpcion1.setText(opciones.get(0).getTexto()); chkCorrecta1.setSelected(opciones.get(0).isCorrecta());
-                        txtOpcion2.setText(opciones.get(1).getTexto()); chkCorrecta2.setSelected(opciones.get(1).isCorrecta());
-                        txtOpcion3.setText(opciones.get(2).getTexto()); chkCorrecta3.setSelected(opciones.get(2).isCorrecta());
-                        txtOpcion4.setText(opciones.get(3).getTexto()); chkCorrecta4.setSelected(opciones.get(3).isCorrecta());
-                    }
-                }
-                case "Verdadero/Falso" -> {
-                    chkCorrecta1.setSelected(opciones.get(0).isCorrecta());
-                    chkCorrecta2.setSelected(opciones.get(1).isCorrecta());
-                }
-                case "Respuesta Corta" -> {
-                    if (!opciones.isEmpty()) txtRespuestaCorta.setText(opciones.get(0).getTexto());
+            cbPreguntaPadre.getSelectionModel().clearSelection();
+            cbPreguntaPadre.setDisable(true);
+            cbTipoPregunta.setDisable(true);
+
+            // Cargar preguntas hijas en la tabla
+            List<Pregunta> hijas = PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId());
+            tablaHijas.setItems(FXCollections.observableArrayList(hijas));
+
+        } else if (esPreguntaHija) {
+            // Configuración para pregunta hija
+            cbPreguntaPadre.setDisable(true); // CRÍTICO: Deshabilitar para preguntas hijas
+            cbTipoPregunta.setDisable(false); // Permitir cambiar tipo
+
+            // Buscar y seleccionar el padre actual
+            Pregunta padreActual = null;
+            for (Pregunta p : cbPreguntaPadre.getItems()) {
+                if (p.getId() == seleccionada.getIdPreguntaPadre()) {
+                    padreActual = p;
+                    break;
                 }
             }
+
+            if (padreActual != null) {
+                cbPreguntaPadre.getSelectionModel().select(padreActual);
+                System.out.println("Padre seleccionado: " + padreActual.getTexto());
+            } else {
+                System.out.println("⚠️ No se encontró el padre en la lista del ComboBox");
+            }
+
+            // Aplicar estilo visual para indicar que no se puede cambiar
+            cbPreguntaPadre.setStyle("-fx-background-color: #f0f0f0; -fx-opacity: 0.7;");
+
+            // Actualizar opciones y cargar respuestas
+            actualizarOpcionesRespuesta();
+            cargarOpcionesExistentes(seleccionada);
+            tablaHijas.getItems().clear();
+
+        } else {
+            // Configuración para pregunta independiente (sin padre, no es padre)
+            cbPreguntaPadre.setDisable(false);
+            cbTipoPregunta.setDisable(false);
+            cbPreguntaPadre.getSelectionModel().clearSelection();
+            cbPreguntaPadre.setStyle(""); // Restaurar estilo normal
+
+            // Actualizar opciones y cargar respuestas
+            actualizarOpcionesRespuesta();
+            cargarOpcionesExistentes(seleccionada);
             tablaHijas.getItems().clear();
         }
     }
 
-    private void actualizarComboPadres() {
-        cbPreguntaPadre.setItems(FXCollections.observableArrayList(
-                PreguntaDAO.obtenerPreguntasVisiblesParaDocente(docenteActual.getIdDocente())
-        ));
+    // Método auxiliar para cargar las opciones existentes
+    private void cargarOpcionesExistentes(Pregunta pregunta) {
+        List<OpcionRespuesta> opciones = PreguntaDAO.obtenerOpcionesDePregunta(pregunta.getId());
+
+        switch (pregunta.getTipo()) {
+            case "Opción Múltiple":
+                if (opciones.size() >= 4) {
+                    txtOpcion1.setText(opciones.get(0).getTexto());
+                    chkCorrecta1.setSelected(opciones.get(0).isCorrecta());
+                    txtOpcion2.setText(opciones.get(1).getTexto());
+                    chkCorrecta2.setSelected(opciones.get(1).isCorrecta());
+                    txtOpcion3.setText(opciones.get(2).getTexto());
+                    chkCorrecta3.setSelected(opciones.get(2).isCorrecta());
+                    txtOpcion4.setText(opciones.get(3).getTexto());
+                    chkCorrecta4.setSelected(opciones.get(3).isCorrecta());
+                }
+                break;
+            case "Verdadero/Falso":
+                if (opciones.size() >= 2) {
+                    chkCorrecta1.setSelected(opciones.get(0).isCorrecta());
+                    chkCorrecta2.setSelected(opciones.get(1).isCorrecta());
+                }
+                break;
+            case "Respuesta Corta":
+                if (!opciones.isEmpty()) {
+                    txtRespuestaCorta.setText(opciones.get(0).getTexto());
+                }
+                break;
+        }
+    }
+
+    @FXML
+    private void quitarPreguntaHija() {
+        Pregunta hijaSeleccionada = tablaHijas.getSelectionModel().getSelectedItem();
+        if (hijaSeleccionada == null) {
+            mostrarAlerta("Advertencia", "Seleccione una pregunta hija para quitar.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        boolean exito = PreguntaDAO.quitarVinculoPadre(hijaSeleccionada.getId());
+        if (exito) {
+            tablaHijas.getItems().remove(hijaSeleccionada);
+            mostrarAlerta("Éxito", "La pregunta hija fue desvinculada del padre.", Alert.AlertType.INFORMATION);
+        } else {
+            mostrarAlerta("Error", "No se pudo desvincular la pregunta hija.", Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void eliminarPregunta() {
+        Pregunta seleccionada = tablaPreguntas.getSelectionModel().getSelectedItem();
+
+        if (seleccionada == null) {
+            mostrarAlerta("Error", "Debe seleccionar una pregunta para eliminar.", Alert.AlertType.WARNING);
+            return;
+        }
+        // Verificar si la pregunta pertenece al docente actual
+        if (seleccionada.getIdDocente() != docenteActual.getIdDocente()) {
+            mostrarAlerta("Error", "Solo puede eliminar preguntas creadas por usted.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar eliminación");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Está seguro de que desea eliminar la pregunta seleccionada?");
+
+        confirmacion.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                boolean exito = PreguntaDAO.eliminarPregunta(seleccionada.getId());
+                if (exito) {
+                    mostrarAlerta("Éxito", "Pregunta eliminada correctamente.", Alert.AlertType.INFORMATION);
+                    cargarPreguntas();
+                    limpiarFormulario();
+                } else {
+                    mostrarAlerta("Error", "No se pudo eliminar la pregunta.", Alert.AlertType.ERROR);
+                }
+            }
+        });
+    }
+
+    @FXML
+    public void guardarEdicion() {
+        if (preguntaEnEdicion == null) {
+            mostrarAlerta("Error", "Debe seleccionar una pregunta primero.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // Verificar estado actual de la pregunta
+        boolean esPreguntaHija = preguntaEnEdicion.getIdPreguntaPadre() != null && preguntaEnEdicion.getIdPreguntaPadre() > 0;
+        boolean esPreguntaPadre = chkEsPreguntaPadre.isSelected();
+
+        String nuevoTexto = txtTexto.getText().trim();
+        Tema temaSeleccionado = cbTema.getValue();
+        String valorNotaTexto = txtValorNota.getText().trim();
+        boolean nuevaEsPublica = chkEsPublica.isSelected();
+
+        System.out.println("=== GUARDANDO EDICIÓN ===");
+        System.out.println("ID pregunta: " + preguntaEnEdicion.getId());
+        System.out.println("Es pregunta hija: " + esPreguntaHija);
+        System.out.println("ID padre original: " + preguntaEnEdicion.getIdPreguntaPadre());
+
+        // VALIDACIÓN CRÍTICA: Verificar cambios en relación padre-hija
+        if (esPreguntaHija) {
+            Pregunta padreSeleccionado = cbPreguntaPadre.getValue();
+
+            // Verificar que el padre seleccionado coincida con el original
+            if (padreSeleccionado == null) {
+                mostrarAlerta("Error", "Una pregunta hija no puede quedar sin padre asignado.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            if (padreSeleccionado.getId() != preguntaEnEdicion.getIdPreguntaPadre()) {
+                mostrarAlerta("Error", "No se puede cambiar la pregunta padre de una pregunta hija existente.\n" +
+                        "Padre original: " + preguntaEnEdicion.getIdPreguntaPadre() +
+                        "\nPadre seleccionado: " + padreSeleccionado.getId(), Alert.AlertType.ERROR);
+                return;
+            }
+
+            System.out.println("✅ Validación padre-hija correcta");
+        }
+
+        // Validaciones básicas
+        if (nuevoTexto.isEmpty() || temaSeleccionado == null || valorNotaTexto.isEmpty()) {
+            mostrarAlerta("Error", "Debe completar todos los campos obligatorios.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        double nuevoValorNota;
+        try {
+            nuevoValorNota = Double.parseDouble(valorNotaTexto);
+            if (nuevoValorNota < 0 || nuevoValorNota > 5) {
+                mostrarAlerta("Error", "El valor de la nota debe estar entre 0 y 5.", Alert.AlertType.WARNING);
+                return;
+            }
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Error", "El valor de la nota debe ser un número válido.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // Determinar tipo y padre según el estado de la pregunta
+        String nuevoTipo;
+        Integer idPadre;
+
+        if (esPreguntaPadre) {
+            nuevoTipo = "Compuesta";
+            idPadre = null; // Las preguntas padre no tienen padre
+        } else if (esPreguntaHija) {
+            // Para preguntas hijas, mantener el padre original SIEMPRE
+            nuevoTipo = cbTipoPregunta.getValue();
+            idPadre = preguntaEnEdicion.getIdPreguntaPadre(); // NUNCA cambiar
+
+            if (nuevoTipo == null || nuevoTipo.isEmpty()) {
+                mostrarAlerta("Error", "Debe seleccionar un tipo de pregunta.", Alert.AlertType.WARNING);
+                return;
+            }
+        } else {
+            // Pregunta independiente
+            nuevoTipo = cbTipoPregunta.getValue();
+            Pregunta padreSeleccionado = cbPreguntaPadre.getValue();
+            idPadre = (padreSeleccionado != null) ? padreSeleccionado.getId() : null;
+
+            if (nuevoTipo == null || nuevoTipo.isEmpty()) {
+                mostrarAlerta("Error", "Debe seleccionar un tipo de pregunta.", Alert.AlertType.WARNING);
+                return;
+            }
+        }
+
+        // Preparar opciones de respuesta
+        List<OpcionRespuesta> nuevasOpciones = new ArrayList<>();
+        if (!esPreguntaPadre) {
+            switch (nuevoTipo) {
+                case "Opción Múltiple":
+                    agregarOpcionSiExiste(txtOpcion1, chkCorrecta1, nuevasOpciones);
+                    agregarOpcionSiExiste(txtOpcion2, chkCorrecta2, nuevasOpciones);
+                    agregarOpcionSiExiste(txtOpcion3, chkCorrecta3, nuevasOpciones);
+                    agregarOpcionSiExiste(txtOpcion4, chkCorrecta4, nuevasOpciones);
+                    break;
+                case "Verdadero/Falso":
+                    nuevasOpciones.add(new OpcionRespuesta("Verdadero", chkCorrecta1.isSelected()));
+                    nuevasOpciones.add(new OpcionRespuesta("Falso", chkCorrecta2.isSelected()));
+                    break;
+                case "Respuesta Corta":
+                    if (!txtRespuestaCorta.getText().trim().isEmpty()) {
+                        nuevasOpciones.add(new OpcionRespuesta(txtRespuestaCorta.getText().trim(), true));
+                    }
+                    break;
+            }
+        }
+
+        // VALIDACIÓN FINAL DE SEGURIDAD
+        if (esPreguntaHija && !idPadre.equals(preguntaEnEdicion.getIdPreguntaPadre())) {
+            mostrarAlerta("Error", "Error crítico: Se detectó un intento de modificar la relación padre-hija.", Alert.AlertType.ERROR);
+            System.out.println("❌ INTENTO DE MODIFICACIÓN BLOQUEADO - Padre original: " +
+                    preguntaEnEdicion.getIdPreguntaPadre() + ", Nuevo padre: " + idPadre);
+            return;
+        }
+
+        // Actualizar objeto pregunta
+        preguntaEnEdicion.setTexto(nuevoTexto);
+        preguntaEnEdicion.setTipo(nuevoTipo);
+        preguntaEnEdicion.setIdTema(temaSeleccionado.getId());
+        preguntaEnEdicion.setValorNota(nuevoValorNota);
+        preguntaEnEdicion.setEsPublica(nuevaEsPublica);
+        preguntaEnEdicion.setIdPreguntaPadre(idPadre);
+
+        System.out.println("Actualizando pregunta con padre: " + idPadre);
+
+        // Ejecutar actualización en base de datos
+        boolean exito = PreguntaDAO.actualizarPregunta(
+                preguntaEnEdicion.getId(), nuevoTexto, nuevoTipo, temaSeleccionado.getId(),
+                nuevoValorNota, nuevaEsPublica, idPadre, nuevasOpciones
+        );
+
+        if (exito) {
+            mostrarAlerta("Éxito", "Pregunta actualizada correctamente.", Alert.AlertType.INFORMATION);
+            cargarPreguntas();
+            limpiarFormulario();
+            preguntaEnEdicion = null;
+        } else {
+            mostrarAlerta("Error", "No se pudo actualizar la pregunta.", Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void agregarPregunta() {
+        String textoPregunta = txtTexto.getText().trim();
+        boolean esPreguntaPadre = chkEsPreguntaPadre.isSelected();
+        String tipoPregunta = esPreguntaPadre ? "Compuesta" : cbTipoPregunta.getValue();
+        Tema temaSeleccionado = cbTema.getValue();
+        String valorTexto = txtValorNota.getText().trim();
+        boolean esPublica = chkEsPublica.isSelected();
+        Pregunta padreSeleccionado = cbPreguntaPadre.getValue();
+        Integer idPadre = (!esPreguntaPadre && padreSeleccionado != null) ? padreSeleccionado.getId() : null;
+
+        List<OpcionRespuesta> opciones = new ArrayList<>();
+        if (!esPreguntaPadre) {
+            switch (tipoPregunta) {
+                case "Opción Múltiple":
+                    agregarOpcionSiExiste(txtOpcion1, chkCorrecta1, opciones);
+                    agregarOpcionSiExiste(txtOpcion2, chkCorrecta2, opciones);
+                    agregarOpcionSiExiste(txtOpcion3, chkCorrecta3, opciones);
+                    agregarOpcionSiExiste(txtOpcion4, chkCorrecta4, opciones);
+                    break;
+                case "Verdadero/Falso":
+                    opciones.add(new OpcionRespuesta("Verdadero", chkCorrecta1.isSelected()));
+                    opciones.add(new OpcionRespuesta("Falso", chkCorrecta2.isSelected()));
+                    break;
+                case "Respuesta Corta":
+                    if (!txtRespuestaCorta.getText().trim().isEmpty()) {
+                        opciones.add(new OpcionRespuesta(txtRespuestaCorta.getText().trim(), true));
+                    }
+                    break;
+            }
+        }
+        if(!esPreguntaPadre) {
+            if (textoPregunta.isEmpty() || tipoPregunta == null || temaSeleccionado == null || valorTexto.isEmpty()) {
+                mostrarAlerta("Error", "Debe completar todos los campos, incluyendo el valor de la nota.", Alert.AlertType.WARNING);
+                return;
+            }
+        } else {
+            if (textoPregunta.isEmpty() || temaSeleccionado == null || valorTexto.isEmpty()) {
+                mostrarAlerta("Error", "Pregunta padre debe completar el texto de la pregunta, " +
+                        "el tema y el valor de la nota.", Alert.AlertType.WARNING);
+                return;
+            }
+        }
+
+        double valorNota;
+        try {
+            valorNota = Double.parseDouble(valorTexto);
+            if (valorNota < 0 || valorNota > 5) {
+                mostrarAlerta("Error", "El valor de la nota debe estar entre 0 y 5.", Alert.AlertType.WARNING);
+                return;
+            }
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Error", "El valor de la nota debe ser un número válido.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (!esPreguntaPadre && padreSeleccionado != null && "Compuesta".equalsIgnoreCase(padreSeleccionado.getTipo())) {
+            mostrarAlerta("Error", "No puede asignar una pregunta hija a otra pregunta padre.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Pregunta nuevaPregunta = new Pregunta(0, textoPregunta, tipoPregunta, temaSeleccionado.getId(),
+                valorNota, esPublica, docenteActual.getIdDocente(), opciones);
+        nuevaPregunta.setNombreTema(temaSeleccionado.getNombre());
+        nuevaPregunta.setValorNota(valorNota);
+        nuevaPregunta.setIdPreguntaPadre(idPadre); // ASIGNAR PADRE
+
+        boolean insertada = PreguntaDAO.agregarPregunta(nuevaPregunta);
+
+        if (insertada) {
+            mostrarAlerta("Éxito", "Pregunta agregada correctamente.", Alert.AlertType.INFORMATION);
+            cargarPreguntas();
+            limpiarFormulario();
+        } else {
+            mostrarAlerta("Error", "No se pudo agregar la pregunta.", Alert.AlertType.ERROR);
+        }
+        actualizarComboBoxPreguntaPadre();
+    }
+
+    private void agregarOpcionSiExiste(TextField txtOpcion, CheckBox chkCorrecta, List<OpcionRespuesta> opciones) {
+        if (txtOpcion != null && chkCorrecta != null && !txtOpcion.getText().trim().isEmpty()) {
+            opciones.add(new OpcionRespuesta(txtOpcion.getText().trim(), chkCorrecta.isSelected()));
+        }
+    }
+
+    private void actualizarOpcionesRespuesta() {
+        if (chkEsPreguntaPadre.isSelected()) return;
+
+        vboxOpciones.getChildren().clear();
+        String tipoSeleccionado = cbTipoPregunta.getValue();
+
+        if (tipoSeleccionado == null) return;
+
+        switch (tipoSeleccionado) {
+            case "Opción Múltiple":
+                txtOpcion1 = new TextField(); chkCorrecta1 = new CheckBox("Correcto");
+                txtOpcion2 = new TextField(); chkCorrecta2 = new CheckBox("Correcto");
+                txtOpcion3 = new TextField(); chkCorrecta3 = new CheckBox("Correcto");
+                txtOpcion4 = new TextField(); chkCorrecta4 = new CheckBox("Correcto");
+
+                vboxOpciones.getChildren().addAll(crearFilaOpcion(txtOpcion1, chkCorrecta1));
+                vboxOpciones.getChildren().addAll(crearFilaOpcion(txtOpcion2, chkCorrecta2));
+                vboxOpciones.getChildren().addAll(crearFilaOpcion(txtOpcion3, chkCorrecta3));
+                vboxOpciones.getChildren().addAll(crearFilaOpcion(txtOpcion4, chkCorrecta4));
+                break;
+
+            case "Verdadero/Falso":
+                TextField txtVerdadero = new TextField("Verdadero"); txtVerdadero.setEditable(false);
+                TextField txtFalso = new TextField("Falso"); txtFalso.setEditable(false);
+                chkCorrecta1 = new CheckBox("Correcto");
+                chkCorrecta2 = new CheckBox("Correcto");
+                vboxOpciones.getChildren().addAll(crearFilaOpcion(txtVerdadero, chkCorrecta1));
+                vboxOpciones.getChildren().addAll(crearFilaOpcion(txtFalso, chkCorrecta2));
+                break;
+
+            case "Respuesta Corta":
+                txtRespuestaCorta = new TextField();
+                txtRespuestaCorta.setPromptText("Ingrese la respuesta correcta");
+                vboxOpciones.getChildren().add(txtRespuestaCorta);
+                break;
+        }
+    }
+
+    private VBox crearFilaOpcion(TextField txtOpcion, CheckBox chkCorrecta) {
+        VBox fila = new VBox(5);
+        fila.getChildren().addAll(txtOpcion, chkCorrecta);
+        return fila;
+    }
+
+    private void limpiarFormulario() {
+        txtTexto.clear();
+        txtValorNota.clear();
+        cbTipoPregunta.getSelectionModel().clearSelection();
+        cbTema.getSelectionModel().clearSelection();
+        chkEsPublica.setSelected(false);
+        vboxOpciones.getChildren().clear();
+        preguntaEnEdicion = null;
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
@@ -172,219 +596,13 @@ public class PreguntaViewController {
         alerta.showAndWait();
     }
 
-    private void actualizarOpcionesRespuesta() {
-        if (chkEsPreguntaPadre.isSelected()) return;
-        vboxOpciones.getChildren().clear();
-        String tipo = cbTipoPregunta.getValue();
-        if (tipo == null) return;
-
-        switch (tipo) {
-            case "Opción Múltiple" -> {
-                txtOpcion1 = new TextField(); chkCorrecta1 = new CheckBox("Correcta");
-                txtOpcion2 = new TextField(); chkCorrecta2 = new CheckBox("Correcta");
-                txtOpcion3 = new TextField(); chkCorrecta3 = new CheckBox("Correcta");
-                txtOpcion4 = new TextField(); chkCorrecta4 = new CheckBox("Correcta");
-                vboxOpciones.getChildren().addAll(
-                        crearFilaOpcion(txtOpcion1, chkCorrecta1),
-                        crearFilaOpcion(txtOpcion2, chkCorrecta2),
-                        crearFilaOpcion(txtOpcion3, chkCorrecta3),
-                        crearFilaOpcion(txtOpcion4, chkCorrecta4)
-                );
-            }
-            case "Verdadero/Falso" -> {
-                TextField txtV = new TextField("Verdadero"); txtV.setEditable(false);
-                TextField txtF = new TextField("Falso"); txtF.setEditable(false);
-                chkCorrecta1 = new CheckBox("Correcta");
-                chkCorrecta2 = new CheckBox("Correcta");
-                vboxOpciones.getChildren().addAll(
-                        crearFilaOpcion(txtV, chkCorrecta1),
-                        crearFilaOpcion(txtF, chkCorrecta2)
-                );
-            }
-            case "Respuesta Corta" -> {
-                txtRespuestaCorta = new TextField();
-                txtRespuestaCorta.setPromptText("Respuesta");
-                vboxOpciones.getChildren().add(txtRespuestaCorta);
-            }
-        }
-    }
-
-    private VBox crearFilaOpcion(TextField txt, CheckBox chk) {
-        VBox fila = new VBox(5);
-        fila.getChildren().addAll(txt, chk);
-        return fila;
-    }
-    @FXML
-    public void quitarPreguntaHija() {
-        Pregunta seleccionada = tablaHijas.getSelectionModel().getSelectedItem();
-        if (seleccionada != null) {
-            boolean exito = PreguntaDAO.quitarRelacionPadreHija(seleccionada.getId());
-            if (exito) {
-                mostrarAlerta("Éxito", "Pregunta hija desvinculada.", Alert.AlertType.INFORMATION);
-                tablaHijas.getItems().remove(seleccionada);
-                cargarPreguntas(); // Opcional: refrescar la tabla general
-            } else {
-                mostrarAlerta("Error", "No se pudo desvincular.", Alert.AlertType.ERROR);
-            }
-        }
-    }
-
-    @FXML
-    public void agregarPregunta() {
-        if (!validarCampos()) return;
-
-        Pregunta nueva = new Pregunta();
-        nueva.setTexto(txtTexto.getText().trim());
-        nueva.setTipo(cbTipoPregunta.getValue());
-        nueva.setIdTema(cbTema.getValue().getId());
-        nueva.setValorNota(Double.parseDouble(txtValorNota.getText()));
-        nueva.setEsPublica(chkEsPublica.isSelected());
-        nueva.setIdDocente(docenteActual.getIdDocente());
-
-        if (chkEsPreguntaPadre.isSelected()) {
-            nueva.setTipo("Compuesta");
-            nueva.setIdPreguntaPadre(null);
-        } else {
-            Pregunta padre = cbPreguntaPadre.getValue();
-            nueva.setIdPreguntaPadre(padre != null ? padre.getId() : null);
-        }
-
-        boolean creado = PreguntaDAO.agregarPreguntaConOpciones(nueva, obtenerOpcionesDesdeFormulario());
-
-        if (creado) {
-            mostrarAlerta("Éxito", "Pregunta creada correctamente.", Alert.AlertType.INFORMATION);
-            cargarPreguntas();
-            limpiarFormulario();
-        } else {
-            mostrarAlerta("Error", "No se pudo crear la pregunta.", Alert.AlertType.ERROR);
-        }
-    }
-
-    @FXML
-    public void guardarEdicion() {
-        if (preguntaEnEdicion == null) {
-            mostrarAlerta("Advertencia", "No hay pregunta en edición.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        if (!validarCampos()) return;
-
-        preguntaEnEdicion.setTexto(txtTexto.getText().trim());
-        preguntaEnEdicion.setTipo(cbTipoPregunta.getValue());
-        preguntaEnEdicion.setIdTema(cbTema.getValue().getId());
-        preguntaEnEdicion.setValorNota(Double.parseDouble(txtValorNota.getText()));
-        preguntaEnEdicion.setEsPublica(chkEsPublica.isSelected());
-
-        if (!chkEsPreguntaPadre.isSelected()) {
-            Pregunta padre = cbPreguntaPadre.getValue();
-            preguntaEnEdicion.setIdPreguntaPadre(padre != null ? padre.getId() : null);
-        }
-
-        boolean actualizado = PreguntaDAO.actualizarPregunta(
-                preguntaEnEdicion.getId(),
-                preguntaEnEdicion.getTexto(),
-                preguntaEnEdicion.getTipo(),
-                preguntaEnEdicion.getIdTema(),
-                preguntaEnEdicion.getValorNota(),
-                preguntaEnEdicion.isEsPublica(),
-                preguntaEnEdicion.getIdPreguntaPadre(),
-                obtenerOpcionesDesdeFormulario()
-        );
-
-
-        if (actualizado) {
-            mostrarAlerta("Éxito", "Pregunta actualizada correctamente.", Alert.AlertType.INFORMATION);
-            cargarPreguntas();
-            limpiarFormulario();
-        } else {
-            mostrarAlerta("Error", "No se pudo actualizar la pregunta.", Alert.AlertType.ERROR);
-        }
-    }
-
-    @FXML
-    public void eliminarPregunta() {
-        Pregunta seleccionada = tablaPreguntas.getSelectionModel().getSelectedItem();
-        if (seleccionada == null) {
-            mostrarAlerta("Advertencia", "Selecciona una pregunta para eliminar.", Alert.AlertType.WARNING);
-            return;
-        }
-
-        Alert confirmar = new Alert(Alert.AlertType.CONFIRMATION, "¿Deseas eliminar esta pregunta?", ButtonType.YES, ButtonType.NO);
-        if (confirmar.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
-            if (PreguntaDAO.eliminarPregunta(seleccionada.getId())) {
-                mostrarAlerta("Éxito", "Pregunta eliminada correctamente.", Alert.AlertType.INFORMATION);
-                cargarPreguntas();
-                limpiarFormulario();
-            } else {
-                mostrarAlerta("Error", "No se pudo eliminar la pregunta.", Alert.AlertType.ERROR);
-            }
-        }
-    }
-
-    private boolean validarCampos() {
-        if (txtTexto.getText().trim().isEmpty() || cbTema.getValue() == null ||
-                (!chkEsPreguntaPadre.isSelected() && cbTipoPregunta.getValue() == null)) {
-            mostrarAlerta("Error", "Todos los campos obligatorios deben estar llenos.", Alert.AlertType.WARNING);
-            return false;
-        }
-
-        try {
-            double valor = Double.parseDouble(txtValorNota.getText().trim());
-            if (valor < 0 || valor > 5) {
-                throw new NumberFormatException();
-            }
-        } catch (NumberFormatException e) {
-            mostrarAlerta("Error", "El valor de la nota debe ser un número entre 0 y 5.", Alert.AlertType.WARNING);
-            return false;
-        }
-        return true;
-    }
-
-    private List<OpcionRespuesta> obtenerOpcionesDesdeFormulario() {
-        List<OpcionRespuesta> opciones = new ArrayList<>();
-        String tipo = cbTipoPregunta.getValue();
-
-        switch (tipo) {
-            case "Opción Múltiple" -> {
-                opciones.add(new OpcionRespuesta(txtOpcion1.getText(), chkCorrecta1.isSelected()));
-                opciones.add(new OpcionRespuesta(txtOpcion2.getText(), chkCorrecta2.isSelected()));
-                opciones.add(new OpcionRespuesta(txtOpcion3.getText(), chkCorrecta3.isSelected()));
-                opciones.add(new OpcionRespuesta(txtOpcion4.getText(), chkCorrecta4.isSelected()));
-            }
-            case "Verdadero/Falso" -> {
-                opciones.add(new OpcionRespuesta("Verdadero", chkCorrecta1.isSelected()));
-                opciones.add(new OpcionRespuesta("Falso", chkCorrecta2.isSelected()));
-            }
-            case "Respuesta Corta" -> {
-                opciones.add(new OpcionRespuesta(txtRespuestaCorta.getText(), true));
-            }
-        }
-
-        return opciones;
-    }
-
-    private void limpiarFormulario() {
-        txtTexto.clear();
-        txtValorNota.clear();
-        cbTipoPregunta.getSelectionModel().clearSelection();
-        cbTema.getSelectionModel().clearSelection();
-        cbPreguntaPadre.getSelectionModel().clearSelection();
-        chkEsPublica.setSelected(false);
-        chkEsPreguntaPadre.setSelected(false);
-        chkEsPreguntaPadre.setDisable(false);
-        cbTipoPregunta.setDisable(false);
-        cbPreguntaPadre.setDisable(false);
-        vboxOpciones.getChildren().clear();
-        tablaHijas.getItems().clear();
-        actualizarComboPadres();
-        preguntaEnEdicion = null;
-    }
-    @FXML
     public void cargarPreguntas() {
-        ObservableList<Pregunta> lista = FXCollections.observableArrayList(
+        // Cargar solo las preguntas visibles para el docente actual
+        // (Preguntas públicas + preguntas privadas propias)
+        ObservableList<Pregunta> listaPreguntas = FXCollections.observableArrayList(
                 PreguntaDAO.obtenerPreguntasVisiblesParaDocente(docenteActual.getIdDocente())
         );
-        tablaPreguntas.setItems(lista);
+        tablaPreguntas.setItems(listaPreguntas);
+        actualizarComboBoxPreguntaPadre();
     }
 }
-

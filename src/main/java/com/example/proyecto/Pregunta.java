@@ -15,7 +15,7 @@ public class Pregunta {
     private Integer idPreguntaPadre;
 
     private List<OpcionRespuesta> opciones;
-    private List<Pregunta> preguntasHijas; // NUEVO
+    private List<Pregunta> preguntasHijas;
 
     // Constructor completo
     public Pregunta(int id, String texto, String tipo, int idTema, double valorNota,
