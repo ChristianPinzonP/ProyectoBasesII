@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyecto.controller.EstadisticasViewController">
+    <VBox spacing="10.0">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+        <TitledPane text="Estudiantes">
+            <TableView fx:id="tablaEstudiantes">
+                <columns>
+                    <TableColumn fx:id="colIdEstudiante" text="ID" />
+                    <TableColumn fx:id="colNombreEstudiante" text="Nombre" />
+                    <TableColumn fx:id="colCantidadExamenes" text="Exámenes" />
+                    <TableColumn fx:id="colPromedioEstudiante" text="Promedio" />
+                </columns>
+            </TableView>
+        </TitledPane>
+
+        <!-- Tabla Grupos -->
+        <TitledPane text="Grupos">
+            <TableView fx:id="tablaGrupos">
+                <columns>
+                    <TableColumn fx:id="colIdGrupo" text="ID" />
+                    <TableColumn fx:id="colGrupo" text="Grupo" />
+                    <TableColumn fx:id="colTotalExamenesPresentados" text="Total Exámenes" />
+                    <TableColumn fx:id="colPromedioGrupo" text="Promedio" />
+                </columns>
+            </TableView>
+        </TitledPane>
+
+        <!-- Tabla Exámenes -->
+        <TitledPane text="Exámenes">
+            <TableView fx:id="tablaExamenes">
+                <columns>
+                    <TableColumn fx:id="colIdExamen" text="ID" />
+                    <TableColumn fx:id="colNombreExamen" text="Nombre" />
+                    <TableColumn fx:id="colTotalPresentaciones" text="Presentaciones" />
+                    <TableColumn fx:id="colPromedioExamen" text="Promedio" />
+                    <TableColumn fx:id="colMaxNotaExamen" text="Nota Máxima" />
+                    <TableColumn fx:id="colMinNotaExamen" text="Nota Mínima" />
+                </columns>
+            </TableView>
+        </TitledPane>
+
+        <!-- Tabla Preguntas -->
+        <TitledPane text="Preguntas">
+            <TableView fx:id="tablaPreguntas">
+                <columns>
+                    <TableColumn fx:id="colIdPregunta" text="ID" />
+                    <TableColumn fx:id="colTextoPregunta" text="Pregunta" />
+                    <TableColumn fx:id="colTotalRespuestas" text="Total Respuestas" />
+                    <TableColumn fx:id="colPorcentajeAciertos" text="Porcentaje Aciertos" />
+                </columns>
+            </TableView>
+        </TitledPane>
+
+        <!-- Tabla Temas -->
+        <TitledPane text="Temas">
+            <TableView fx:id="tablaTemas">
+                <columns>
+                    <TableColumn fx:id="colIdTema" text="ID" />
+                    <TableColumn fx:id="colTema" text="Tema" />
+                    <TableColumn fx:id="colTotalRespuestasTema" text="Respuestas" />
+                    <TableColumn fx:id="colTotalCorrectas" text="Correctas" />
+                    <TableColumn fx:id="colTotalIncorrectas" text="Incorrectas" />
+                    <TableColumn fx:id="colPromedioNota" text="Promedio" />
+                    <TableColumn fx:id="colMaxNotaTema" text="Nota Máxima" />
+                    <TableColumn fx:id="colMinNotaTema" text="Nota Mínima" />
+                </columns>
+            </TableView>
+        </TitledPane>
+    </VBox>
+</AnchorPane>

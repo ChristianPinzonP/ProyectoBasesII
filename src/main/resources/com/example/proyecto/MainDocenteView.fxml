@@ -26,6 +26,7 @@
             <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #e8e8e8; -fx-padding: 5px 10px;">
                 <Button text="Gestión de Exámenes" onAction="#mostrarExamenes" />
                 <Button text="Gestión de Preguntas" onAction="#mostrarPreguntas" />
+                <Button text="Ver Reportes" onAction="#mostrarEstadisticas" />
             </HBox>
         </VBox>
     </top>

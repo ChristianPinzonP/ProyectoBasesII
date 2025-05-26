@@ -39,6 +39,10 @@ public class MainDocenteViewController {
     public void mostrarPreguntas() {
         cargarVista("/com/example/proyecto/PreguntaView.fxml");
     }
+    @FXML
+    public void mostrarEstadisticas() {
+        cargarVista("/com/example/proyecto/EstadisticasView.fxml");
+    }
 
     @FXML
     public void cerrarSesion() {
