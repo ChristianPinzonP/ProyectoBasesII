@@ -579,13 +579,26 @@ public class PreguntaViewController {
     }
 
     private void limpiarFormulario() {
+        // Primero desbloquear todos los campos
+        bloquearCamposParaVisualizacion(false);
+
         txtTexto.clear();
         txtValorNota.clear();
         cbTipoPregunta.getSelectionModel().clearSelection();
         cbTema.getSelectionModel().clearSelection();
+        cbPreguntaPadre.getSelectionModel().clearSelection();
         chkEsPublica.setSelected(false);
+        chkEsPreguntaPadre.setSelected(false);
         vboxOpciones.getChildren().clear();
+        tablaHijas.getItems().clear();
         preguntaEnEdicion = null;
+
+        //REstaurar estilos normales
+        txtTexto.setStyle("");
+        cbTipoPregunta.setStyle("");
+        cbTema.setStyle("");
+        txtValorNota.setStyle("");
+        cbPreguntaPadre.setStyle("");
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
@@ -604,5 +617,135 @@ public class PreguntaViewController {
         );
         tablaPreguntas.setItems(listaPreguntas);
         actualizarComboBoxPreguntaPadre();
+    }
+
+    @FXML
+    public void mostrarPregunta() {
+        Pregunta seleccionada = tablaPreguntas.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) {
+            mostrarAlerta("Aviso", "Seleccione una pregunta para ver sus detalles.", Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        // Resetear el formulario primero
+        limpiarFormulario();
+
+        // Verificar si es pregunta hija (tiene padre asignado)
+        boolean esPreguntaHija = seleccionada.getIdPreguntaPadre() != null && seleccionada.getIdPreguntaPadre() > 0;
+
+        // Verificar si es pregunta padre (tipo compuesta O tiene hijas)
+        boolean esTipoCompuesta = "Compuesta".equalsIgnoreCase(seleccionada.getTipo());
+        boolean tieneHijas = !PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId()).isEmpty();
+        boolean esPreguntaPadre = esTipoCompuesta || tieneHijas;
+
+        System.out.println("=== MOSTRANDO PREGUNTA ===");
+        System.out.println("ID: " + seleccionada.getId());
+        System.out.println("Tipo: " + seleccionada.getTipo());
+        System.out.println("ID Padre: " + seleccionada.getIdPreguntaPadre());
+        System.out.println("Es pregunta hija: " + esPreguntaHija);
+        System.out.println("Es pregunta padre: " + esPreguntaPadre);
+        System.out.println("========================");
+
+        // Configurar checkbox de pregunta padre
+        chkEsPreguntaPadre.setSelected(esPreguntaPadre);
+
+        // Llenar campos básicos
+        txtTexto.setText(seleccionada.getTexto());
+        cbTipoPregunta.setValue(seleccionada.getTipo());
+        txtValorNota.setText(String.valueOf(seleccionada.getValorNota()));
+        chkEsPublica.setSelected(seleccionada.isEsPublica());
+
+        // Seleccionar tema
+        for (Tema tema : listaTemas) {
+            if (tema.getId() == seleccionada.getIdTema()) {
+                cbTema.getSelectionModel().select(tema);
+                break;
+            }
+        }
+
+        if (esPreguntaPadre) {
+            // Configuración para pregunta padre
+            vboxOpciones.getChildren().clear();
+            cbPreguntaPadre.getSelectionModel().clearSelection();
+
+            // Cargar preguntas hijas en la tabla
+            List<Pregunta> hijas = PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId());
+            tablaHijas.setItems(FXCollections.observableArrayList(hijas));
+
+        } else if (esPreguntaHija) {
+            // Configuración para pregunta hija
+            // Buscar y seleccionar el padre actual
+            Pregunta padreActual = null;
+            for (Pregunta p : cbPreguntaPadre.getItems()) {
+                if (p.getId() == seleccionada.getIdPreguntaPadre()) {
+                    padreActual = p;
+                    break;
+                }
+            }
+
+            if (padreActual != null) {
+                cbPreguntaPadre.getSelectionModel().select(padreActual);
+                System.out.println("Padre mostrado: " + padreActual.getTexto());
+            }
+
+            // Actualizar opciones y cargar respuestas
+            actualizarOpcionesRespuesta();
+            cargarOpcionesExistentes(seleccionada);
+            tablaHijas.getItems().clear();
+
+        } else {
+            // Configuración para pregunta independiente
+            cbPreguntaPadre.getSelectionModel().clearSelection();
+
+            // Actualizar opciones y cargar respuestas
+            actualizarOpcionesRespuesta();
+            cargarOpcionesExistentes(seleccionada);
+            tablaHijas.getItems().clear();
+        }
+
+        // BLOQUEAR TODOS LOS CAMPOS PARA MODO SOLO LECTURA
+        bloquearCamposParaVisualizacion(true);
+    }
+
+    /**
+     * Método para bloquear/desbloquear todos los campos del formulario
+     * @param bloquear true para bloquear (modo solo lectura), false para desbloquear
+     */
+    private void bloquearCamposParaVisualizacion(boolean bloquear) {
+        // Campos principales
+        txtTexto.setDisable(bloquear);
+        cbTipoPregunta.setDisable(bloquear);
+        cbTema.setDisable(bloquear);
+        txtValorNota.setDisable(bloquear);
+        chkEsPublica.setDisable(bloquear);
+        cbPreguntaPadre.setDisable(bloquear);
+        chkEsPreguntaPadre.setDisable(bloquear);
+
+        // Aplicar estilo visual para indicar modo solo lectura
+        String estiloSoloLectura = bloquear ? "-fx-background-color: #f8f9fa; -fx-opacity: 0.8;" : "";
+
+        txtTexto.setStyle(estiloSoloLectura);
+        cbTipoPregunta.setStyle(estiloSoloLectura);
+        cbTema.setStyle(estiloSoloLectura);
+        txtValorNota.setStyle(estiloSoloLectura);
+        cbPreguntaPadre.setStyle(estiloSoloLectura);
+
+        // Bloquear opciones de respuesta si existen
+        if (txtOpcion1 != null) txtOpcion1.setDisable(bloquear);
+        if (txtOpcion2 != null) txtOpcion2.setDisable(bloquear);
+        if (txtOpcion3 != null) txtOpcion3.setDisable(bloquear);
+        if (txtOpcion4 != null) txtOpcion4.setDisable(bloquear);
+        if (chkCorrecta1 != null) chkCorrecta1.setDisable(bloquear);
+        if (chkCorrecta2 != null) chkCorrecta2.setDisable(bloquear);
+        if (chkCorrecta3 != null) chkCorrecta3.setDisable(bloquear);
+        if (chkCorrecta4 != null) chkCorrecta4.setDisable(bloquear);
+        if (txtRespuestaCorta != null) txtRespuestaCorta.setDisable(bloquear);
+
+        // Aplicar estilo a las opciones de respuesta
+        if (txtOpcion1 != null) txtOpcion1.setStyle(estiloSoloLectura);
+        if (txtOpcion2 != null) txtOpcion2.setStyle(estiloSoloLectura);
+        if (txtOpcion3 != null) txtOpcion3.setStyle(estiloSoloLectura);
+        if (txtOpcion4 != null) txtOpcion4.setStyle(estiloSoloLectura);
+        if (txtRespuestaCorta != null) txtRespuestaCorta.setStyle(estiloSoloLectura);
     }
 }

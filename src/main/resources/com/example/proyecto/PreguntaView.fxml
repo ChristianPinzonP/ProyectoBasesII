@@ -166,6 +166,12 @@
 
                 <!-- Botones de Acción -->
                 <HBox spacing="15" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
+                    <Button text="Ver Detalles De La Pregunta" onAction="#mostrarPregunta"
+                            style="-fx-font-size: 14px; -fx-padding: 8px 15px;">
+                        <tooltip>
+                            <Tooltip text="Ver detalles de la pregunta seleccionada en modo solo lectura" />
+                        </tooltip>
+                    </Button>
                     <Button text="Editar Pregunta" onAction="#editarPregunta"
                             style="-fx-font-size: 14px; -fx-padding: 8px 15px;"/>
                     <Button text="Guardar Cambios" onAction="#guardarEdicion"
