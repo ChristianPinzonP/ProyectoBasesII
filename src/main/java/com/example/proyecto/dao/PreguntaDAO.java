@@ -14,6 +14,7 @@ public class PreguntaDAO {
 
     public static boolean agregarPregunta(Pregunta pregunta) {
         try (Connection conn = DBConnection.getConnection()) {
+            String sql = "";
             CallableStatement cs = conn.prepareCall("{call PKG_PREGUNTA.agregar_pregunta(?, ?, ?, ?, ?, ?, ?, ?)}");
             cs.setString(1, pregunta.getTexto());
             cs.setString(2, pregunta.getTipo());
@@ -39,6 +40,7 @@ public class PreguntaDAO {
             System.out.println("❌ Error al agregar la pregunta: " + e.getMessage());
             e.printStackTrace();
             return false;
+
         }
     }
 
@@ -438,5 +440,53 @@ public class PreguntaDAO {
         }
 
         return listaPreguntas;
+    }
+
+    /**
+     * Obtener el ID del tema de una pregunta específica
+     */
+    public static int obtenerTemaDePregunta(int idPregunta) {
+        String sql = "{call PKG_PREGUNTA.OBTENER_TEMA_PREGUNTA(?, ?)}";
+
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setInt(1, idPregunta);
+            stmt.registerOutParameter(2, java.sql.Types.INTEGER);
+
+            stmt.execute();
+
+            return stmt.getInt(2);
+
+        } catch (SQLException e) {
+            System.out.println("❌ Error al obtener tema de pregunta: " + e.getMessage());
+            e.printStackTrace();
+            return -1; // Retorna -1 si hay error
+        }
+    }
+
+    /**
+     * Validar que una pregunta hija tenga el mismo tema que su padre
+     */
+    public static boolean validarTemaHijaPadre(int idPreguntaPadre, int idTemaHija) {
+        String sql = "{call PKG_PREGUNTA.VALIDAR_TEMA_HIJA_PADRE(?, ?, ?)}";
+
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setInt(1, idPreguntaPadre);
+            stmt.setInt(2, idTemaHija);
+            stmt.registerOutParameter(3, java.sql.Types.VARCHAR);
+
+            stmt.execute();
+
+            String resultado = stmt.getString(3);
+            return "VALIDO".equals(resultado);
+
+        } catch (SQLException e) {
+            System.out.println("❌ Error al validar tema hija-padre: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }

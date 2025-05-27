@@ -13,6 +13,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +70,33 @@ public class PreguntaViewController {
             @Override
             public Pregunta fromString(String string) {
                 return null;
+            }
+        });
+
+        // ACTUALIZADO: Usar método DAO para obtener tema del padre
+        cbPreguntaPadre.setOnAction(event -> {
+            Pregunta padreSeleccionado = cbPreguntaPadre.getValue();
+            if (padreSeleccionado != null && !chkEsPreguntaPadre.isSelected()) {
+                // Usar DAO para obtener el tema del padre
+                int idTemaPadre = PreguntaDAO.obtenerTemaDePregunta(padreSeleccionado.getId());
+
+                if (idTemaPadre != -1) {
+                    // Buscar y seleccionar automáticamente el tema del padre
+                    for (Tema tema : listaTemas) {
+                        if (tema.getId() == idTemaPadre) {
+                            cbTema.getSelectionModel().select(tema);
+                            cbTema.setDisable(true); // Deshabilitar para forzar el mismo tema
+                            cbTema.setStyle("-fx-background-color: #fff3cd; -fx-border-color: #ffc107;");
+                            break;
+                        }
+                    }
+                } else {
+                    mostrarAlerta("Error", "No se pudo obtener el tema de la pregunta padre.", Alert.AlertType.ERROR);
+                }
+            } else if (padreSeleccionado == null) {
+                // Si no hay padre seleccionado, habilitar la selección libre de tema
+                cbTema.setDisable(false);
+                cbTema.setStyle("");
             }
         });
 
@@ -144,7 +174,7 @@ public class PreguntaViewController {
         boolean tieneHijas = !PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId()).isEmpty();
         boolean esPreguntaPadre = esTipoCompuesta || tieneHijas;
 
-        // Debug mejorado
+        // Debug
         System.out.println("=== EDITANDO PREGUNTA ===");
         System.out.println("ID: " + seleccionada.getId());
         System.out.println("Tipo: " + seleccionada.getTipo());
@@ -177,6 +207,8 @@ public class PreguntaViewController {
             cbPreguntaPadre.getSelectionModel().clearSelection();
             cbPreguntaPadre.setDisable(true);
             cbTipoPregunta.setDisable(true);
+            cbTema.setDisable(false); // Los padres pueden cambiar tema
+            cbTema.setStyle("");
 
             // Cargar preguntas hijas en la tabla
             List<Pregunta> hijas = PreguntaDAO.obtenerPreguntasHijas(seleccionada.getId());
@@ -186,21 +218,29 @@ public class PreguntaViewController {
             // Configuración para pregunta hija
             cbPreguntaPadre.setDisable(true); // CRÍTICO: Deshabilitar para preguntas hijas
             cbTipoPregunta.setDisable(false); // Permitir cambiar tipo
+            cbTema.setDisable(true); // CRÍTICO: Las hijas no pueden cambiar tema
+            cbTema.setStyle("-fx-background-color: #fff3cd; -fx-border-color: #ffc107;");
 
-            // Buscar y seleccionar el padre actual
-            Pregunta padreActual = null;
-            for (Pregunta p : cbPreguntaPadre.getItems()) {
-                if (p.getId() == seleccionada.getIdPreguntaPadre()) {
-                    padreActual = p;
-                    break;
+            if (seleccionada.getIdPreguntaPadre() != null) {
+                // Buscar y seleccionar el padre actual
+                Pregunta padreActual = null;
+                for (Pregunta p : cbPreguntaPadre.getItems()) {
+                    if (p.getId() == seleccionada.getIdPreguntaPadre()) {
+                        padreActual = p;
+                        break;
+                    }
                 }
-            }
 
-            if (padreActual != null) {
-                cbPreguntaPadre.getSelectionModel().select(padreActual);
-                System.out.println("Padre seleccionado: " + padreActual.getTexto());
-            } else {
-                System.out.println("⚠️ No se encontró el padre en la lista del ComboBox");
+                if (padreActual != null) {
+                    cbPreguntaPadre.getSelectionModel().select(padreActual);
+                    System.out.println("Padre seleccionado: " + padreActual.getTexto());
+
+                    // Verificar que el tema sea consistente usando DAO
+                    int temaPadreActual = PreguntaDAO.obtenerTemaDePregunta(padreActual.getId());
+                    if (temaPadreActual != seleccionada.getIdTema()) {
+                        System.out.println("⚠️ Advertencia: Inconsistencia de tema detectada entre padre e hija");
+                    }
+                }
             }
 
             // Aplicar estilo visual para indicar que no se puede cambiar
@@ -212,17 +252,28 @@ public class PreguntaViewController {
             tablaHijas.getItems().clear();
 
         } else {
-            // Configuración para pregunta independiente (sin padre, no es padre)
+            // Configuración para pregunta independiente
             cbPreguntaPadre.setDisable(false);
             cbTipoPregunta.setDisable(false);
+            cbTema.setDisable(false);
             cbPreguntaPadre.getSelectionModel().clearSelection();
-            cbPreguntaPadre.setStyle(""); // Restaurar estilo normal
+            cbPreguntaPadre.setStyle("");
+            cbTema.setStyle("");//Restaurar estilo a normal
 
             // Actualizar opciones y cargar respuestas
             actualizarOpcionesRespuesta();
             cargarOpcionesExistentes(seleccionada);
             tablaHijas.getItems().clear();
         }
+    }
+
+    private String obtenerNombreTemaPorId(int idTema) {
+        for (Tema tema : listaTemas) {
+            if (tema.getId() == idTema) {
+                return tema.getNombre();
+            }
+        }
+        return "Tema no encontrado";
     }
 
     // Método auxiliar para cargar las opciones existentes
@@ -327,24 +378,24 @@ public class PreguntaViewController {
         System.out.println("Es pregunta hija: " + esPreguntaHija);
         System.out.println("ID padre original: " + preguntaEnEdicion.getIdPreguntaPadre());
 
-        // VALIDACIÓN CRÍTICA: Verificar cambios en relación padre-hija
+        // ACTUALIZADO: Usar método DAO para validar tema en edición
         if (esPreguntaHija) {
             Pregunta padreSeleccionado = cbPreguntaPadre.getValue();
 
-            // Verificar que el padre seleccionado coincida con el original
-            if (padreSeleccionado == null) {
-                mostrarAlerta("Error", "Una pregunta hija no puede quedar sin padre asignado.", Alert.AlertType.ERROR);
-                return;
-            }
+            if (padreSeleccionado != null && temaSeleccionado != null) {
+                if (!PreguntaDAO.validarTemaHijaPadre(padreSeleccionado.getId(), temaSeleccionado.getId())) {
+                    // Obtener nombres de temas para el mensaje
+                    String nombreTemaPadre = obtenerNombreTemaPorId(PreguntaDAO.obtenerTemaDePregunta(padreSeleccionado.getId()));
+                    String nombreTemaSeleccionado = temaSeleccionado.getNombre();
 
-            if (padreSeleccionado.getId() != preguntaEnEdicion.getIdPreguntaPadre()) {
-                mostrarAlerta("Error", "No se puede cambiar la pregunta padre de una pregunta hija existente.\n" +
-                        "Padre original: " + preguntaEnEdicion.getIdPreguntaPadre() +
-                        "\nPadre seleccionado: " + padreSeleccionado.getId(), Alert.AlertType.ERROR);
-                return;
+                    mostrarAlerta("Error",
+                            "La pregunta hija debe mantener el mismo tema que la pregunta padre.\n" +
+                                    "Tema del padre: " + nombreTemaPadre + "\n" +
+                                    "Tema seleccionado: " + nombreTemaSeleccionado,
+                            Alert.AlertType.WARNING);
+                    return;
+                }
             }
-
-            System.out.println("✅ Validación padre-hija correcta");
         }
 
         // Validaciones básicas
@@ -393,6 +444,14 @@ public class PreguntaViewController {
             }
         }
 
+        // Actualizar objeto pregunta
+        preguntaEnEdicion.setTexto(nuevoTexto);
+        preguntaEnEdicion.setTipo(nuevoTipo);
+        preguntaEnEdicion.setIdTema(temaSeleccionado.getId());
+        preguntaEnEdicion.setValorNota(nuevoValorNota);
+        preguntaEnEdicion.setEsPublica(nuevaEsPublica);
+        preguntaEnEdicion.setIdPreguntaPadre(idPadre);
+
         // Preparar opciones de respuesta
         List<OpcionRespuesta> nuevasOpciones = new ArrayList<>();
         if (!esPreguntaPadre) {
@@ -413,33 +472,18 @@ public class PreguntaViewController {
                     }
                     break;
             }
+            preguntaEnEdicion.setOpciones(nuevasOpciones);
         }
-
-        // VALIDACIÓN FINAL DE SEGURIDAD
-        if (esPreguntaHija && !idPadre.equals(preguntaEnEdicion.getIdPreguntaPadre())) {
-            mostrarAlerta("Error", "Error crítico: Se detectó un intento de modificar la relación padre-hija.", Alert.AlertType.ERROR);
-            System.out.println("❌ INTENTO DE MODIFICACIÓN BLOQUEADO - Padre original: " +
-                    preguntaEnEdicion.getIdPreguntaPadre() + ", Nuevo padre: " + idPadre);
-            return;
-        }
-
-        // Actualizar objeto pregunta
-        preguntaEnEdicion.setTexto(nuevoTexto);
-        preguntaEnEdicion.setTipo(nuevoTipo);
-        preguntaEnEdicion.setIdTema(temaSeleccionado.getId());
-        preguntaEnEdicion.setValorNota(nuevoValorNota);
-        preguntaEnEdicion.setEsPublica(nuevaEsPublica);
-        preguntaEnEdicion.setIdPreguntaPadre(idPadre);
 
         System.out.println("Actualizando pregunta con padre: " + idPadre);
 
         // Ejecutar actualización en base de datos
-        boolean exito = PreguntaDAO.actualizarPregunta(
+        boolean actualizada = PreguntaDAO.actualizarPregunta(
                 preguntaEnEdicion.getId(), nuevoTexto, nuevoTipo, temaSeleccionado.getId(),
                 nuevoValorNota, nuevaEsPublica, idPadre, nuevasOpciones
         );
 
-        if (exito) {
+        if (actualizada) {
             mostrarAlerta("Éxito", "Pregunta actualizada correctamente.", Alert.AlertType.INFORMATION);
             cargarPreguntas();
             limpiarFormulario();
@@ -459,6 +503,22 @@ public class PreguntaViewController {
         boolean esPublica = chkEsPublica.isSelected();
         Pregunta padreSeleccionado = cbPreguntaPadre.getValue();
         Integer idPadre = (!esPreguntaPadre && padreSeleccionado != null) ? padreSeleccionado.getId() : null;
+
+        // ACTUALIZADO: Usar método DAO para validar tema hija-padre
+        if (padreSeleccionado != null && temaSeleccionado != null) {
+            if (!PreguntaDAO.validarTemaHijaPadre(padreSeleccionado.getId(), temaSeleccionado.getId())) {
+                // Obtener nombres de temas para mostrar en el mensaje
+                String nombreTemaPadre = obtenerNombreTemaPorId(PreguntaDAO.obtenerTemaDePregunta(padreSeleccionado.getId()));
+                String nombreTemaSeleccionado = temaSeleccionado.getNombre();
+
+                mostrarAlerta("Error",
+                        "La pregunta hija debe tener el mismo tema que la pregunta padre.\n" +
+                                "Tema del padre: " + nombreTemaPadre + "\n" +
+                                "Tema seleccionado: " + nombreTemaSeleccionado,
+                        Alert.AlertType.WARNING);
+                return;
+            }
+        }
 
         List<OpcionRespuesta> opciones = new ArrayList<>();
         if (!esPreguntaPadre) {
@@ -492,7 +552,7 @@ public class PreguntaViewController {
                 return;
             }
         }
-
+        // Validación de valor numérico
         double valorNota;
         try {
             valorNota = Double.parseDouble(valorTexto);
@@ -505,11 +565,7 @@ public class PreguntaViewController {
             return;
         }
 
-        if (!esPreguntaPadre && padreSeleccionado != null && "Compuesta".equalsIgnoreCase(padreSeleccionado.getTipo())) {
-            mostrarAlerta("Error", "No puede asignar una pregunta hija a otra pregunta padre.", Alert.AlertType.WARNING);
-            return;
-        }
-
+        // Crear y guardar la pregunta
         Pregunta nuevaPregunta = new Pregunta(0, textoPregunta, tipoPregunta, temaSeleccionado.getId(),
                 valorNota, esPublica, docenteActual.getIdDocente(), opciones);
         nuevaPregunta.setNombreTema(temaSeleccionado.getNombre());
@@ -593,12 +649,15 @@ public class PreguntaViewController {
         tablaHijas.getItems().clear();
         preguntaEnEdicion = null;
 
-        //REstaurar estilos normales
+        // Restaurar estilos normales y habilitar campos
         txtTexto.setStyle("");
         cbTipoPregunta.setStyle("");
         cbTema.setStyle("");
+        cbTema.setDisable(false); // IMPORTANTE: Rehabilitar tema
         txtValorNota.setStyle("");
         cbPreguntaPadre.setStyle("");
+        cbPreguntaPadre.setDisable(false);
+        cbTipoPregunta.setDisable(false);
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
@@ -748,4 +807,20 @@ public class PreguntaViewController {
         if (txtOpcion4 != null) txtOpcion4.setStyle(estiloSoloLectura);
         if (txtRespuestaCorta != null) txtRespuestaCorta.setStyle(estiloSoloLectura);
     }
+
+    public boolean esTemaValidoParaHija(int idPreguntaPadre, int idTemaHija) {
+        String sql = "SELECT id_tema FROM pregunta WHERE id_pregunta = ?";
+        try (PreparedStatement stmt = (PreparedStatement) DBConnection.getConnection()) {
+            stmt.setInt(1, idPreguntaPadre);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int idTemaPadre = rs.getInt("id_tema");
+                return idTemaPadre == idTemaHija;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }
