@@ -2,6 +2,7 @@ package com.example.proyecto.dao;
 
 import com.example.proyecto.DBConnection;
 import com.example.proyecto.Pregunta;
+import oracle.jdbc.internal.OracleTypes;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -76,4 +77,37 @@ public class ExamenPreguntaDAO {
 
         return preguntas;
     }
+
+    public static List<Pregunta> obtenerPreguntasPorTemaYDisponibles(int idTema, int idDocente, int idExamen) throws SQLException {
+        List<Pregunta> lista = new ArrayList<>();
+        Connection conn = DBConnection.getConnection();
+        CallableStatement cs = conn.prepareCall("{ call PKG_PREGUNTA.obtener_preguntas_por_tema_y_disponibles(?, ?, ?, ?) }");
+        cs.setInt(1, idTema);
+        cs.setInt(2, idDocente);
+        cs.setInt(3, idExamen);
+        cs.registerOutParameter(4, OracleTypes.CURSOR);
+        cs.execute();
+
+        ResultSet rs = (ResultSet) cs.getObject(4);
+        while (rs.next()) {
+            Pregunta p = new Pregunta();
+            p.setId(rs.getInt("ID_PREGUNTA"));
+            p.setTexto(rs.getString("TEXTO"));
+            p.setTipo(rs.getString("TIPO"));
+            p.setIdTema(rs.getInt("ID_TEMA"));
+            p.setNombreTema(rs.getString("NOMBRE_TEMA"));
+            p.setValorNota(rs.getDouble("VALOR_NOTA"));
+            p.setEsPublica("S".equals(rs.getString("ES_PUBLICA")));
+            p.setIdDocente(rs.getInt("ID_DOCENTE"));
+            p.setIdPreguntaPadre(rs.getInt("ID_PREGUNTA_PADRE"));
+            lista.add(p);
+        }
+
+        rs.close();
+        cs.close();
+        conn.close();
+        return lista;
+    }
+
+
 }

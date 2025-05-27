@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +50,7 @@ public class ExamenViewController {
     private ObservableList<Examen> listaExamenes;
     private FilteredList<Examen> filtroExamenes;
     private Docente docenteActual;
+    private Examen ExamenActual;
 
     @FXML
     public void initialize() {
@@ -141,12 +143,27 @@ public class ExamenViewController {
 
 
     private void cargarPreguntasDisponibles(int idTema) {
-        List<Pregunta> preguntas = PreguntaDAO.obtenerPreguntasPorTema(idTema, docenteActual.getIdDocente());
-        listPreguntasDisponibles.setItems(FXCollections.observableArrayList(preguntas));
+        if (ExamenActual == null) {
+            System.out.println("⚠ No se ha seleccionado un examen aún.");
+            return; // evita el NullPointerException
+        }
+
+        try {
+            List<Pregunta> preguntas = ExamenPreguntaDAO.obtenerPreguntasPorTemaYDisponibles(
+                    idTema,
+                    docenteActual.getIdDocente(),
+                    ExamenActual.getId()
+            );
+            listPreguntasDisponibles.setItems(FXCollections.observableArrayList(preguntas));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void seleccionarExamen() {
         Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
+        this.ExamenActual = tablaExamenes.getSelectionModel().getSelectedItem();
+
         if (ex != null) {
             txtNombre.setText(ex.getNombre());
             txtDescripcion.setText(ex.getDescripcion());
@@ -294,6 +311,13 @@ public class ExamenViewController {
             if (nota <= 0 || nota > 5) throw new NumberFormatException();
             if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pr.getId(), nota)) {
                 mostrarAlerta("Éxito", "Pregunta asignada con nota.", Alert.AlertType.INFORMATION);
+
+                // ✅ Actualizar las listas inmediatamente
+                actualizarListasPreguntas();
+
+                // ✅ Limpiar el campo de nota
+                txtNotaAsignacion.clear();
+
             } else mostrarAlerta("Error", "No se pudo asignar.", Alert.AlertType.ERROR);
         } catch (NumberFormatException e) {
             mostrarAlerta("Error", "Nota inválida (0.1 - 5).", Alert.AlertType.WARNING);
@@ -313,7 +337,29 @@ public class ExamenViewController {
         if (res.isPresent() && res.get() == ButtonType.OK) {
             if (ExamenPreguntaDAO.eliminarPreguntaDeExamen(ex.getId(), pr.getId())) {
                 mostrarAlerta("Éxito", "Pregunta eliminada.", Alert.AlertType.INFORMATION);
+
+                // ✅ Actualizar las listas inmediatamente
+                actualizarListasPreguntas();
+
             } else mostrarAlerta("Error", "No se pudo eliminar.", Alert.AlertType.ERROR);
         }
+    }
+
+    /**
+     * ✅ Método auxiliar para actualizar ambas listas de preguntas
+     */
+    private void actualizarListasPreguntas() {
+        if (ExamenActual == null) return;
+
+        // Actualizar lista de preguntas disponibles
+        Tema temaSeleccionado = cbTema.getValue();
+        if (temaSeleccionado != null) {
+            cargarPreguntasDisponibles(temaSeleccionado.getId());
+        }
+
+        // Actualizar lista de preguntas asignadas
+        listPreguntasAsignadas.setItems(FXCollections.observableArrayList(
+                ExamenPreguntaDAO.obtenerPreguntasDeExamen(ExamenActual.getId())
+        ));
     }
 }
