@@ -13,6 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.*;
+import java.time.LocalDate;
 
 public class ExamenViewController {
 
@@ -100,6 +101,15 @@ public class ExamenViewController {
         });
 
         // Listener para actualizar contadores de preguntas
+        listPreguntasAsignadas.getItems().addListener((javafx.collections.ListChangeListener<Pregunta>) c -> {
+            actualizarContadoresPreguntas();
+        });
+
+        // NUEVAS CONFIGURACIONES PARA VALIDACIÓN DE FECHAS
+        configurarListenersFechas();
+        configurarFechasMinimas();
+
+        // Listener para actualizar contadores de preguntas (ya existe)
         listPreguntasAsignadas.getItems().addListener((javafx.collections.ListChangeListener<Pregunta>) c -> {
             actualizarContadoresPreguntas();
         });
@@ -224,6 +234,8 @@ public class ExamenViewController {
 
     private boolean validarFormulario() {
         StringBuilder error = new StringBuilder();
+        LocalDate fechaActual = LocalDate.now();
+
         if (txtNombre.getText().isEmpty()) error.append("Nombre requerido.\n");
         if (txtDescripcion.getText().isEmpty()) error.append("Descripción requerida.\n");
         if (dpFechaInicio.getValue() == null || dpFechaFin.getValue() == null) error.append("Fechas requeridas.\n");
@@ -234,6 +246,39 @@ public class ExamenViewController {
         if (cbTema.getValue() == null) error.append("Tema requerido.\n");
         if (cbGrupo.getValue() == null) error.append("Grupo requerido.\n");
         if (txtIntentosPermitidos.getText().isEmpty()) error.append("Intentos permitidos requerido.\n");
+
+        // NUEVAS VALIDACIONES DE FECHAS
+        if (dpFechaInicio.getValue() != null) {
+            LocalDate fechaInicio = dpFechaInicio.getValue();
+
+            // Validar que la fecha de inicio no sea anterior a hoy
+            if (fechaInicio.isBefore(fechaActual)) {
+                error.append("La fecha de inicio no puede ser anterior a la fecha actual.\n");
+            }
+        }
+
+        if (dpFechaFin.getValue() != null) {
+            LocalDate fechaFin = dpFechaFin.getValue();
+
+            // Validar que la fecha de fin no sea anterior a hoy
+            if (fechaFin.isBefore(fechaActual)) {
+                error.append("La fecha de fin no puede ser anterior a la fecha actual.\n");
+            }
+        }
+
+        // Validar relación entre fechas de inicio y fin
+        if (dpFechaInicio.getValue() != null && dpFechaFin.getValue() != null) {
+            LocalDate fechaInicio = dpFechaInicio.getValue();
+            LocalDate fechaFin = dpFechaFin.getValue();
+
+            if (fechaFin.isBefore(fechaInicio)) {
+                error.append("La fecha de fin no puede ser anterior a la fecha de inicio.\n");
+            }
+
+            if (fechaFin.equals(fechaInicio)) {
+                error.append("La fecha de fin debe ser posterior a la fecha de inicio.\n");
+            }
+        }
 
         try {
             if (Integer.parseInt(txtTiempoLimite.getText()) <= 0) error.append("Tiempo debe ser positivo.\n");
@@ -604,5 +649,93 @@ public class ExamenViewController {
 
         // Actualizar contadores después de cambiar las listas
         actualizarContadoresPreguntas();
+    }
+
+    // Agregar listeners para validación en tiempo real
+    private void configurarListenersFechas() {
+        // Listener para la fecha de inicio
+        dpFechaInicio.valueProperty().addListener((obs, oldDate, newDate) -> {
+            if (newDate != null) {
+                LocalDate fechaActual = LocalDate.now();
+
+                if (newDate.isBefore(fechaActual)) {
+                    // Cambiar estilo para indicar error
+                    dpFechaInicio.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+
+                    // Mostrar tooltip con el error
+                    Tooltip tooltip = new Tooltip("La fecha no puede ser anterior a hoy (" + fechaActual + ")");
+                    dpFechaInicio.setTooltip(tooltip);
+                } else {
+                    // Restaurar estilo normal
+                    dpFechaInicio.setStyle("");
+                    dpFechaInicio.setTooltip(null);
+                }
+
+                // Validar coherencia con fecha de fin
+                if (dpFechaFin.getValue() != null && newDate.isAfter(dpFechaFin.getValue())) {
+                    dpFechaInicio.setStyle("-fx-border-color: orange; -fx-border-width: 2px;");
+                    Tooltip tooltip = new Tooltip("La fecha de inicio debe ser anterior a la fecha de fin");
+                    dpFechaInicio.setTooltip(tooltip);
+                }
+            }
+        });
+
+        // Listener para la fecha de fin
+        dpFechaFin.valueProperty().addListener((obs, oldDate, newDate) -> {
+            if (newDate != null) {
+                LocalDate fechaActual = LocalDate.now();
+
+                if (newDate.isBefore(fechaActual)) {
+                    dpFechaFin.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+                    Tooltip tooltip = new Tooltip("La fecha no puede ser anterior a hoy (" + fechaActual + ")");
+                    dpFechaFin.setTooltip(tooltip);
+                } else {
+                    dpFechaFin.setStyle("");
+                    dpFechaFin.setTooltip(null);
+                }
+
+                // Validar coherencia con fecha de inicio
+                if (dpFechaInicio.getValue() != null && newDate.isBefore(dpFechaInicio.getValue())) {
+                    dpFechaFin.setStyle("-fx-border-color: orange; -fx-border-width: 2px;");
+                    Tooltip tooltip = new Tooltip("La fecha de fin debe ser posterior a la fecha de inicio");
+                    dpFechaFin.setTooltip(tooltip);
+                }
+            }
+        });
+    }
+
+    // Método para configurar fecha mínima en los DatePickers
+    private void configurarFechasMinimas() {
+        LocalDate fechaActual = LocalDate.now();
+
+        // Configurar fecha mínima para ambos DatePickers
+        dpFechaInicio.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+
+                if (date.isBefore(fechaActual)) {
+                    setDisabled(true);
+                    setStyle("-fx-background-color: #ffc0cb;"); // Rosa claro para fechas deshabilitadas
+                }
+            }
+        });
+
+        dpFechaFin.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+
+                LocalDate fechaInicio = dpFechaInicio.getValue();
+
+                if (date.isBefore(fechaActual)) {
+                    setDisabled(true);
+                    setStyle("-fx-background-color: #ffc0cb;");
+                } else if (fechaInicio != null && date.isBefore(fechaInicio.plusDays(1))) {
+                    setDisabled(true);
+                    setStyle("-fx-background-color: #ffe4b5;"); // Beige para fechas no válidas por ser anteriores al inicio
+                }
+            }
+        });
     }
 }
