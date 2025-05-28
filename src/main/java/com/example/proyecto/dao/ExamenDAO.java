@@ -9,7 +9,9 @@ import java.util.List;
 
 public class ExamenDAO {
 
-    public static List<Examen> obtenerTodosLosExamenes() {
+    // Agregar este nuevo método en ExamenDAO.java
+
+    public static List<Examen> obtenerExamenesPorDocente(int idDocente) {
         List<Examen> listaExamenes = new ArrayList<>();
         String sql = "SELECT e.id_examen, e.nombre, e.descripcion, e.fecha_inicio, e.fecha_fin, " +
                 "e.tiempo_limite, e.id_docente, e.id_tema, e.id_grupo, t.NOMBRE AS nombre_tema, g.NOMBRE AS nombre_grupo, " +
@@ -17,11 +19,14 @@ public class ExamenDAO {
                 "FROM EXAMEN e " +
                 "LEFT JOIN TEMA t ON e.id_tema = t.id_tema " +
                 "LEFT JOIN GRUPO g ON e.id_grupo = g.id_grupo " +
+                "WHERE e.id_docente = ? " +
                 "ORDER BY e.id_examen DESC";
 
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idDocente);
+            ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 int idExamen = rs.getInt("id_examen");
@@ -30,7 +35,7 @@ public class ExamenDAO {
                 Date fechaInicio = rs.getDate("fecha_inicio");
                 Date fechaFin = rs.getDate("fecha_fin");
                 int tiempoLimite = rs.getInt("tiempo_limite");
-                int idDocente = rs.getInt("id_docente");
+                int idDocenteResult = rs.getInt("id_docente");
                 int idTema = rs.getInt("id_tema");
                 String nombreTema = rs.getString("nombre_tema");
                 int idGrupo = rs.getInt("id_grupo");
@@ -42,11 +47,10 @@ public class ExamenDAO {
                 int intentosPermitidos = rs.getInt("intentos_permitidos");
 
                 Examen examen = new Examen(idExamen, nombre, descripcion, fechaInicio, fechaFin,
-                        tiempoLimite, idDocente, idTema, idGrupo);
+                        tiempoLimite, idDocenteResult, idTema, idGrupo);
 
                 examen.setNombreTema(nombreTema);
                 examen.setNombreGrupo(nombreGrupo);
-
                 examen.setNumeroPreguntas(numeroPreguntas);
                 examen.setModoSeleccion(modoSeleccion);
                 examen.setTiempoPorPregunta(tiempoPorPregunta);
@@ -55,7 +59,7 @@ public class ExamenDAO {
                 listaExamenes.add(examen);
             }
         } catch (SQLException e) {
-            System.out.println("⚠️ Error al obtener exámenes: " + e.getMessage());
+            System.out.println("⚠️ Error al obtener exámenes del docente " + idDocente + ": " + e.getMessage());
         }
 
         return listaExamenes;

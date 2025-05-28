@@ -70,8 +70,6 @@ public class ExamenViewController {
         colTema.setCellValueFactory(new PropertyValueFactory<>("nombreTema"));
         colGrupo.setCellValueFactory(new PropertyValueFactory<>("nombreGrupo"));
 
-        cargarExamenes();
-
         listaTemas = TemaDAO.obtenerTemas();
         cbTema.setItems(FXCollections.observableArrayList(listaTemas));
         cbModoSeleccion.setItems(FXCollections.observableArrayList("Manual", "Aleatorio", "Mixto"));
@@ -119,13 +117,30 @@ public class ExamenViewController {
         this.docenteActual = docente;
         txtIdDocente.setText(String.valueOf(docente.getIdDocente()));
         txtIdDocente.setDisable(true);
+
+        // Cargar grupos del docente
         List<Grupo> grupos = GrupoDAO.obtenerGruposPorDocente(docente.getIdDocente());
         cbGrupo.setItems(FXCollections.observableArrayList(grupos));
+
+        cargarExamenes();
+
+        System.out.println("✅ Docente inicializado: " + docente.getIdDocente() +
+                ". Exámenes cargados: " + (listaExamenes != null ? listaExamenes.size() : 0));
     }
 
     @FXML
     public void cargarExamenes() {
-        listaExamenes = FXCollections.observableArrayList(ExamenDAO.obtenerTodosLosExamenes());
+        if (docenteActual != null) {
+            // Cargar solo los exámenes del docente actual
+            listaExamenes = FXCollections.observableArrayList(
+                    ExamenDAO.obtenerExamenesPorDocente(docenteActual.getIdDocente())
+            );
+        } else {
+            // Si no hay docente actual, cargar lista vacía o todos (para casos especiales)
+            listaExamenes = FXCollections.observableArrayList();
+            System.out.println("⚠️ No hay docente actual definido. No se cargarán exámenes.");
+        }
+
         filtroExamenes = new FilteredList<>(listaExamenes, p -> true);
         SortedList<Examen> sorted = new SortedList<>(filtroExamenes);
         sorted.comparatorProperty().bind(tablaExamenes.comparatorProperty());
