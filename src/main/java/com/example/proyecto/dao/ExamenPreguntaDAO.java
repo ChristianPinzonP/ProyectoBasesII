@@ -11,6 +11,12 @@ import java.util.List;
 public class ExamenPreguntaDAO {
 
     public static boolean asignarPreguntaAExamen(int idExamen, int idPregunta, double valorNota) {
+        // Validación previa: verificar coherencia de tema
+        if (!validarCoherenciaTemaExamenPregunta(idExamen, idPregunta)) {
+            System.err.println("❌ Error: La pregunta " + idPregunta + " no pertenece al tema del examen " + idExamen);
+            return false;
+        }
+
         String sql = "INSERT INTO EXAMEN_PREGUNTA (ID_EXAMEN, ID_PREGUNTA, VALOR_NOTA) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -109,5 +115,28 @@ public class ExamenPreguntaDAO {
         return lista;
     }
 
+    // NUEVA VALIDACIÓN (ExamenPreguntaDAO.java)
+    public static boolean validarCoherenciaTemaExamenPregunta(int idExamen, int idPregunta) {
+        String sql = "SELECT COUNT(*) FROM EXAMEN e " +
+                "JOIN PREGUNTA p ON e.ID_TEMA = p.ID_TEMA " +
+                "WHERE e.ID_EXAMEN = ? AND p.ID_PREGUNTA = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idExamen);
+            stmt.setInt(2, idPregunta);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Si count > 0, la pregunta pertenece al tema del examen
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 
 }

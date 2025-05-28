@@ -45,7 +45,7 @@ public class ExamenViewController {
     @FXML private TextField txtNotaAsignacion;
     @FXML private TextField txtIntentosPermitidos;
 
-    // 🆕 Nuevos campos para asignación aleatoria
+    // Nuevos campos para asignación aleatoria
     @FXML private TextField txtCantidadAleatoria;
     @FXML private TextField txtNotaAleatoria;
     @FXML private Label lblPreguntasActuales;
@@ -99,7 +99,7 @@ public class ExamenViewController {
             });
         });
 
-        // 🆕 Listener para actualizar contadores de preguntas
+        // Listener para actualizar contadores de preguntas
         listPreguntasAsignadas.getItems().addListener((javafx.collections.ListChangeListener<Pregunta>) c -> {
             actualizarContadoresPreguntas();
         });
@@ -192,7 +192,7 @@ public class ExamenViewController {
                     ExamenPreguntaDAO.obtenerPreguntasDeExamen(ex.getId())
             ));
 
-            // 🆕 Actualizar contadores
+            // Actualizar contadores
             actualizarContadoresPreguntas();
         }
     }
@@ -315,21 +315,48 @@ public class ExamenViewController {
     public void asignarPregunta() {
         Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
         Pregunta pr = listPreguntasDisponibles.getSelectionModel().getSelectedItem();
+
         if (ex == null || pr == null) {
             mostrarAlerta("Error", "Selecciona un examen y una pregunta.", Alert.AlertType.ERROR);
             return;
         }
+
+        // VALIDACIÓN: Verificar coherencia de tema
+        if (!validarCoherenciaTema(ex, pr)) {
+            mostrarAlerta("Error de coherencia",
+                    "La pregunta seleccionada no pertenece al tema del examen.\n" +
+                            "Tema del examen: " + cbTema.getValue().getNombre() + "\n" +
+                            "Tema de la pregunta: " + pr.getNombreTema(),
+                    Alert.AlertType.ERROR);
+            return;
+        }
+
         try {
             double nota = Double.parseDouble(txtNotaAsignacion.getText().trim());
             if (nota <= 0 || nota > 5) throw new NumberFormatException();
+
             if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pr.getId(), nota)) {
                 mostrarAlerta("Éxito", "Pregunta asignada con nota.", Alert.AlertType.INFORMATION);
                 actualizarListasPreguntas();
                 txtNotaAsignacion.clear();
-            } else mostrarAlerta("Error", "No se pudo asignar.", Alert.AlertType.ERROR);
+            } else {
+                mostrarAlerta("Error", "No se pudo asignar.", Alert.AlertType.ERROR);
+            }
         } catch (NumberFormatException e) {
             mostrarAlerta("Error", "Nota inválida (0.1 - 5).", Alert.AlertType.WARNING);
         }
+    }
+
+    // Validar coherencia entre tema del examen y pregunta
+    private boolean validarCoherenciaTema(Examen examen, Pregunta pregunta) {
+        if (examen == null || pregunta == null) return false;
+
+        // Obtener el tema del examen desde el ComboBox
+        Tema temaExamen = cbTema.getValue();
+        if (temaExamen == null) return false;
+
+        // Verificar que la pregunta pertenezca al mismo tema
+        return pregunta.getIdTema() == temaExamen.getId();
     }
 
     @FXML
@@ -350,7 +377,7 @@ public class ExamenViewController {
         }
     }
 
-    // 🆕 NUEVA FUNCIONALIDAD: Asignación aleatoria de preguntas
+    // NUEVA FUNCIONALIDAD: Asignación aleatoria de preguntas
     @FXML
     public void asignarPreguntasAleatorias() {
         Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
@@ -373,7 +400,7 @@ public class ExamenViewController {
                 return;
             }
 
-            // Verificar si excede el límite del examen
+            // Verificar límite del examen
             int preguntasActuales = listPreguntasAsignadas.getItems().size();
             int totalEsperado = Integer.parseInt(txtNumPreguntas.getText().trim());
 
@@ -392,54 +419,53 @@ public class ExamenViewController {
                 }
             }
 
-            // Obtener preguntas disponibles
-            List<Pregunta> preguntasDisponibles = new ArrayList<>(listPreguntasDisponibles.getItems());
+            // FILTRADO POR TEMA: Solo preguntas del tema del examen
+            List<Pregunta> preguntasDisponibles = listPreguntasDisponibles.getItems().stream()
+                    .filter(p -> p.getIdTema() == tema.getId())
+                    .collect(java.util.stream.Collectors.toList());
+
             if (preguntasDisponibles.isEmpty()) {
-                mostrarAlerta("Error", "No hay preguntas disponibles para asignar.", Alert.AlertType.WARNING);
+                mostrarAlerta("Error",
+                        "No hay preguntas disponibles del tema '" + tema.getNombre() + "' para asignar.",
+                        Alert.AlertType.WARNING);
                 return;
             }
 
-            // Limitar la cantidad a las preguntas disponibles
+            // Resto del método permanece igual...
             int cantidadReal = Math.min(cantidadDeseada, preguntasDisponibles.size());
             if (cantidadReal < cantidadDeseada) {
                 Alert info = new Alert(Alert.AlertType.INFORMATION);
                 info.setTitle("Cantidad ajustada");
                 info.setHeaderText(null);
-                info.setContentText(String.format("Solo hay %d preguntas disponibles. Se asignarán %d preguntas.",
-                        preguntasDisponibles.size(), cantidadReal));
+                info.setContentText(String.format("Solo hay %d preguntas disponibles del tema '%s'. Se asignarán %d preguntas.",
+                        preguntasDisponibles.size(), tema.getNombre(), cantidadReal));
                 info.showAndWait();
             }
 
-            // Seleccionar preguntas aleatoriamente
             Collections.shuffle(preguntasDisponibles);
             List<Pregunta> preguntasAAsignar = preguntasDisponibles.subList(0, cantidadReal);
 
-            // Asignar las preguntas seleccionadas usando la nota del sistema de cada pregunta
             int asignadas = 0;
-            List<String> errores = new ArrayList<>();
-
             for (Pregunta pregunta : preguntasAAsignar) {
-                // 🔥 CAMBIO PRINCIPAL: Usar la nota del sistema (valorNota) de cada pregunta
-                double notaDelSistema = pregunta.getValorNota();
+                // Validación adicional antes de asignar
+                if (!validarCoherenciaTema(ex, pregunta)) {
+                    System.err.println("⚠ Pregunta " + pregunta.getId() + " no coincide con tema del examen");
+                    continue;
+                }
 
+                double notaDelSistema = pregunta.getValorNota();
                 if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pregunta.getId(), notaDelSistema)) {
                     asignadas++;
-                } else {
-                    errores.add("Error asignando pregunta ID: " + pregunta.getId());
                 }
             }
 
-            // Mostrar resultado
             if (asignadas > 0) {
                 actualizarListasPreguntas();
                 txtCantidadAleatoria.clear();
-                // 🔥 Ya no necesitamos limpiar txtNotaAleatoria porque no se usa
-
-                String mensaje = String.format("Se asignaron %d preguntas de forma aleatoria usando sus notas del sistema.", asignadas);
-                if (!errores.isEmpty()) {
-                    mensaje += String.format("\n%d preguntas no se pudieron asignar.", errores.size());
-                }
-                mostrarAlerta("Éxito", mensaje, Alert.AlertType.INFORMATION);
+                mostrarAlerta("Éxito",
+                        String.format("Se asignaron %d preguntas del tema '%s' usando sus notas del sistema.",
+                                asignadas, tema.getNombre()),
+                        Alert.AlertType.INFORMATION);
             } else {
                 mostrarAlerta("Error", "No se pudo asignar ninguna pregunta.", Alert.AlertType.ERROR);
             }
@@ -449,12 +475,18 @@ public class ExamenViewController {
         }
     }
 
-    // 🆕 NUEVA FUNCIONALIDAD: Completar automáticamente las preguntas faltantes
+    // NUEVA FUNCIONALIDAD: Completar automáticamente las preguntas faltantes
     @FXML
     public void completarPreguntasFaltantes() {
         Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
         if (ex == null) {
             mostrarAlerta("Error", "Selecciona un examen primero.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        Tema tema = cbTema.getValue();
+        if (tema == null) {
+            mostrarAlerta("Error", "Selecciona un tema primero.", Alert.AlertType.ERROR);
             return;
         }
 
@@ -468,9 +500,15 @@ public class ExamenViewController {
                 return;
             }
 
-            List<Pregunta> preguntasDisponibles = new ArrayList<>(listPreguntasDisponibles.getItems());
+            // FILTRADO POR TEMA: Solo preguntas del tema del examen
+            List<Pregunta> preguntasDisponibles = listPreguntasDisponibles.getItems().stream()
+                    .filter(p -> p.getIdTema() == tema.getId())
+                    .collect(java.util.stream.Collectors.toList());
+
             if (preguntasDisponibles.isEmpty()) {
-                mostrarAlerta("Error", "No hay preguntas disponibles para completar.", Alert.AlertType.WARNING);
+                mostrarAlerta("Error",
+                        "No hay preguntas disponibles del tema '" + tema.getNombre() + "' para completar.",
+                        Alert.AlertType.WARNING);
                 return;
             }
 
@@ -480,8 +518,8 @@ public class ExamenViewController {
             confirmacion.setTitle("Completar preguntas faltantes");
             confirmacion.setHeaderText(null);
             confirmacion.setContentText(
-                    String.format("Se asignarán %d preguntas de forma aleatoria para completar el examen.\nCada pregunta usará su nota del sistema.\n\n¿Continuar?",
-                            cantidadReal)
+                    String.format("Se asignarán %d preguntas del tema '%s' de forma aleatoria para completar el examen.\nCada pregunta usará su nota del sistema.\n\n¿Continuar?",
+                            cantidadReal, tema.getNombre())
             );
 
             Optional<ButtonType> resultado = confirmacion.showAndWait();
@@ -489,15 +527,18 @@ public class ExamenViewController {
                 return;
             }
 
-            // Seleccionar y asignar preguntas aleatoriamente
             Collections.shuffle(preguntasDisponibles);
             List<Pregunta> preguntasAAsignar = preguntasDisponibles.subList(0, cantidadReal);
 
             int asignadas = 0;
             for (Pregunta pregunta : preguntasAAsignar) {
-                // 🔥 CAMBIO PRINCIPAL: Usar la nota del sistema (valorNota) de cada pregunta
-                double notaDelSistema = pregunta.getValorNota();
+                // Validación adicional antes de asignar
+                if (!validarCoherenciaTema(ex, pregunta)) {
+                    System.err.println("⚠ Pregunta " + pregunta.getId() + " no coincide con tema del examen");
+                    continue;
+                }
 
+                double notaDelSistema = pregunta.getValorNota();
                 if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pregunta.getId(), notaDelSistema)) {
                     asignadas++;
                 }
@@ -506,7 +547,8 @@ public class ExamenViewController {
             if (asignadas > 0) {
                 actualizarListasPreguntas();
                 mostrarAlerta("Éxito",
-                        String.format("Se completaron %d preguntas faltantes usando sus notas del sistema.", asignadas),
+                        String.format("Se completaron %d preguntas faltantes del tema '%s' usando sus notas del sistema.",
+                                asignadas, tema.getNombre()),
                         Alert.AlertType.INFORMATION);
             } else {
                 mostrarAlerta("Error", "No se pudo completar ninguna pregunta.", Alert.AlertType.ERROR);
@@ -517,7 +559,7 @@ public class ExamenViewController {
         }
     }
 
-    // 🆕 NUEVA FUNCIONALIDAD: Actualizar contadores de preguntas
+    // Actualizar contadores de preguntas
     private void actualizarContadoresPreguntas() {
         if (ExamenActual == null || txtNumPreguntas.getText().trim().isEmpty()) {
             lblPreguntasActuales.setText("Actuales: 0");
@@ -560,7 +602,7 @@ public class ExamenViewController {
                 ExamenPreguntaDAO.obtenerPreguntasDeExamen(ExamenActual.getId())
         ));
 
-        // 🆕 Actualizar contadores después de cambiar las listas
+        // Actualizar contadores después de cambiar las listas
         actualizarContadoresPreguntas();
     }
 }
