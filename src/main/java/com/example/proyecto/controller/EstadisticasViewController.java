@@ -1,11 +1,11 @@
 package com.example.proyecto.controller;
 
 import com.example.proyecto.dao.EstadisticasDAO;
-import com.example.proyecto.ReporteEstudiante;
-import com.example.proyecto.ReporteExamen;
-import com.example.proyecto.ReporteGrupo;
-import com.example.proyecto.ReportePregunta;
-import com.example.proyecto.ReporteTema;
+import com.example.proyecto.reportes.ReporteEstudiante;
+import com.example.proyecto.reportes.ReporteExamen;
+import com.example.proyecto.reportes.ReporteGrupo;
+import com.example.proyecto.reportes.ReportePregunta;
+import com.example.proyecto.reportes.ReporteTema;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

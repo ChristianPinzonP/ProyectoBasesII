@@ -1,10 +1,10 @@
 package com.example.proyecto.dao;
 
-import com.example.proyecto.ReporteEstudiante;
-import com.example.proyecto.ReporteGrupo;
-import com.example.proyecto.ReportePregunta;
-import com.example.proyecto.ReporteTema;
-import com.example.proyecto.ReporteExamen;
+import com.example.proyecto.reportes.ReporteEstudiante;
+import com.example.proyecto.reportes.ReporteGrupo;
+import com.example.proyecto.reportes.ReportePregunta;
+import com.example.proyecto.reportes.ReporteTema;
+import com.example.proyecto.reportes.ReporteExamen;
 import com.example.proyecto.DBConnection;
 
 import java.sql.*;

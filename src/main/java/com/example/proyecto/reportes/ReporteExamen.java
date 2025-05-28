@@ -1,4 +1,4 @@
-package com.example.proyecto;
+package com.example.proyecto.reportes;
 
 public class ReporteExamen {
     private int idExamen;
