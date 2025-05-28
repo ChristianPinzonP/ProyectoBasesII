@@ -4,6 +4,8 @@ import com.example.proyecto.DBConnection;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PresentacionExamenDAO {
 
@@ -38,35 +40,6 @@ public class PresentacionExamenDAO {
             stmt.setInt(2, idPregunta);
             stmt.setInt(3, idOpcion);
             stmt.execute();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void registrarRespuestaYCalificar(int idEstudiante, int idExamen, int idPregunta, int idRespuesta) {
-        int idPresentacion = obtenerIdPresentacion(idEstudiante, idExamen);
-
-        // Registrar desde procedimiento PL/SQL
-        registrarRespuesta(idPresentacion, idPregunta, idRespuesta);
-
-        // Calificar automáticamente
-        calificarAutomaticamente(idPresentacion);
-    }
-
-    public static void finalizarExamen(int idPresentacion) {
-        String sql = "{ call PKG_PRESENTACION_EXAMEN.FINALIZAR_EXAMEN(?, ?) }";
-
-        try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
-
-            stmt.setInt(1, idPresentacion);
-            stmt.registerOutParameter(2, Types.VARCHAR);
-
-            stmt.execute();
-
-            String estado = stmt.getString(2);
-            System.out.println("Estado de finalización del examen: " + estado);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -109,46 +82,6 @@ public class PresentacionExamenDAO {
         return -1;
     }
 
-    public static int obtenerIdPresentacion(int idEstudiante, int idExamen) {
-        String sql = "SELECT ID_PRESENTACION FROM PRESENTACION_EXAMEN WHERE ID_ESTUDIANTE = ? AND ID_EXAMEN = ? ORDER BY ID_PRESENTACION DESC FETCH FIRST 1 ROWS ONLY";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idEstudiante);
-            stmt.setInt(2, idExamen);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("ID_PRESENTACION");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static boolean examenFinalizado(int idPresentacion) {
-        String sql = "SELECT ESTADO FROM PRESENTACION_EXAMEN WHERE ID_PRESENTACION = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idPresentacion);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                String estado = rs.getString("ESTADO");
-                return "FINALIZADO".equalsIgnoreCase(estado);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
     public static int contarIntentosRealizados(int idEstudiante, int idExamen) {
         String sql = "SELECT COUNT(*) AS TOTAL FROM PRESENTACION_EXAMEN WHERE ID_ESTUDIANTE = ? AND ID_EXAMEN = ? AND UPPER(ESTADO) = 'FINALIZADO'";
         try (Connection conn = DBConnection.getConnection();
@@ -186,5 +119,51 @@ public class PresentacionExamenDAO {
         return 1; // valor por defecto si algo falla
     }
 
+    public static boolean examenTienePresentaciones(int idExamen) {
+        String sql = "SELECT COUNT(*) FROM PRESENTACION_EXAMEN WHERE ID_EXAMEN = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idExamen);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                System.out.println(">> Examen " + idExamen + " tiene " + count + " presentaciones");
+                return count > 0;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static Map<String, Integer> obtenerEstadisticasPresentaciones(int idExamen) {
+        Map<String, Integer> estadisticas = new HashMap<>();
+        String sql = "SELECT " +
+                "COUNT(*) as TOTAL, " +
+                "COUNT(CASE WHEN UPPER(ESTADO) = 'FINALIZADO' THEN 1 END) as FINALIZADOS, " +
+                "COUNT(CASE WHEN UPPER(ESTADO) = 'EN_PROGRESO' THEN 1 END) as EN_PROGRESO " +
+                "FROM PRESENTACION_EXAMEN WHERE ID_EXAMEN = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idExamen);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                estadisticas.put("total", rs.getInt("TOTAL"));
+                estadisticas.put("finalizados", rs.getInt("FINALIZADOS"));
+                estadisticas.put("en_progreso", rs.getInt("EN_PROGRESO"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return estadisticas;
+    }
 
 }

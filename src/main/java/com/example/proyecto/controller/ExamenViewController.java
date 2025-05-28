@@ -204,6 +204,9 @@ public class ExamenViewController {
 
             // Actualizar contadores
             actualizarContadoresPreguntas();
+
+            // Verificar y mostrar estado del examen
+            mostrarEstadoExamen(ex);
         }
     }
 
@@ -304,6 +307,11 @@ public class ExamenViewController {
             return;
         }
 
+        // Verificar si se puede modificar el examen
+        if (!puedeModificarExamen(examenSeleccionado)) {
+            return; // El método puedeModificarExamen ya muestra la alerta correspondiente
+        }
+
         if (!validarFormulario()) return;
 
         examenSeleccionado.setNombre(txtNombre.getText().trim());
@@ -338,6 +346,11 @@ public class ExamenViewController {
             return;
         }
 
+        // NUEVA VALIDACIÓN: Verificar si se puede modificar el examen
+        if (!puedeModificarExamen(examenSeleccionado)) {
+            return; // El método puedeModificarExamen ya muestra la alerta correspondiente
+        }
+
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar eliminación");
         confirmacion.setHeaderText(null);
@@ -363,6 +376,11 @@ public class ExamenViewController {
 
         if (ex == null || pr == null) {
             mostrarAlerta("Error", "Selecciona un examen y una pregunta.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // VALIDACIÓN: Verificar si se pueden modificar las preguntas
+        if (!puedeModificarPreguntasExamen(ex)) {
             return;
         }
 
@@ -408,10 +426,17 @@ public class ExamenViewController {
     public void eliminarPreguntaAsignada() {
         Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
         Pregunta pr = listPreguntasAsignadas.getSelectionModel().getSelectedItem();
+
         if (ex == null || pr == null) {
             mostrarAlerta("Error", "Selecciona examen y pregunta.", Alert.AlertType.ERROR);
             return;
         }
+
+        // VALIDACIÓN: Verificar si se pueden modificar las preguntas
+        if (!puedeModificarPreguntasExamen(ex)) {
+            return;
+        }
+
         Alert conf = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar esta pregunta?", ButtonType.OK, ButtonType.CANCEL);
         Optional<ButtonType> res = conf.showAndWait();
         if (res.isPresent() && res.get() == ButtonType.OK) {
@@ -428,6 +453,11 @@ public class ExamenViewController {
         Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
         if (ex == null) {
             mostrarAlerta("Error", "Selecciona un examen primero.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // VALIDACIÓN: Verificar si se pueden modificar las preguntas
+        if (!puedeModificarPreguntasExamen(ex)) {
             return;
         }
 
@@ -476,7 +506,6 @@ public class ExamenViewController {
                 return;
             }
 
-            // Resto del método permanece igual...
             int cantidadReal = Math.min(cantidadDeseada, preguntasDisponibles.size());
             if (cantidadReal < cantidadDeseada) {
                 Alert info = new Alert(Alert.AlertType.INFORMATION);
@@ -520,12 +549,17 @@ public class ExamenViewController {
         }
     }
 
-    // NUEVA FUNCIONALIDAD: Completar automáticamente las preguntas faltantes
+    // Completar automáticamente las preguntas faltantes
     @FXML
     public void completarPreguntasFaltantes() {
         Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
         if (ex == null) {
             mostrarAlerta("Error", "Selecciona un examen primero.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // VALIDACIÓN: Verificar si se pueden modificar las preguntas
+        if (!puedeModificarPreguntasExamen(ex)) {
             return;
         }
 
@@ -737,5 +771,135 @@ public class ExamenViewController {
                 }
             }
         });
+    }
+
+    // Método para validar si un examen puede ser modificado
+    private boolean puedeModificarExamen(Examen examen) {
+        if (examen == null) return false;
+
+        // Verificar si el examen tiene presentaciones
+        boolean tienePresentaciones = PresentacionExamenDAO.examenTienePresentaciones(examen.getId());
+
+        if (tienePresentaciones) {
+            // Obtener estadísticas detalladas para mostrar información
+            Map<String, Integer> stats = PresentacionExamenDAO.obtenerEstadisticasPresentaciones(examen.getId());
+
+            Alert alerta = new Alert(Alert.AlertType.WARNING);
+            alerta.setTitle("Modificación no permitida");
+            alerta.setHeaderText("El examen no puede ser modificado");
+            alerta.setContentText(
+                    String.format("Este examen ya tiene presentaciones registradas:\n\n" +
+                                    "• Total de presentaciones: %d\n" +
+                                    "• Finalizadas: %d\n" +
+                                    "• En progreso: %d\n\n" +
+                                    "No se pueden realizar modificaciones una vez que los estudiantes han comenzado a presentar el examen.",
+                            stats.get("total"), stats.get("finalizados"), stats.get("en_progreso"))
+            );
+
+            // Hacer la alerta más prominente
+            alerta.setResizable(true);
+            alerta.getDialogPane().setPrefWidth(500);
+            alerta.showAndWait();
+            return false;
+        }
+
+        return true;
+    }
+
+    // Método para validar modificaciones de preguntas
+    private boolean puedeModificarPreguntasExamen(Examen examen) {
+        if (examen == null) return false;
+
+        boolean tienePresentaciones = PresentacionExamenDAO.examenTienePresentaciones(examen.getId());
+
+        if (tienePresentaciones) {
+            Map<String, Integer> stats = PresentacionExamenDAO.obtenerEstadisticasPresentaciones(examen.getId());
+
+            Alert alerta = new Alert(Alert.AlertType.WARNING);
+            alerta.setTitle("Modificación de preguntas no permitida");
+            alerta.setHeaderText("No se pueden agregar o eliminar preguntas");
+            alerta.setContentText(
+                    String.format("Este examen ya tiene presentaciones registradas:\n\n" +
+                                    "• Total de presentaciones: %d\n" +
+                                    "• Finalizadas: %d\n" +
+                                    "• En progreso: %d\n\n" +
+                                    "Las preguntas no pueden ser modificadas una vez que los estudiantes han comenzado a presentar.",
+                            stats.get("total"), stats.get("finalizados"), stats.get("en_progreso"))
+            );
+
+            alerta.setResizable(true);
+            alerta.getDialogPane().setPrefWidth(500);
+            alerta.showAndWait();
+            return false;
+        }
+
+        return true;
+    }
+
+    // Método para verificar y mostrar estado del examen en la selección
+    private void mostrarEstadoExamen(Examen examen) {
+        if (examen == null) return;
+
+        boolean tienePresentaciones = PresentacionExamenDAO.examenTienePresentaciones(examen.getId());
+
+        if (tienePresentaciones) {
+            Map<String, Integer> stats = PresentacionExamenDAO.obtenerEstadisticasPresentaciones(examen.getId());
+
+            // Cambiar el estilo visual de los controles para indicar restricciones
+            String estiloRestringido = "-fx-background-color: #ffeeee; -fx-border-color: #ff6b6b; -fx-border-width: 1px;";
+
+            // Aplicar estilo a campos principales del formulario
+            txtNombre.setStyle(estiloRestringido);
+            txtDescripcion.setStyle(estiloRestringido);
+            dpFechaInicio.setStyle(estiloRestringido);
+            dpFechaFin.setStyle(estiloRestringido);
+            txtTiempoLimite.setStyle(estiloRestringido);
+            txtNumPreguntas.setStyle(estiloRestringido);
+            cbModoSeleccion.setStyle(estiloRestringido);
+            txtTiempoPorPregunta.setStyle(estiloRestringido);
+            cbTema.setStyle(estiloRestringido);
+            cbGrupo.setStyle(estiloRestringido);
+            txtIntentosPermitidos.setStyle(estiloRestringido);
+
+            // Mostrar tooltip informativo en campos principales
+            String tooltipText = String.format("⚠️ EXAMEN CON RESTRICCIONES\nPresentaciones: %d (Finalizadas: %d, En progreso: %d)",
+                    stats.get("total"), stats.get("finalizados"), stats.get("en_progreso"));
+
+            Tooltip restriccionTooltip = new Tooltip(tooltipText);
+            restriccionTooltip.setShowDelay(javafx.util.Duration.millis(100));
+
+            txtNombre.setTooltip(restriccionTooltip);
+            txtDescripcion.setTooltip(restriccionTooltip);
+            dpFechaInicio.setTooltip(restriccionTooltip);
+            dpFechaFin.setTooltip(restriccionTooltip);
+
+            // Opcional: Mostrar mensaje en consola para debugging
+            System.out.println("🔒 Examen " + examen.getId() + " tiene restricciones - Presentaciones: " + stats.get("total"));
+        } else {
+            // Restaurar estilo normal si no hay restricciones
+            limpiarEstilosRestriccion();
+        }
+    }
+
+    private void limpiarEstilosRestriccion() {
+        String estiloNormal = "";
+
+        txtNombre.setStyle(estiloNormal);
+        txtDescripcion.setStyle(estiloNormal);
+        dpFechaInicio.setStyle(estiloNormal);
+        dpFechaFin.setStyle(estiloNormal);
+        txtTiempoLimite.setStyle(estiloNormal);
+        txtNumPreguntas.setStyle(estiloNormal);
+        cbModoSeleccion.setStyle(estiloNormal);
+        txtTiempoPorPregunta.setStyle(estiloNormal);
+        cbTema.setStyle(estiloNormal);
+        cbGrupo.setStyle(estiloNormal);
+        txtIntentosPermitidos.setStyle(estiloNormal);
+
+        // Limpiar tooltips
+        txtNombre.setTooltip(null);
+        txtDescripcion.setTooltip(null);
+        dpFechaInicio.setTooltip(null);
+        dpFechaFin.setTooltip(null);
     }
 }
