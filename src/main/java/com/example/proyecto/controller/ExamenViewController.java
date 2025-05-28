@@ -12,8 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ExamenViewController {
 
@@ -46,6 +45,12 @@ public class ExamenViewController {
     @FXML private TextField txtNotaAsignacion;
     @FXML private TextField txtIntentosPermitidos;
 
+    // 🆕 Nuevos campos para asignación aleatoria
+    @FXML private TextField txtCantidadAleatoria;
+    @FXML private TextField txtNotaAleatoria;
+    @FXML private Label lblPreguntasActuales;
+    @FXML private Label lblPreguntasFaltantes;
+
     private List<Tema> listaTemas;
     private ObservableList<Examen> listaExamenes;
     private FilteredList<Examen> filtroExamenes;
@@ -68,7 +73,7 @@ public class ExamenViewController {
 
         listaTemas = TemaDAO.obtenerTemas();
         cbTema.setItems(FXCollections.observableArrayList(listaTemas));
-        cbModoSeleccion.setItems(FXCollections.observableArrayList("Manual", "Aleatorio"));
+        cbModoSeleccion.setItems(FXCollections.observableArrayList("Manual", "Aleatorio", "Mixto"));
 
         cbTema.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) cargarPreguntasDisponibles(newVal.getId());
@@ -92,6 +97,11 @@ public class ExamenViewController {
                         examen.getDescripcion().toLowerCase().contains(lower) ||
                         String.valueOf(examen.getIdDocente()).contains(lower);
             });
+        });
+
+        // 🆕 Listener para actualizar contadores de preguntas
+        listPreguntasAsignadas.getItems().addListener((javafx.collections.ListChangeListener<Pregunta>) c -> {
+            actualizarContadoresPreguntas();
         });
     }
 
@@ -141,11 +151,10 @@ public class ExamenViewController {
         }
     }
 
-
     private void cargarPreguntasDisponibles(int idTema) {
         if (ExamenActual == null) {
             System.out.println("⚠ No se ha seleccionado un examen aún.");
-            return; // evita el NullPointerException
+            return;
         }
 
         try {
@@ -179,10 +188,12 @@ public class ExamenViewController {
             cbGrupo.getItems().stream().filter(g -> g.getIdGrupo() == ex.getIdGrupo()).findFirst().ifPresent(g -> cbGrupo.getSelectionModel().select(g));
             cargarPreguntasDisponibles(ex.getIdTema());
 
-            // ✅ CARGAR preguntas asignadas al examen
             listPreguntasAsignadas.setItems(FXCollections.observableArrayList(
                     ExamenPreguntaDAO.obtenerPreguntasDeExamen(ex.getId())
             ));
+
+            // 🆕 Actualizar contadores
+            actualizarContadoresPreguntas();
         }
     }
 
@@ -207,6 +218,8 @@ public class ExamenViewController {
         cbTema.getSelectionModel().clearSelection();
         cbGrupo.getSelectionModel().clearSelection();
         txtIntentosPermitidos.clear();
+        txtCantidadAleatoria.clear();
+        txtNotaAleatoria.clear();
     }
 
     private boolean validarFormulario() {
@@ -311,13 +324,8 @@ public class ExamenViewController {
             if (nota <= 0 || nota > 5) throw new NumberFormatException();
             if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pr.getId(), nota)) {
                 mostrarAlerta("Éxito", "Pregunta asignada con nota.", Alert.AlertType.INFORMATION);
-
-                // ✅ Actualizar las listas inmediatamente
                 actualizarListasPreguntas();
-
-                // ✅ Limpiar el campo de nota
                 txtNotaAsignacion.clear();
-
             } else mostrarAlerta("Error", "No se pudo asignar.", Alert.AlertType.ERROR);
         } catch (NumberFormatException e) {
             mostrarAlerta("Error", "Nota inválida (0.1 - 5).", Alert.AlertType.WARNING);
@@ -337,29 +345,222 @@ public class ExamenViewController {
         if (res.isPresent() && res.get() == ButtonType.OK) {
             if (ExamenPreguntaDAO.eliminarPreguntaDeExamen(ex.getId(), pr.getId())) {
                 mostrarAlerta("Éxito", "Pregunta eliminada.", Alert.AlertType.INFORMATION);
-
-                // ✅ Actualizar las listas inmediatamente
                 actualizarListasPreguntas();
-
             } else mostrarAlerta("Error", "No se pudo eliminar.", Alert.AlertType.ERROR);
         }
     }
 
-    /**
-     * ✅ Método auxiliar para actualizar ambas listas de preguntas
-     */
+    // 🆕 NUEVA FUNCIONALIDAD: Asignación aleatoria de preguntas
+    @FXML
+    public void asignarPreguntasAleatorias() {
+        Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
+        if (ex == null) {
+            mostrarAlerta("Error", "Selecciona un examen primero.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        Tema tema = cbTema.getValue();
+        if (tema == null) {
+            mostrarAlerta("Error", "Selecciona un tema primero.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        try {
+            int cantidadDeseada = Integer.parseInt(txtCantidadAleatoria.getText().trim());
+
+            if (cantidadDeseada <= 0) {
+                mostrarAlerta("Error", "La cantidad debe ser mayor a 0.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            // Verificar si excede el límite del examen
+            int preguntasActuales = listPreguntasAsignadas.getItems().size();
+            int totalEsperado = Integer.parseInt(txtNumPreguntas.getText().trim());
+
+            if (preguntasActuales + cantidadDeseada > totalEsperado) {
+                Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmacion.setTitle("Límite excedido");
+                confirmacion.setHeaderText("El total de preguntas excederá el límite del examen");
+                confirmacion.setContentText(
+                        String.format("Preguntas actuales: %d\nCantidad a agregar: %d\nTotal resultante: %d\nLímite del examen: %d\n\n¿Continuar de todas formas?",
+                                preguntasActuales, cantidadDeseada, preguntasActuales + cantidadDeseada, totalEsperado)
+                );
+
+                Optional<ButtonType> resultado = confirmacion.showAndWait();
+                if (resultado.isEmpty() || resultado.get() != ButtonType.OK) {
+                    return;
+                }
+            }
+
+            // Obtener preguntas disponibles
+            List<Pregunta> preguntasDisponibles = new ArrayList<>(listPreguntasDisponibles.getItems());
+            if (preguntasDisponibles.isEmpty()) {
+                mostrarAlerta("Error", "No hay preguntas disponibles para asignar.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            // Limitar la cantidad a las preguntas disponibles
+            int cantidadReal = Math.min(cantidadDeseada, preguntasDisponibles.size());
+            if (cantidadReal < cantidadDeseada) {
+                Alert info = new Alert(Alert.AlertType.INFORMATION);
+                info.setTitle("Cantidad ajustada");
+                info.setHeaderText(null);
+                info.setContentText(String.format("Solo hay %d preguntas disponibles. Se asignarán %d preguntas.",
+                        preguntasDisponibles.size(), cantidadReal));
+                info.showAndWait();
+            }
+
+            // Seleccionar preguntas aleatoriamente
+            Collections.shuffle(preguntasDisponibles);
+            List<Pregunta> preguntasAAsignar = preguntasDisponibles.subList(0, cantidadReal);
+
+            // Asignar las preguntas seleccionadas usando la nota del sistema de cada pregunta
+            int asignadas = 0;
+            List<String> errores = new ArrayList<>();
+
+            for (Pregunta pregunta : preguntasAAsignar) {
+                // 🔥 CAMBIO PRINCIPAL: Usar la nota del sistema (valorNota) de cada pregunta
+                double notaDelSistema = pregunta.getValorNota();
+
+                if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pregunta.getId(), notaDelSistema)) {
+                    asignadas++;
+                } else {
+                    errores.add("Error asignando pregunta ID: " + pregunta.getId());
+                }
+            }
+
+            // Mostrar resultado
+            if (asignadas > 0) {
+                actualizarListasPreguntas();
+                txtCantidadAleatoria.clear();
+                // 🔥 Ya no necesitamos limpiar txtNotaAleatoria porque no se usa
+
+                String mensaje = String.format("Se asignaron %d preguntas de forma aleatoria usando sus notas del sistema.", asignadas);
+                if (!errores.isEmpty()) {
+                    mensaje += String.format("\n%d preguntas no se pudieron asignar.", errores.size());
+                }
+                mostrarAlerta("Éxito", mensaje, Alert.AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo asignar ninguna pregunta.", Alert.AlertType.ERROR);
+            }
+
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Error", "Valor numérico inválido en cantidad.", Alert.AlertType.WARNING);
+        }
+    }
+
+    // 🆕 NUEVA FUNCIONALIDAD: Completar automáticamente las preguntas faltantes
+    @FXML
+    public void completarPreguntasFaltantes() {
+        Examen ex = tablaExamenes.getSelectionModel().getSelectedItem();
+        if (ex == null) {
+            mostrarAlerta("Error", "Selecciona un examen primero.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        try {
+            int totalRequerido = Integer.parseInt(txtNumPreguntas.getText().trim());
+            int preguntasActuales = listPreguntasAsignadas.getItems().size();
+            int faltantes = totalRequerido - preguntasActuales;
+
+            if (faltantes <= 0) {
+                mostrarAlerta("Información", "El examen ya tiene todas las preguntas requeridas.", Alert.AlertType.INFORMATION);
+                return;
+            }
+
+            List<Pregunta> preguntasDisponibles = new ArrayList<>(listPreguntasDisponibles.getItems());
+            if (preguntasDisponibles.isEmpty()) {
+                mostrarAlerta("Error", "No hay preguntas disponibles para completar.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            int cantidadReal = Math.min(faltantes, preguntasDisponibles.size());
+
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Completar preguntas faltantes");
+            confirmacion.setHeaderText(null);
+            confirmacion.setContentText(
+                    String.format("Se asignarán %d preguntas de forma aleatoria para completar el examen.\nCada pregunta usará su nota del sistema.\n\n¿Continuar?",
+                            cantidadReal)
+            );
+
+            Optional<ButtonType> resultado = confirmacion.showAndWait();
+            if (resultado.isEmpty() || resultado.get() != ButtonType.OK) {
+                return;
+            }
+
+            // Seleccionar y asignar preguntas aleatoriamente
+            Collections.shuffle(preguntasDisponibles);
+            List<Pregunta> preguntasAAsignar = preguntasDisponibles.subList(0, cantidadReal);
+
+            int asignadas = 0;
+            for (Pregunta pregunta : preguntasAAsignar) {
+                // 🔥 CAMBIO PRINCIPAL: Usar la nota del sistema (valorNota) de cada pregunta
+                double notaDelSistema = pregunta.getValorNota();
+
+                if (ExamenPreguntaDAO.asignarPreguntaAExamen(ex.getId(), pregunta.getId(), notaDelSistema)) {
+                    asignadas++;
+                }
+            }
+
+            if (asignadas > 0) {
+                actualizarListasPreguntas();
+                mostrarAlerta("Éxito",
+                        String.format("Se completaron %d preguntas faltantes usando sus notas del sistema.", asignadas),
+                        Alert.AlertType.INFORMATION);
+            } else {
+                mostrarAlerta("Error", "No se pudo completar ninguna pregunta.", Alert.AlertType.ERROR);
+            }
+
+        } catch (NumberFormatException e) {
+            mostrarAlerta("Error", "Valores numéricos inválidos.", Alert.AlertType.WARNING);
+        }
+    }
+
+    // 🆕 NUEVA FUNCIONALIDAD: Actualizar contadores de preguntas
+    private void actualizarContadoresPreguntas() {
+        if (ExamenActual == null || txtNumPreguntas.getText().trim().isEmpty()) {
+            lblPreguntasActuales.setText("Actuales: 0");
+            lblPreguntasFaltantes.setText("Faltantes: 0");
+            return;
+        }
+
+        try {
+            int total = Integer.parseInt(txtNumPreguntas.getText().trim());
+            int actuales = listPreguntasAsignadas.getItems().size();
+            int faltantes = Math.max(0, total - actuales);
+
+            lblPreguntasActuales.setText("Actuales: " + actuales);
+            lblPreguntasFaltantes.setText("Faltantes: " + faltantes);
+
+            // Cambiar color si excede el límite
+            if (actuales > total) {
+                lblPreguntasActuales.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+            } else if (actuales == total) {
+                lblPreguntasActuales.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
+            } else {
+                lblPreguntasActuales.setStyle("-fx-text-fill: black;");
+            }
+
+        } catch (NumberFormatException e) {
+            lblPreguntasActuales.setText("Actuales: 0");
+            lblPreguntasFaltantes.setText("Faltantes: 0");
+        }
+    }
+
     private void actualizarListasPreguntas() {
         if (ExamenActual == null) return;
 
-        // Actualizar lista de preguntas disponibles
         Tema temaSeleccionado = cbTema.getValue();
         if (temaSeleccionado != null) {
             cargarPreguntasDisponibles(temaSeleccionado.getId());
         }
 
-        // Actualizar lista de preguntas asignadas
         listPreguntasAsignadas.setItems(FXCollections.observableArrayList(
                 ExamenPreguntaDAO.obtenerPreguntasDeExamen(ExamenActual.getId())
         ));
+
+        // 🆕 Actualizar contadores después de cambiar las listas
+        actualizarContadoresPreguntas();
     }
 }
