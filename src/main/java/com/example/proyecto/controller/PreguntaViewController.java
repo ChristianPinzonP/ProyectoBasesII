@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PreguntaViewController {
     @FXML private TextArea txtTexto;
@@ -161,6 +162,26 @@ public class PreguntaViewController {
 
         if (seleccionada.isEsPublica() && seleccionada.getIdDocente() != docenteActual.getIdDocente()) {
             mostrarAlerta("Error", "No puede editar esta pregunta porque pertenece a otro docente.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // NUEVA VALIDACIÓN: Verificar si la pregunta está en exámenes presentados
+        if (PreguntaDAO.preguntaEstaEnExamenPresentado(seleccionada.getId())) {
+            List<Map<String, Object>> examenes = PreguntaDAO.obtenerExamenesQuUsanPregunta(seleccionada.getId());
+            StringBuilder mensaje = new StringBuilder();
+            mensaje.append("No se puede editar esta pregunta porque está siendo utilizada en los siguientes exámenes que ya han sido presentados:\n\n");
+
+            for (Map<String, Object> examen : examenes) {
+                int presentaciones = (Integer) examen.get("totalPresentaciones");
+                if (presentaciones > 0) {
+                    mensaje.append("• ").append(examen.get("titulo"))
+                            .append(" (").append(presentaciones).append(" presentaciones)\n");
+                }
+            }
+
+            mensaje.append("\nPor motivos de integridad académica, no se permite modificar preguntas que ya han sido utilizadas en exámenes presentados.");
+
+            mostrarAlerta("Edición No Permitida", mensaje.toString(), Alert.AlertType.WARNING);
             return;
         }
 
@@ -332,9 +353,30 @@ public class PreguntaViewController {
             mostrarAlerta("Error", "Debe seleccionar una pregunta para eliminar.", Alert.AlertType.WARNING);
             return;
         }
+
         // Verificar si la pregunta pertenece al docente actual
         if (seleccionada.getIdDocente() != docenteActual.getIdDocente()) {
             mostrarAlerta("Error", "Solo puede eliminar preguntas creadas por usted.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // NUEVA VALIDACIÓN: Verificar si la pregunta está en exámenes presentados
+        if (PreguntaDAO.preguntaEstaEnExamenPresentado(seleccionada.getId())) {
+            List<Map<String, Object>> examenes = PreguntaDAO.obtenerExamenesQuUsanPregunta(seleccionada.getId());
+            StringBuilder mensaje = new StringBuilder();
+            mensaje.append("No se puede eliminar esta pregunta porque está siendo utilizada en los siguientes exámenes que ya han sido presentados:\n\n");
+
+            for (Map<String, Object> examen : examenes) {
+                int presentaciones = (Integer) examen.get("totalPresentaciones");
+                if (presentaciones > 0) {
+                    mensaje.append("• ").append(examen.get("titulo"))
+                            .append(" (").append(presentaciones).append(" presentaciones)\n");
+                }
+            }
+
+            mensaje.append("\nPor motivos de integridad académica, no se permite eliminar preguntas que ya han sido utilizadas en exámenes presentados.");
+
+            mostrarAlerta("Eliminación No Permitida", mensaje.toString(), Alert.AlertType.WARNING);
             return;
         }
 
@@ -361,6 +403,14 @@ public class PreguntaViewController {
     public void guardarEdicion() {
         if (preguntaEnEdicion == null) {
             mostrarAlerta("Error", "Debe seleccionar una pregunta primero.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // NUEVA VALIDACIÓN: Verificar nuevamente antes de guardar
+        if (PreguntaDAO.preguntaEstaEnExamenPresentado(preguntaEnEdicion.getId())) {
+            mostrarAlerta("Error",
+                    "No se pueden guardar los cambios porque esta pregunta está siendo utilizada en exámenes que ya han sido presentados.",
+                    Alert.AlertType.WARNING);
             return;
         }
 
@@ -675,8 +725,29 @@ public class PreguntaViewController {
                 PreguntaDAO.obtenerPreguntasVisiblesParaDocente(docenteActual.getIdDocente())
         );
         tablaPreguntas.setItems(listaPreguntas);
+
+        // Aplicar estilo condicional a las filas
+        tablaPreguntas.setRowFactory(tv -> {
+            TableRow<Pregunta> row = new TableRow<>();
+            row.itemProperty().addListener((obs, oldPregunta, newPregunta) -> {
+                if (newPregunta != null) {
+                    // Verificar si la pregunta está en exámenes presentados
+                    if (PreguntaDAO.preguntaEstaEnExamenPresentado(newPregunta.getId())) {
+                        row.setStyle("-fx-background-color: #fff3cd; -fx-text-fill: #856404;");
+                        row.setTooltip(new Tooltip("Esta pregunta no se puede editar porque está en exámenes presentados"));
+                    } else {
+                        row.setStyle("");
+                        row.setTooltip(null);
+                    }
+                }
+            });
+            return row;
+        });
+
         actualizarComboBoxPreguntaPadre();
     }
+
+
 
     @FXML
     public void mostrarPregunta() {

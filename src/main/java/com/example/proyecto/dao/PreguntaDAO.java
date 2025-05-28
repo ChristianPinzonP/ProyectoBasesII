@@ -8,7 +8,9 @@ import oracle.jdbc.OracleTypes;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PreguntaDAO {
 
@@ -488,5 +490,73 @@ public class PreguntaDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * Verifica si una pregunta está siendo utilizada en exámenes que ya han sido presentados
+     * @param idPregunta ID de la pregunta a verificar
+     * @return true si la pregunta está en exámenes con presentaciones, false en caso contrario
+     */
+    public static boolean preguntaEstaEnExamenPresentado(int idPregunta) {
+        String sql = "SELECT COUNT(*) FROM EXAMEN_PREGUNTA ep " +
+                "JOIN PRESENTACION_EXAMEN pe ON ep.ID_EXAMEN = pe.ID_EXAMEN " +
+                "WHERE ep.ID_PREGUNTA = ? AND pe.ESTADO IN ('FINALIZADO', 'EN_PROGRESO')";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idPregunta);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                System.out.println(">> Pregunta " + idPregunta + " está en " + count + " presentaciones");
+                return count > 0;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Obtiene información detallada sobre los exámenes donde se usa una pregunta
+     * @param idPregunta ID de la pregunta
+     * @return Lista con información de los exámenes que usan la pregunta
+     */
+    public static List<Map<String, Object>> obtenerExamenesQuUsanPregunta(int idPregunta) {
+        List<Map<String, Object>> examenes = new ArrayList<>();
+        String sql = "SELECT DISTINCT e.ID_EXAMEN, e.TITULO, e.FECHA_INICIO, e.FECHA_FIN, " +
+                "COUNT(pe.ID_PRESENTACION) as TOTAL_PRESENTACIONES " +
+                "FROM EXAMEN e " +
+                "JOIN EXAMEN_PREGUNTA ep ON e.ID_EXAMEN = ep.ID_EXAMEN " +
+                "LEFT JOIN PRESENTACION_EXAMEN pe ON e.ID_EXAMEN = pe.ID_EXAMEN " +
+                "WHERE ep.ID_PREGUNTA = ? " +
+                "GROUP BY e.ID_EXAMEN, e.TITULO, e.FECHA_INICIO, e.FECHA_FIN " +
+                "ORDER BY e.FECHA_INICIO DESC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idPregunta);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> examen = new HashMap<>();
+                examen.put("idExamen", rs.getInt("ID_EXAMEN"));
+                examen.put("titulo", rs.getString("TITULO"));
+                examen.put("fechaInicio", rs.getDate("FECHA_INICIO"));
+                examen.put("fechaFin", rs.getDate("FECHA_FIN"));
+                examen.put("totalPresentaciones", rs.getInt("TOTAL_PRESENTACIONES"));
+                examenes.add(examen);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return examenes;
     }
 }
