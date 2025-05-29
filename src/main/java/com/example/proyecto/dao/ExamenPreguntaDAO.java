@@ -11,21 +11,26 @@ import java.util.List;
 public class ExamenPreguntaDAO {
 
     public static boolean asignarPreguntaAExamen(int idExamen, int idPregunta, double valorNota) {
-        // Validación previa: verificar coherencia de tema
-        if (!validarCoherenciaTemaExamenPregunta(idExamen, idPregunta)) {
-            System.err.println("❌ Error: La pregunta " + idPregunta + " no pertenece al tema del examen " + idExamen);
-            return false;
-        }
+        String sqlCall = "{ call PKG_EXAMEN_PREGUNTA.ASIGNAR_PREGUNTA_A_EXAMEN(?, ?, ?, ?) }";
 
-        String sql = "INSERT INTO EXAMEN_PREGUNTA (ID_EXAMEN, ID_PREGUNTA, VALOR_NOTA) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall(sqlCall)) {
 
-            stmt.setInt(1, idExamen);
-            stmt.setInt(2, idPregunta);
-            stmt.setDouble(3, valorNota);
+            cs.setInt(1, idExamen);
+            cs.setInt(2, idPregunta);
+            cs.setDouble(3, valorNota);
+            cs.registerOutParameter(4, Types.VARCHAR);
 
-            return stmt.executeUpdate() > 0;
+            cs.execute();
+
+            String resultado = cs.getString(4);
+
+            if ("OK".equals(resultado)) {
+                return true;
+            } else {
+                System.err.println("❌ Error al asignar pregunta: " + resultado);
+                return false;
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -34,14 +39,25 @@ public class ExamenPreguntaDAO {
     }
 
     public static boolean eliminarPreguntaDeExamen(int idExamen, int idPregunta) {
-        String sql = "DELETE FROM EXAMEN_PREGUNTA WHERE ID_EXAMEN = ? AND ID_PREGUNTA = ?";
+        String sqlCall = "{ call PKG_EXAMEN_PREGUNTA.ELIMINAR_PREGUNTA_DE_EXAMEN(?, ?, ?) }";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall(sqlCall)) {
 
-            stmt.setInt(1, idExamen);
-            stmt.setInt(2, idPregunta);
+            cs.setInt(1, idExamen);
+            cs.setInt(2, idPregunta);
+            cs.registerOutParameter(3, Types.VARCHAR);
 
-            return stmt.executeUpdate() > 0;
+            cs.execute();
+
+            String resultado = cs.getString(3);
+
+            if ("OK".equals(resultado)) {
+                return true;
+            } else {
+                System.err.println("❌ Error al eliminar pregunta: " + resultado);
+                return false;
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,17 +67,17 @@ public class ExamenPreguntaDAO {
 
     public static List<Pregunta> obtenerPreguntasDeExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
-        String sql = "SELECT p.ID_PREGUNTA, p.TEXTO, p.TIPO, p.ID_TEMA, t.NOMBRE AS NOMBRE_TEMA, ep.VALOR_NOTA " +
-                "FROM PREGUNTA p " +
-                "JOIN EXAMEN_PREGUNTA ep ON ep.ID_PREGUNTA = p.ID_PREGUNTA " +
-                "LEFT JOIN TEMA t ON p.ID_TEMA = t.ID_TEMA " +
-                "WHERE ep.ID_EXAMEN = ?";
+        String sqlCall = "{ call PKG_EXAMEN_PREGUNTA.OBTENER_PREGUNTAS_DE_EXAMEN(?, ?) }";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement cs = conn.prepareCall(sqlCall)) {
 
-            stmt.setInt(1, idExamen);
-            ResultSet rs = stmt.executeQuery();
+            cs.setInt(1, idExamen);
+            cs.registerOutParameter(2, OracleTypes.CURSOR);
+
+            cs.execute();
+
+            ResultSet rs = (ResultSet) cs.getObject(2);
 
             while (rs.next()) {
                 int id = rs.getInt("ID_PREGUNTA");
@@ -76,6 +92,8 @@ public class ExamenPreguntaDAO {
                 p.setValorNota(valorNota);
                 preguntas.add(p);
             }
+
+            rs.close();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -113,30 +131,6 @@ public class ExamenPreguntaDAO {
         cs.close();
         conn.close();
         return lista;
-    }
-
-    // NUEVA VALIDACIÓN (ExamenPreguntaDAO.java)
-    public static boolean validarCoherenciaTemaExamenPregunta(int idExamen, int idPregunta) {
-        String sql = "SELECT COUNT(*) FROM EXAMEN e " +
-                "JOIN PREGUNTA p ON e.ID_TEMA = p.ID_TEMA " +
-                "WHERE e.ID_EXAMEN = ? AND p.ID_PREGUNTA = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idExamen);
-            stmt.setInt(2, idPregunta);
-
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0; // Si count > 0, la pregunta pertenece al tema del examen
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return false;
     }
 
 }

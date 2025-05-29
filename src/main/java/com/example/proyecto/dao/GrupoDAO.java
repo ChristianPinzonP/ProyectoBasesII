@@ -3,40 +3,46 @@ package com.example.proyecto.dao;
 import com.example.proyecto.DBConnection;
 import com.example.proyecto.Grupo;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GrupoDAO {
 
+    /**
+     * Obtiene los grupos asociados a un docente usando PL/SQL
+     * @param idDocente ID del docente
+     * @return Lista de grupos del docente
+     */
     public static List<Grupo> obtenerGruposPorDocente(int idDocente) {
         List<Grupo> listaGrupos = new ArrayList<>();
 
-        String sql = "SELECT g.ID_GRUPO, g.NOMBRE " +
-                "FROM GRUPO g " +
-                "JOIN DOCENTE_GRUPO dg ON TO_NUMBER(g.ID_GRUPO) = TO_NUMBER(dg.ID_GRUPO) " +
-                "WHERE dg.ID_DOCENTE = ?";
+        String sqlCall = "{? = call PKG_GRUPO.OBTENER_GRUPOS_POR_DOCENTE(?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
-            // 🔍 Mostrar el usuario conectado
+            // Mostrar el usuario conectado
             System.out.println("→ Ejecutando consulta como usuario: " + conn.getMetaData().getUserName());
 
-            stmt.setInt(1, idDocente);
-            ResultSet rs = stmt.executeQuery();
+            // Registrar el cursor de salida
+            stmt.registerOutParameter(1, Types.REF_CURSOR);
+            stmt.setInt(2, idDocente);
 
-            while (rs.next()) {
-                Grupo grupo = new Grupo();
-                grupo.setIdGrupo(rs.getInt("ID_GRUPO"));
-                grupo.setNombre(rs.getString("NOMBRE"));
-                listaGrupos.add(grupo);
+            // Ejecutar la función
+            stmt.execute();
+
+            // Obtener el cursor y procesar resultados
+            try (ResultSet rs = (ResultSet) stmt.getObject(1)) {
+                while (rs.next()) {
+                    Grupo grupo = new Grupo();
+                    grupo.setIdGrupo(rs.getInt("ID_GRUPO"));
+                    grupo.setNombre(rs.getString("NOMBRE"));
+                    listaGrupos.add(grupo);
+                }
             }
 
-            // ✅ Imprimir los grupos recuperados
-            System.out.println("→ Total de grupos devueltos desde Java: " + listaGrupos.size());
+            System.out.println("→ Total de grupos devueltos desde PL/SQL: " + listaGrupos.size());
             for (Grupo g : listaGrupos) {
                 System.out.println("   - " + g.getIdGrupo() + ": " + g.getNombre());
             }

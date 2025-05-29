@@ -9,24 +9,19 @@ import java.util.List;
 
 public class ExamenDAO {
 
-    // Agregar este nuevo método en ExamenDAO.java
-
     public static List<Examen> obtenerExamenesPorDocente(int idDocente) {
         List<Examen> listaExamenes = new ArrayList<>();
-        String sql = "SELECT e.id_examen, e.nombre, e.descripcion, e.fecha_inicio, e.fecha_fin, " +
-                "e.tiempo_limite, e.id_docente, e.id_tema, e.id_grupo, t.NOMBRE AS nombre_tema, g.NOMBRE AS nombre_grupo, " +
-                "e.numero_preguntas, e.modo_seleccion, e.tiempo_por_pregunta, e.intentos_permitidos " +
-                "FROM EXAMEN e " +
-                "LEFT JOIN TEMA t ON e.id_tema = t.id_tema " +
-                "LEFT JOIN GRUPO g ON e.id_grupo = g.id_grupo " +
-                "WHERE e.id_docente = ? " +
-                "ORDER BY e.id_examen DESC";
+        String sqlCall = "{call PKG_EXAMEN.OBTENER_EXAMENES_POR_DOCENTE(?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
             stmt.setInt(1, idDocente);
-            ResultSet rs = stmt.executeQuery();
+            stmt.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+
+            stmt.execute();
+
+            ResultSet rs = (ResultSet) stmt.getObject(2);
 
             while (rs.next()) {
                 int idExamen = rs.getInt("id_examen");
@@ -40,7 +35,6 @@ public class ExamenDAO {
                 String nombreTema = rs.getString("nombre_tema");
                 int idGrupo = rs.getInt("id_grupo");
                 String nombreGrupo = rs.getString("nombre_grupo");
-
                 int numeroPreguntas = rs.getInt("numero_preguntas");
                 String modoSeleccion = rs.getString("modo_seleccion");
                 int tiempoPorPregunta = rs.getInt("tiempo_por_pregunta");
@@ -58,6 +52,7 @@ public class ExamenDAO {
 
                 listaExamenes.add(examen);
             }
+
         } catch (SQLException e) {
             System.out.println("⚠️ Error al obtener exámenes del docente " + idDocente + ": " + e.getMessage());
         }
@@ -66,11 +61,10 @@ public class ExamenDAO {
     }
 
     public static boolean agregarExamen(Examen examen) {
-        String sql = "INSERT INTO EXAMEN (NOMBRE, DESCRIPCION, FECHA_INICIO, FECHA_FIN, TIEMPO_LIMITE, ID_DOCENTE, ID_TEMA, ID_GRUPO, MODO_SELECCION, TIEMPO_POR_PREGUNTA, NUMERO_PREGUNTAS, INTENTOS_PERMITIDOS) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sqlCall = "{call PKG_EXAMEN.AGREGAR_EXAMEN(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
             stmt.setString(1, examen.getNombre());
             stmt.setString(2, examen.getDescripcion());
@@ -84,8 +78,12 @@ public class ExamenDAO {
             stmt.setInt(10, examen.getTiempoPorPregunta());
             stmt.setInt(11, examen.getNumeroPreguntas());
             stmt.setInt(12, examen.getIntentosPermitidos());
+            stmt.registerOutParameter(13, Types.INTEGER);
 
-            return stmt.executeUpdate() > 0;
+            stmt.execute();
+
+            int resultado = stmt.getInt(13);
+            return resultado > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -94,27 +92,30 @@ public class ExamenDAO {
     }
 
     public static boolean editarExamen(Examen examen) {
-        String sql = "UPDATE EXAMEN SET nombre = ?, descripcion = ?, fecha_inicio = ?, fecha_fin = ?, " +
-                "tiempo_limite = ?, id_docente = ?, id_tema = ?, id_grupo = ?, numero_preguntas = ?, modo_seleccion = ?, tiempo_por_pregunta = ?, intentos_permitidos = ? WHERE id_examen = ?";
+        String sqlCall = "{call PKG_EXAMEN.EDITAR_EXAMEN(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
-            stmt.setString(1, examen.getNombre());
-            stmt.setString(2, examen.getDescripcion());
-            stmt.setDate(3, examen.getFechaInicio());
-            stmt.setDate(4, examen.getFechaFin());
-            stmt.setInt(5, examen.getTiempoLimite());
-            stmt.setInt(6, examen.getIdDocente());
-            stmt.setInt(7, examen.getIdTema());
-            stmt.setInt(8, examen.getIdGrupo());
-            stmt.setInt(9, examen.getNumeroPreguntas());
-            stmt.setString(10, examen.getModoSeleccion());
-            stmt.setInt(11, examen.getTiempoPorPregunta());
-            stmt.setInt(12, examen.getIntentosPermitidos());
-            stmt.setInt(13, examen.getId());
+            stmt.setInt(1, examen.getId());
+            stmt.setString(2, examen.getNombre());
+            stmt.setString(3, examen.getDescripcion());
+            stmt.setDate(4, examen.getFechaInicio());
+            stmt.setDate(5, examen.getFechaFin());
+            stmt.setInt(6, examen.getTiempoLimite());
+            stmt.setInt(7, examen.getIdDocente());
+            stmt.setInt(8, examen.getIdTema());
+            stmt.setInt(9, examen.getIdGrupo());
+            stmt.setInt(10, examen.getNumeroPreguntas());
+            stmt.setString(11, examen.getModoSeleccion());
+            stmt.setInt(12, examen.getTiempoPorPregunta());
+            stmt.setInt(13, examen.getIntentosPermitidos());
+            stmt.registerOutParameter(14, Types.INTEGER);
 
-            return stmt.executeUpdate() > 0;
+            stmt.execute();
+
+            int resultado = stmt.getInt(14);
+            return resultado > 0;
 
         } catch (SQLException e) {
             System.out.println("❌ Error al actualizar el examen: " + e.getMessage());
@@ -124,13 +125,17 @@ public class ExamenDAO {
 
     public static List<Examen> obtenerExamenesPorGrupo(int idGrupo) {
         List<Examen> listaExamenes = new ArrayList<>();
-        String sql = "SELECT id_examen, nombre, descripcion, fecha_inicio, fecha_fin, tiempo_limite, id_docente, id_tema, id_grupo FROM EXAMEN WHERE id_grupo = ?";
+        String sqlCall = "{call PKG_EXAMEN.OBTENER_EXAMENES_POR_GRUPO(?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
             stmt.setInt(1, idGrupo);
-            ResultSet rs = stmt.executeQuery();
+            stmt.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+
+            stmt.execute();
+
+            ResultSet rs = (ResultSet) stmt.getObject(2);
 
             while (rs.next()) {
                 Examen examen = new Examen(
@@ -155,33 +160,22 @@ public class ExamenDAO {
     }
 
     public static boolean eliminarExamen(int idExamen) {
-        String sqlEliminarRelaciones = "DELETE FROM EXAMEN_PREGUNTA WHERE id_examen = ?";
-        String sqlEliminarExamen = "DELETE FROM EXAMEN WHERE id_examen = ?";
+        String sqlCall = "{call PKG_EXAMEN.ELIMINAR_EXAMEN(?, ?)}";
 
-        try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
-            try (PreparedStatement stmtRel = conn.prepareStatement(sqlEliminarRelaciones);
-                 PreparedStatement stmtExamen = conn.prepareStatement(sqlEliminarExamen)) {
+            stmt.setInt(1, idExamen);
+            stmt.registerOutParameter(2, Types.INTEGER);
 
-                stmtRel.setInt(1, idExamen);
-                stmtRel.executeUpdate();
+            stmt.execute();
 
-                stmtExamen.setInt(1, idExamen);
-                int rows = stmtExamen.executeUpdate();
+            int resultado = stmt.getInt(2);
+            return resultado > 0;
 
-                conn.commit();
-                return rows > 0;
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
-            } finally {
-                conn.setAutoCommit(true);
-            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
-
 }

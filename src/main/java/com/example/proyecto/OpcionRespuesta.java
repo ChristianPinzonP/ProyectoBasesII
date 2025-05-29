@@ -1,7 +1,7 @@
 package com.example.proyecto;
 
 public class OpcionRespuesta {
-    private int id;              // ID de la respuesta
+    private int id;
     private String texto;
     private boolean correcta;
 

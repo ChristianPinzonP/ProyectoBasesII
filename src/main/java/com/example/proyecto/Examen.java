@@ -15,7 +15,6 @@ public class Examen {
     private int idGrupo;
     private String nombreGrupo;
 
-    // Nuevos campos
     private int numeroPreguntas;
     private String modoSeleccion;
     private int tiempoPorPregunta;

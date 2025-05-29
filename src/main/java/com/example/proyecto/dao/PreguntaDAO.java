@@ -190,58 +190,6 @@ public class PreguntaDAO {
         return opciones;
     }
 
-    /**
-     * Obtener preguntas por tema con filtro de docente actual usando PL/SQL
-     * Mantiene la lógica de seguridad para mostrar solo preguntas públicas o del docente actual
-     */
-    public static List<Pregunta> obtenerPreguntasPorTema(int idTema, int idDocenteActual) {
-        List<Pregunta> listaPreguntas = new ArrayList<>();
-        String sql = "{call PKG_PREGUNTA.OBTENER_PREGUNTAS_POR_TEMA_DOCENTE(?, ?, ?)}";
-
-        try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
-
-            stmt.setInt(1, idTema);
-            stmt.setInt(2, idDocenteActual);
-            stmt.registerOutParameter(3, OracleTypes.CURSOR);
-
-            stmt.execute();
-
-            try (ResultSet rs = (ResultSet) stmt.getObject(3)) {
-                while (rs.next()) {
-                    int idPregunta = rs.getInt("ID_PREGUNTA");
-                    String texto = rs.getString("TEXTO");
-                    String tipo = rs.getString("TIPO");
-                    String nombreTema = rs.getString("NOMBRE_TEMA");
-                    double valorNota = rs.getDouble("VALOR_NOTA");
-                    String esPublicaStr = rs.getString("ES_PUBLICA");
-                    int idDocente = rs.getInt("ID_DOCENTE");
-
-                    boolean esPublica = "S".equalsIgnoreCase(esPublicaStr);
-
-                    // Obtener las opciones de respuesta para la pregunta usando el paquete PL/SQL
-                    List<OpcionRespuesta> opciones = obtenerOpcionesDePregunta(idPregunta);
-
-                    Pregunta pregunta = new Pregunta(idPregunta, texto, tipo, idTema, opciones);
-                    pregunta.setNombreTema(nombreTema);
-                    pregunta.setValorNota(valorNota);
-                    pregunta.setEsPublica(esPublica);
-                    pregunta.setIdDocente(idDocente);
-
-                    listaPreguntas.add(pregunta);
-                }
-            }
-
-            System.out.println("✅ Preguntas cargadas por tema con filtro docente: " + listaPreguntas.size());
-
-        } catch (SQLException e) {
-            System.out.println("❌ Error al obtener preguntas por tema: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        return listaPreguntas;
-    }
-
     public static List<Pregunta> obtenerPreguntasConOpcionesPorExamen(int idExamen) {
         List<Pregunta> preguntas = new ArrayList<>();
         String sql = "{call PKG_PREGUNTA.OBTENER_PREGUNTAS_CON_OPCIONES_POR_EXAMEN(?, ?)}";
@@ -498,21 +446,18 @@ public class PreguntaDAO {
      * @return true si la pregunta está en exámenes con presentaciones, false en caso contrario
      */
     public static boolean preguntaEstaEnExamenPresentado(int idPregunta) {
-        String sql = "SELECT COUNT(*) FROM EXAMEN_PREGUNTA ep " +
-                "JOIN PRESENTACION_EXAMEN pe ON ep.ID_EXAMEN = pe.ID_EXAMEN " +
-                "WHERE ep.ID_PREGUNTA = ? AND pe.ESTADO IN ('FINALIZADO', 'EN_PROGRESO')";
+        String sql = "{? = call PKG_PREGUNTA.pregunta_esta_en_examen_presentado(?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sql)) {
 
-            stmt.setInt(1, idPregunta);
-            ResultSet rs = stmt.executeQuery();
+            stmt.registerOutParameter(1, Types.VARCHAR);
+            stmt.setInt(2, idPregunta);
+            stmt.execute();
 
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                System.out.println(">> Pregunta " + idPregunta + " está en " + count + " presentaciones");
-                return count > 0;
-            }
+            String resultado = stmt.getString(1);
+            System.out.println(">> Pregunta " + idPregunta + " resultado: " + resultado);
+            return "S".equals(resultado);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -528,32 +473,35 @@ public class PreguntaDAO {
      */
     public static List<Map<String, Object>> obtenerExamenesQuUsanPregunta(int idPregunta) {
         List<Map<String, Object>> examenes = new ArrayList<>();
-        String sql = "SELECT DISTINCT e.ID_EXAMEN, e.TITULO, e.FECHA_INICIO, e.FECHA_FIN, " +
-                "COUNT(pe.ID_PRESENTACION) as TOTAL_PRESENTACIONES " +
-                "FROM EXAMEN e " +
-                "JOIN EXAMEN_PREGUNTA ep ON e.ID_EXAMEN = ep.ID_EXAMEN " +
-                "LEFT JOIN PRESENTACION_EXAMEN pe ON e.ID_EXAMEN = pe.ID_EXAMEN " +
-                "WHERE ep.ID_PREGUNTA = ? " +
-                "GROUP BY e.ID_EXAMEN, e.TITULO, e.FECHA_INICIO, e.FECHA_FIN " +
-                "ORDER BY e.FECHA_INICIO DESC";
+        String sql = "{call PKG_PREGUNTA.obtener_examenes_que_usan_pregunta(?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sql)) {
 
+            // Configurar parámetros
             stmt.setInt(1, idPregunta);
-            ResultSet rs = stmt.executeQuery();
+            stmt.registerOutParameter(2, OracleTypes.CURSOR);
 
-            while (rs.next()) {
-                Map<String, Object> examen = new HashMap<>();
-                examen.put("idExamen", rs.getInt("ID_EXAMEN"));
-                examen.put("titulo", rs.getString("TITULO"));
-                examen.put("fechaInicio", rs.getDate("FECHA_INICIO"));
-                examen.put("fechaFin", rs.getDate("FECHA_FIN"));
-                examen.put("totalPresentaciones", rs.getInt("TOTAL_PRESENTACIONES"));
-                examenes.add(examen);
+            // Ejecutar procedimiento
+            stmt.execute();
+
+            // Obtener cursor de resultados
+            try (ResultSet rs = (ResultSet) stmt.getObject(2)) {
+                while (rs.next()) {
+                    Map<String, Object> examen = new HashMap<>();
+                    examen.put("idExamen", rs.getInt("ID_EXAMEN"));
+                    examen.put("titulo", rs.getString("TITULO"));
+                    examen.put("fechaInicio", rs.getDate("FECHA_INICIO"));
+                    examen.put("fechaFin", rs.getDate("FECHA_FIN"));
+                    examen.put("totalPresentaciones", rs.getInt("TOTAL_PRESENTACIONES"));
+                    examenes.add(examen);
+                }
             }
 
+            System.out.println(">> Encontrados " + examenes.size() + " exámenes que usan la pregunta " + idPregunta);
+
         } catch (SQLException e) {
+            System.err.println("Error al obtener exámenes que usan pregunta: " + e.getMessage());
             e.printStackTrace();
         }
 

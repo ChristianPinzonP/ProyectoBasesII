@@ -9,14 +9,6 @@ import java.sql.*;
 
 public class EstudianteDAO {
 
-    public static boolean esEstudiante(Connection conn, int idUsuario) throws SQLException {
-        String sql = "SELECT 1 FROM ESTUDIANTE WHERE id_estudiante = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, idUsuario);
-        ResultSet rs = stmt.executeQuery();
-        return rs.next();
-    }
-
     public static Estudiante obtenerEstudianteCompleto(Connection conn, int idUsuario) throws SQLException {
         CallableStatement stmt = conn.prepareCall("{CALL OBTENER_ESTUDIANTE_COMPLETO(?, ?, ?, ?, ?, ?)}");
         stmt.setInt(1, idUsuario);

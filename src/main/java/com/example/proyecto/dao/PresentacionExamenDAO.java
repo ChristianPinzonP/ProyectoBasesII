@@ -3,38 +3,37 @@ package com.example.proyecto.dao;
 import com.example.proyecto.DBConnection;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PresentacionExamenDAO {
 
     public static int registrarPresentacion(int idExamen, int idEstudiante) {
-        String sql = "INSERT INTO PRESENTACION_EXAMEN (ID_PRESENTACION, ID_EXAMEN, ID_ESTUDIANTE, FECHA_PRESENTACION) " +
-                "VALUES (SEQ_PRESENTACION_EXAMEN.NEXTVAL, ?, ?, ?)";
-        String[] keys = {"ID_PRESENTACION"};
+        String sqlCall = "{ call PKG_PRESENTACION_EXAMEN.CREAR_PRESENTACION_EXAMEN(?, ?) }";
+        String sqlGetId = "SELECT SEQ_PRESENTACION_EXAMEN.CURRVAL FROM DUAL";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, keys)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall);
+             PreparedStatement stmtId = conn.prepareStatement(sqlGetId)) {
 
             stmt.setInt(1, idExamen);
             stmt.setInt(2, idEstudiante);
-            stmt.setDate(3, Date.valueOf(LocalDate.now()));
+            stmt.execute();
 
-            stmt.executeUpdate();
-            ResultSet rs = stmt.getGeneratedKeys();
+            ResultSet rs = stmtId.executeQuery();
             if (rs.next()) return rs.getInt(1);
 
         } catch (SQLException e) {
+            System.err.println("Error al crear presentación: " + e.getMessage());
             e.printStackTrace();
         }
         return -1;
     }
 
     public static void registrarRespuesta(int idPresentacion, int idPregunta, int idOpcion) {
-        String sql = "{ call REGISTRAR_RESPUESTA(?, ?, ?) }";
+        String sqlCall = "{ call REGISTRAR_RESPUESTA(?, ?, ?) }";
         try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
             stmt.setInt(1, idPresentacion);
             stmt.setInt(2, idPregunta);
@@ -47,10 +46,10 @@ public class PresentacionExamenDAO {
     }
 
     public static void calificarAutomaticamente(int idPresentacion) {
-        String sql = "{ call PKG_PRESENTACION_EXAMEN.CALIFICAR_EXAMEN_AUTOMATICO(?, ?) }";
+        String sqlCall = "{ call PKG_PRESENTACION_EXAMEN.CALIFICAR_EXAMEN_AUTOMATICO(?, ?) }";
 
         try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
             stmt.setInt(1, idPresentacion);
             stmt.registerOutParameter(2, Types.VARCHAR);
@@ -65,15 +64,15 @@ public class PresentacionExamenDAO {
     }
 
     public static double obtenerCalificacion(int idPresentacion) {
-        String sql = "SELECT CALIFICACION FROM PRESENTACION_EXAMEN WHERE ID_PRESENTACION = ?";
+        String sqlCall = "SELECT PKG_PRESENTACION_EXAMEN.OBTENER_CALIFICACION(?) FROM DUAL";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sqlCall)) {
 
             stmt.setInt(1, idPresentacion);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getDouble("CALIFICACION");
+                return rs.getDouble(1);
             }
 
         } catch (SQLException e) {
@@ -83,15 +82,15 @@ public class PresentacionExamenDAO {
     }
 
     public static int contarIntentosRealizados(int idEstudiante, int idExamen) {
-        String sql = "SELECT COUNT(*) AS TOTAL FROM PRESENTACION_EXAMEN WHERE ID_ESTUDIANTE = ? AND ID_EXAMEN = ? AND UPPER(ESTADO) = 'FINALIZADO'";
+        String sqlCall = "SELECT PKG_PRESENTACION_EXAMEN.CONTAR_INTENTOS_REALIZADOS(?, ?) FROM DUAL";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sqlCall)) {
 
             stmt.setInt(1, idEstudiante);
             stmt.setInt(2, idExamen);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                int total = rs.getInt("TOTAL");
+                int total = rs.getInt(1);
                 System.out.println(">> Total finalizados: " + total);
                 return total;
             }
@@ -104,14 +103,14 @@ public class PresentacionExamenDAO {
     }
 
     public static int obtenerIntentosPermitidos(int idExamen) {
-        String sql = "SELECT INTENTOS_PERMITIDOS FROM EXAMEN WHERE ID_EXAMEN = ?";
+        String sqlCall = "SELECT PKG_PRESENTACION_EXAMEN.OBTENER_INTENTOS_PERMITIDOS(?) FROM DUAL";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sqlCall)) {
 
             stmt.setInt(1, idExamen);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt("INTENTOS_PERMITIDOS");
+                return rs.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,9 +119,9 @@ public class PresentacionExamenDAO {
     }
 
     public static boolean examenTienePresentaciones(int idExamen) {
-        String sql = "SELECT COUNT(*) FROM PRESENTACION_EXAMEN WHERE ID_EXAMEN = ?";
+        String sqlCall = "SELECT PKG_PRESENTACION_EXAMEN.EXAMEN_TIENE_PRESENTACIONES(?) FROM DUAL";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sqlCall)) {
 
             stmt.setInt(1, idExamen);
             ResultSet rs = stmt.executeQuery();
@@ -141,26 +140,43 @@ public class PresentacionExamenDAO {
 
     public static Map<String, Integer> obtenerEstadisticasPresentaciones(int idExamen) {
         Map<String, Integer> estadisticas = new HashMap<>();
-        String sql = "SELECT " +
-                "COUNT(*) as TOTAL, " +
-                "COUNT(CASE WHEN UPPER(ESTADO) = 'FINALIZADO' THEN 1 END) as FINALIZADOS, " +
-                "COUNT(CASE WHEN UPPER(ESTADO) = 'EN_PROGRESO' THEN 1 END) as EN_PROGRESO " +
-                "FROM PRESENTACION_EXAMEN WHERE ID_EXAMEN = ?";
+        String sqlCall = "{? = call PKG_PRESENTACION_EXAMEN.OBTENER_ESTADISTICAS_PRESENTACIONES(?, ?, ?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sqlCall)) {
 
             stmt.setInt(1, idExamen);
             ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                estadisticas.put("total", rs.getInt("TOTAL"));
-                estadisticas.put("finalizados", rs.getInt("FINALIZADOS"));
-                estadisticas.put("en_progreso", rs.getInt("EN_PROGRESO"));
+            // Registrar parámetros de salida
+            stmt.registerOutParameter(1, Types.VARCHAR); // Estado de retorno
+            stmt.setInt(2, idExamen);                    // ID del examen (entrada)
+            stmt.registerOutParameter(3, Types.INTEGER); // Total (salida)
+            stmt.registerOutParameter(4, Types.INTEGER); // Finalizados (salida)
+            stmt.registerOutParameter(5, Types.INTEGER); // En progreso (salida)
+
+            // Ejecutar la función
+            stmt.execute();
+
+            // Obtener resultados
+            String estado = stmt.getString(1);
+            if ("OK".equals(estado) || "NO_DATA".equals(estado)) {
+                estadisticas.put("total", stmt.getInt(3));
+                estadisticas.put("finalizados", stmt.getInt(4));
+                estadisticas.put("en_progreso", stmt.getInt(5));
+            } else {
+                // En caso de error, devolver valores por defecto
+                estadisticas.put("total", 0);
+                estadisticas.put("finalizados", 0);
+                estadisticas.put("en_progreso", 0);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            // En caso de excepción, devolver valores por defecto
+            estadisticas.put("total", 0);
+            estadisticas.put("finalizados", 0);
+            estadisticas.put("en_progreso", 0);
         }
 
         return estadisticas;

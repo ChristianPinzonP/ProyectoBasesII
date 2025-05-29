@@ -8,7 +8,7 @@ import java.sql.*;
 public class DocenteDAO {
 
     public static Docente obtenerDocenteCompleto(Connection conn, int idUsuario) throws SQLException {
-        CallableStatement stmt = conn.prepareCall("{CALL OBTENER_DOCENTE_COMPLETO(?, ?, ?, ?, ?)}");
+        CallableStatement stmt = conn.prepareCall("{CALL PKG_DOCENTE.OBTENER_DOCENTE_COMPLETO(?, ?, ?, ?, ?)}");
         stmt.setInt(1, idUsuario);
         stmt.registerOutParameter(2, Types.VARCHAR); // nombre
         stmt.registerOutParameter(3, Types.VARCHAR); // correo
@@ -32,22 +32,25 @@ public class DocenteDAO {
 
     public static Docente obtenerDocentePorId(int idDocente) {
         Docente docente = null;
-        String sql = "SELECT * FROM DOCENTE d JOIN USUARIO u ON d.id_usuario = u.id_usuario WHERE d.id_usuario = ?";
+        String sql = "{call PKG_DOCENTE.OBTENER_DOCENTE_POR_ID(?, ?)}";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             CallableStatement stmt = conn.prepareCall(sql)) {
 
             stmt.setInt(1, idDocente);
+            stmt.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    docente = new Docente();
-                    docente.setIdUsuario(rs.getInt("id_usuario"));
-                    docente.setNombre(rs.getString("nombre"));
-                    docente.setCorreo(rs.getString("correo"));
-                    docente.setContrasena(rs.getString("contrasenia"));
-                    // Agrega más campos si los tienes
-                }
+            stmt.execute();
+
+            ResultSet rs = (ResultSet) stmt.getObject(2);
+
+            if (rs.next()) {
+                docente = new Docente();
+                docente.setIdUsuario(rs.getInt("id_usuario"));
+                docente.setNombre(rs.getString("nombre"));
+                docente.setCorreo(rs.getString("correo"));
+                docente.setContrasena(rs.getString("contrasenia"));
+                // Agrega más campos si los tienes
             }
 
         } catch (SQLException e) {
@@ -56,6 +59,4 @@ public class DocenteDAO {
 
         return docente;
     }
-
-
 }
